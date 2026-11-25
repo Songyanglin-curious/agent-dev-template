@@ -1,6 +1,6 @@
----
+﻿---
 name: archive-agent-notes
-description: 在 deepseek-harness 中新增、审计、精简、归档、恢复或复核 Agent Notes 时使用；检查每条新 note 是否已被 active 记录取代，删除小 UI 与纯机械性记录，按未来决策价值对其余 implemented notes 分类，删除不再能阻止诱人谬误的 rejected notes，并应用冻结的 archived/{kind} triplet 与 manifest 规则。
+description: 在本项目中新增、审计、精简、归档、恢复或复核 Agent Notes 时使用；检查每条新 note 是否已被 active 记录取代，删除小 UI 与纯机械性记录，按未来决策价值对其余 implemented notes 分类，删除不再能阻止诱人谬误的 rejected notes，并应用冻结的 archived/{kind} triplet 与 manifest 规则。
 ---
 # 归档 Agent Notes
 
@@ -12,7 +12,7 @@ description: 在 deepseek-harness 中新增、审计、精简、归档、恢复�
 
 ## 新增 note 时检查 supersession
 
-起草之前，先套用 [创建标准](../../notes/README.md#when-to-write-one)。每新增一条 Agent Note，都会触发一次范围化审计：检查覆盖同一决策、机制或被否决替代方案的 active notes。在撰写新 note 的同时，对每一次完全或部分 supersession 作出分类：在同一 PR 中归档符合条件的 implemented triplet；保留部分 supersession 或仍有独立价值的 rationale，并建立交叉链接；否决（reject）过时的提案；删除不再能阻止可信错误的 rejected notes。当新的 owner 吸收了全部独有命题时，套用 Agent Note 合并规则；不要把已知的匹配推迟到之后的语料审计。
+起草之前，先套用 [创建标准](../../notes/README.md#何时需要写一份)。每新增一条 Agent Note，都会触发一次范围化审计：检查覆盖同一决策、机制或被否决替代方案的 active notes。在撰写新 note 的同时，对每一次完全或部分 supersession 作出分类：在同一 PR 中归档符合条件的 implemented triplet；保留部分 supersession 或仍有独立价值的 rationale，并建立交叉链接；否决（reject）过时的提案；删除不再能阻止可信错误的 rejected notes。当新的 owner 吸收了全部独有命题时，套用 Agent Note 合并规则；不要把已知的匹配推迟到之后的语料审计。
 
 ## 按未来价值分类
 
@@ -31,24 +31,7 @@ description: 在 deepseek-harness 中新增、审计、精简、归档、恢复�
 
 以下示例给出判断尺度；其中的字数说明篇幅并不是判据。
 
-应删除的 implemented notes，例如：
-
-- collapsed sidebar control rail — 533 词：已关闭，属次要 UI 行为；
-- issue-policy module ownership — 完成了函数搬迁与 import 改接，行为不变。
-
-应保留的 implemented notes，例如：
-
-- event-sourced sessions — 248 词：基础性的权威与持久化边界；
-- single Harness-home resolver — 596 词：跨产品的归属规则；
-- project session directories — 628 词：持久化存储与身份策略；
-- parallel pre-push gates — 400 词：边界情形，但仍能指导门禁排期与资源调优；
-- dropped image content block — 334 词：保留到多模态支持落地为止，因为它写明了协同 reintroduction 条件。
-
-关于 rejected notes：
-
-- keep folding the compaction package split — 426 词：合并这两个 package 的诱惑仍然有意义；
-- delete streaming workflow progress through tool calls — 972 词：其 ACP/UI 前提已过时；
-- delete dropping ACP terminal metadata — 362 词：后来“仅自动化 ACP”的决策已经解决了这个问题。
+暂时没有例子，后续遇见进行补充
 
 ## 归档一个 implemented triplet
 
@@ -62,6 +45,6 @@ triplet 一旦封存，就永远不要编辑、移动、翻译、重排格式或
 
 ## 验证并报告
 
-运行归档校验器的专项测试、`pnpm run verify-archived-agent-notes`、`pnpm run doc-sync`、`pnpm run lint` 以及 `git diff --check`；其他证据按 [dsh-pre-push-checks](../dsh-pre-push-checks/SKILL.md) 选择。
+运行 `pnpm run verify-archived-agent-notes` 与 `git diff --check`；其他证据按仓库现有门禁选择。
 
 报告保留的 active implemented notes、被删除或归档的 implemented notes、保留与删除的 rejected notes、若有则报告被否决的 proposed notes，以及每个真正处于边界的情形（含字数与所选结论）。不要声称 archived 的出站链接有效：归档校验器有意从不检查它们。

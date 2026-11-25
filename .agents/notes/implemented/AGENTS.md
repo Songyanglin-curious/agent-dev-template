@@ -1,13 +1,13 @@
-# AGENTS.md — Implemented Agent Notes
+# AGENTS.md — 已实现的 Agent Notes
 
-These Agent Notes describe shipped decisions. Follow the [root instructions](../../../AGENTS.md), [documentation standard](../../../docs/AGENTS.md), and [Agent Note format](../README.md#the-file-format); `verify-agent-note-format` gates the lifecycle-specific structure.
+这些 Agent Notes 记录已交付的决策。请遵循 [根目录说明](../../../AGENTS.md)、[文档标准](../../../docs/AGENTS.md) 与 [Agent Note 格式](../README.md#文件格式)；`verify-agent-note-format` 会把守按生命周期区分的结构。
 
-## Keep an implemented Agent Note current with what actually shipped
+## 让 implemented Agent Note 与实际交付保持一致
 
-Keep paths, symbols, defaults, and mechanisms current in the same change that alters them. Rewrite stale facts in place; do not append change history.
+在改动路径、符号、默认值与机制的同一处改动中，同步更新它们。就地重写过时的事实；不要追加变更历史。
 
-When a shipped note is unlikely to guide future work, archive its complete triplet through [`dsh-archive-agent-notes`](../../skills/dsh-archive-agent-notes/SKILL.md) instead of continuing to maintain it.
+当某条已交付的 note 不太可能指导未来工作时，通过 [archive-agent-notes](../../skills/archive-agent-notes/SKILL.md) 归档其完整 triplet，而不是继续维护它。
 
-### This is not a license to rewrite the *decision*
+### 这并不是重写 *decision* 的许可
 
-Update factual realization in place. A reversal of the decision or its rationale requires a new Agent Note and cross-link; a fully superseded old note may be deleted only through the consolidation rule in the [Agent Note rules](../README.md).
+就地更新事实性的落地表述。若要推翻该决策或其 rationale，需要新增一条 Agent Note 并建立交叉链接；完全被取代的旧 note 只能依据 [Agent Note 规则](../README.md) 中的合并规则删除。

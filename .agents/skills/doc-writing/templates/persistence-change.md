@@ -1,28 +1,26 @@
-# 模板：persistence-change
+﻿# 模板：persistence-change
 
-用于 `docs/persistence-changes/YYYY-MM-DD-slug.md` 及其中文姊妹篇。该文件夹的 README 是索引，不是记录。记录只确认机械检测到的持久化类型变更。其生成的 JSON 姊妹文件保留完整的 after schema，因此核验不需要 Git 基线。
+用于 `docs/persistence-changes/YYYY-MM-DD-slug.md`。该文件夹的 README 是索引，不是记录。记录只确认机械检测到的持久化数据结构变更——类型、字段或物理编码的变化；生成的 schema 伴生文件保留完整的 after schema，因此核验不需要 Git 基线。
+
+检测、生成和校验由项目按所用持久化技术实现（关系数据库、配置文件、游戏存档、事件日志、导入导出文件等的提取方式各不相同）。工具就绪前不要创建本类记录：把临时决策留在 Agent Note 或复盘中，工具就绪后从一条 baseline 记录开始。
 
 ## Frontmatter
 
 ```yaml
 ---
-description: "The persisted types changed and the compatibility decision this record explains."
+description: "被检测到的持久化类型变更，以及本记录解释的兼容性决策。"
 kind: persistence-change
 ---
 ```
 
 ## 骨架
 
-生成器会填充机器声明、schema 伴随文件和一致性记录。既有同版本用例之外的结构性变更需要明确的兼容性决策。提供带 `en` 和 `zh` 对象的 `--prose` JSON，每个对象包含由人编写的 `summary`、`compatibility` 和 `verification` 字符串。用 Compatibility 解释两个方向的读者行为，用 Verification 记录实际执行的检查。[cookbook](../../../../docs/cookbook/reviewing-persistence-type-changes.md) 演示了该操作。在下列字段中使用实际生成的 root 名称、记录 id 和 digest。
-
 ````markdown
-# Persistence change: <specific persisted change>
-
-English | [中文](YYYY-MM-DD-slug.zh.md)
+# Persistence change: <具体变更>
 
 ## Summary
 
-Describe the mechanically detected change and its version decision.
+说明机械检测到的变更及其版本决策。
 
 ## Table of Contents
 
@@ -31,7 +29,6 @@ Describe the mechanically detected change and its version decision.
 - [Verification](#verification)
 - [Dev Note](#dev-note)
 
-<a id="declaration"></a>
 ## Declaration
 
 ```yaml persistence-change
@@ -39,23 +36,20 @@ schemaVersion: 1
 id: YYYY-MM-DD-slug
 baseline: false
 changes:
-  - root: event:example/message
+  - root: <root 标识>
     previous: YYYY-MM-DD-predecessor
-    after: <generated-64-character-sha256-hex>
+    after: <生成的 64 字符 sha256 hex>
     decision: same-version
 ```
 
-<a id="compatibility"></a>
 ## Compatibility
 
-Explain the declared decision for every detected path: how older readers preserve meaning, safely ignore optional data, or refuse required features before execution or recovery; and how new readers preserve historical meaning and mixed representations. Feature absence retains existing behavior. For a version bump, link the adjacent migration and its verification owner.
+解释每一项被检测路径的决策：旧读取方如何保留含义、安全忽略可选数据，或在执行与恢复之前拒绝必需特性；新读取方如何保留历史含义和混合表示。特性缺失时保持既有行为。版本提升时，链接相邻的迁移记录及其验证归属方。
 
-<a id="verification"></a>
 ## Verification
 
-Record the commands actually run and their outcomes. Link focused tests or preserved evidence that support the compatibility explanation.
+记录实际执行的命令及其结果。链接支撑兼容性解释的针对性测试或保留的证据。
 
-<a id="dev-note"></a>
 ## Dev Note
 
 None.
@@ -63,11 +57,11 @@ None.
 
 ## 规则
 
-- 只保留一个 `yaml persistence-change` 块。英文块和中文块逐字节一致；校验器解析一次英文记录，再检查其对应中文。
-- 文件名主干与 `id` 一致。某个 root 的 `previous` 标识其前驱记录；`null` 表示引入新 root。其 `after` 与生成的伴随 schema digest 一致；`null` 表示记录删除。
-- 一条初始的 `baseline: true` 记录覆盖完整清单。常规变更使用 `baseline: false` 并保留已接受的前驱。版本提升记录携带自己的、递增的 `SessionHeader.version` 迁移。
-- 仅凭结构差异不能推断出版本提升。需要评审的同版本变更要显式指定 `--decision same-version`；header 版本变化则推断为 `version-bump`。显式决策不能豁免必需的 header 提升。该命令不提供源码改动或校验声明。
-- 只解释检测到的持久化类型变更。该 kind 允许承载该迁移所需的 before/after 事实和历史证据；纯行为变更不在范围内。
-- 记录创建和终态记录更新会生成 catalog 配对和一致性 sidecar。评审两种语言并保留生成的伴随文件。直接编辑文字后仍需重新记录配对；不要手工维护 schema 节点或 digest。
-- 只对未被接受的终态记录使用显式 `--update`。它会拒绝 baseline 和被依赖的记录；`--prose` 会替换由人编写的说明，省略时则保留。被标记的同版本更新需要显式 `--decision same-version`；要对照完整迁移重新评估说明。已接受的记录会获得后继记录。
-- [文件夹参考](../../../../docs/persistence-changes/README.md)负责兼容性规则；[cookbook](../../../../docs/cookbook/reviewing-persistence-type-changes.md) 负责命令与恢复。
+- **只保留一个 `yaml persistence-change` 块。** 机器声明由项目工具生成和解析，人工说明写在块外；重录时不要让生成器覆盖人工段落，也不要手工填写 digest。
+- **文件名与声明一致。** 文件名主干与 `id` 一致。某个 root 的 `previous` 标识其前驱记录；`null` 表示引入新 root。其 `after` 与生成的伴生 schema digest 一致；`null` 表示记录删除。
+- **baseline 只用在起点。** 一条初始的 `baseline: true` 记录覆盖完整清单。常规变更使用 `baseline: false` 并保留已接受的前驱。
+- **不凭结构差异推断版本提升。** 需要评审的同版本变更要显式声明 `decision: same-version`；持久化格式版本常量变化则推断为 `version-bump`。显式决策不能豁免必需的版本提升，版本提升记录要携带自己的、递增的迁移。
+- **范围限于持久化类型变更。** 该 kind 允许承载迁移所需的 before/after 事实和历史证据；纯行为变更不在范围内，属于系统文档或 Agent Note。
+- **已接受的记录只增不改。** 记录被接受后，后续演进通过新增后继记录表达；只有尚未被接受的终态记录才使用工具提供的重录入口重新生成，并对照完整迁移重新评估人工说明。
+- **生成产物随记录一起提交。** 记录创建和终态更新由项目工具生成 schema 伴生文件；评审时保留这些伴生文件，不要手工维护 schema 节点或 digest。
+- **兼容性规则与操作步骤各有归属方。** 项目按需建立 `docs/persistence-changes/README.md` 承载兼容性规则，并在 cookbook 中记录工具命令与恢复流程；这些归属方建立前，在记录的 Verification 章节写明判断依据，不要声称运行了不存在的校验。

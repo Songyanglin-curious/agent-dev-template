@@ -1,0 +1,6 @@
+# Agent Note 归档按内容哈希封存；note 与伴随记录统一 LF，避免 Windows 检出改变 hash。
+.agents/notes/*/*/*.md text eol=lf
+.agents/notes/*/*/*.yaml text eol=lf
+
+# AGENTS.md 的历史 blob 为 CRLF；CR 属于换行而非行尾空白。
+/AGENTS.md whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

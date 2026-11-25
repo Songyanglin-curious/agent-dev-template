@@ -1,9 +1,7 @@
-# AGENTS.md — Archived Agent Notes
+# AGENTS.md — 已归档的 Agent Notes
 
-Archived Agent Note triplets under the kind directories are frozen historical snapshots, not current authority. Never edit, reformat, translate, repair, delete, or move a sealed artifact; use an active Agent Note or current documentation for new decisions and facts.
+各 kind 目录下的 archived Agent Note triplet 是冻结的历史快照，不是当前权威。对已封存的 artifact，永远不要编辑、重排格式、翻译、修复、删除或移动；新的决策与事实请使用 active Agent Note 或当前文档。
 
-The archival change may only relocate a complete English/Chinese/sidecar triplet, insert the identical `Archived: YYYY-MM-DD` line below both `Status: implemented` lines, re-record the sidecar, and repair or delete inbound links. Do not inspect, verify, or repair links out of archived notes.
+归档这次改动只允许：整体移动一个完整的 triplet（英文、中文与 sidecar 三份文件），在两个 `Status: implemented` 行之下插入完全相同的 `Archived: YYYY-MM-DD` 行，重录 sidecar，以及修复或删除 inbound links。不要从 archived notes 出发去检查、校验或修复链接。
 
-Run the [`dsh-archive-agent-notes`](../../skills/dsh-archive-agent-notes/SKILL.md) workflow and append new artifact hashes with `pnpm run verify-archived-agent-notes --write`. The normal verifier rejects changed or missing sealed artifacts, incomplete triplets, unknown kind folders, and invalid archive metadata.
-
-The authorized Figma-link removal from `feature/2026-08-10-durable-workflow-runs-in-chat` has three exact old-to-new seal exceptions in `scripts/archived-agent-notes.ts` for its English, Chinese, and pairing files. These exceptions permit no other content change, reversal, or deletion.
+运行 [archive-agent-notes](../../skills/archive-agent-notes/SKILL.md) 工作流，并用 `pnpm run verify-archived-agent-notes --write` 追加新的 artifact hash。常规校验器会拒绝被改动或缺失的 sealed artifact、不完整的 triplet、未知的 kind 目录，以及无效的归档元数据。

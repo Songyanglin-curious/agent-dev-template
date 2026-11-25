@@ -1,6 +1,6 @@
-# AGENTS.md — 文档标准
+﻿# AGENTS.md — 文档标准
 
-本文件定义文档结构、Markdown 层级、写作规则和 `verify-doc-budgets` 上限。放置与校验使用 [doc-writing](../.agents/skills/doc-writing/SKILL.md)，必需的覆盖范围与编辑判断使用 [prose-standard](../.agents/skills/prose-standard/SKILL.md)；[归档的 doc-tiers Agent Note](../.agents/notes/archived/process/2026-07-04-doc-tiers-and-budgets.md) 记录历史理由。
+本文件定义文档结构、Markdown 层级、写作规则和字数预算。放置与校验使用 [doc-writing](../.agents/skills/doc-writing/SKILL.md)，必需的覆盖范围与编辑判断使用 [prose-standard](../.agents/skills/prose-standard/SKILL.md)。
 
 ## 文档结构
 
@@ -19,47 +19,47 @@
 | 层级 | 职责 | 不应放在这里 |
 |---|---|---|
 | 根 `AGENTS.md` | 常驻指令：agent 每次会话都需要放在上下文中的规则，每条一到三行，并链接其归属处 | 故事、完整示例、情境性流程，以及任何从链接归属处转述来的内容 |
-| 子树 `AGENTS.md`（`packages/`、`docs/`、`.agents/notes/`） | 该子树专属的指令 | 根文件已经承载的全仓库规则 |
-| [architecture.md](architecture.md) | 有序地图：组合、核心包、循环、seam、扩展点；改动 `packages/` 前先阅读 | 类型定义（→ subsystems）、逐包细节（→ 包 README）、决策理由（→ Agent Note）、实现状态标注 |
-| [subsystems/](subsystems/README.md) | 每个子系统一页参考：类型定义、语义和生成的 Cordis API | 行为叙述（→ architecture.md） |
+| 子树 `AGENTS.md`（`docs/`、`.agents/notes/`、`template/` 等） | 该子树专属的指令 | 根文件已经承载的全仓库规则 |
+| [architecture.md](architecture.md) | 有序地图：整体组成、主要模块、依赖方向、扩展点与修改入口；改动模块代码前先阅读 | 类型定义（→ subsystems）、逐模块细节（→ 模块文档）、决策理由（→ Agent Note）、实现状态标注 |
+| [subsystems/](subsystems/README.md) | 每个子系统一页参考：概念、数据结构、语义、接口契约、生命周期和重要机制 | 使用指导（→ 模块文档）、行为叙述（→ architecture.md）、决策历史（→ Agent Note） |
 | [Agent Note](../.agents/notes/README.md) | 活跃的决策记录：为什么、放弃了什么、必需的验证；`implemented/` 笔记用现在时描述已交付的现实 | 迁移计划、验收任务清单、fixture 走查，以及决策交付后仍出现的 spec-speak（"should…"）；归档笔记是冻结的历史，永远不是当前权威 |
 | [defensive-patterns/](defensive-patterns/README.md) | 本仓库在评审中执行的规则，按工件拆分：一个通用 bug 类别页面，加上按领域划分的页面 | 类型定义与语义（→ subsystems）、决策理由（→ Agent Note）、写代码的设计规则（→ core-guidelines/） |
-| [core-guidelines/](core-guidelines/README.md) | 写代码的编号设计规则，每个领域一个文件（general、frontend、backend、data exchange），格式由规则 G.1 定义 | 业务领域规则（→ 包 README、subsystems/、Agent Note）；工件 bug 类别检查（→ defensive-patterns/） |
-| [postmortem/](postmortem/README.md) | 事故故事——唯一适合事故亲历式叙事的层级 | — |
-| [Persistence history](persistence-changes/README.md) 和 [format references](persistence-changes/historical-formats/README.md) | 类型变更确认、发布对比和完整的历史格式 schema | 纯行为变更；当前运行时契约 |
-| [cookbook/](cookbook/adding-a-package.md) | 带编号验证步骤的分步操作指南 | 设计理由（→ 各指南链接的 Agent Note） |
-| [user/](user/index.md) | 由文档网站发布的产品向指南 | 生成的参考表格、贡献者流程、决策历史 |
-| 包 README | 逐包契约：配置、语义、限制、扩展点和 [Model Experience](cookbook/adding-a-package.md#4-write-the-package-readme) | JSDoc 复述、生成目录的复述（event/tool 表）、其他包关注的事务 |
-| [development.md](development.md) | 贡献者配置、日常工作流和 CI 摘要；属于 [i18n 契约](i18n/README.md)下的双语配对 | 运行时/版本理由（→ Agent Note）、与 `package.json` 脚本逐渐脱节的逐项检查清单 |
-| 生成的参考：[subsystems/](subsystems/README.md) 中每页的 `cordis-surface` 区域、[Cordis 核心 API + 继承层级](cordis-api/context.md)、[tool-catalog](tool-catalog.md)、[config-catalog](config-catalog.md)、[persistence-catalog](persistence-catalog.md)、[module-graph.md](module-graph.md)、[cli-help](cli-help.md) | 从源码重新生成并做新鲜度门禁的穷举英文源；经评审的中文对侧遵循[配对工作流](i18n/README.md#scope-and-exclusions) | 手工编辑生成的英文源或区域；中文对侧只能通过配对更新 |
+| [core-guidelines/](core-guidelines/README.md) | 写代码的编号设计规则，每个领域一个文件，格式由规则 G.1 定义 | 业务领域规则（→ 模块文档、subsystems/、Agent Note）；工件 bug 类别检查（→ defensive-patterns/） |
+| [postmortem/](postmortem/README.md) | 事故故事——唯一适合事故亲历式叙事的层级 | 日常任务清单、通用设计理由（→ Agent Note） |
+| 模块文档（`module`） | 逐模块契约：能力、使用方式、行为契约、职责边界、内部设计、限制和源码导航 | JSDoc 复述、生成目录复述、系统级类型定义（→ subsystems）、决策理由（→ Agent Note） |
+| 模块组文档（`module-group`，按需） | 一组相关模块的整体能力、直接下属模块的职责、组合关系与导航 | 单个模块的使用方式、配置、限制和内部实现（→ 模块文档） |
+| 持久化记录 `docs/persistence-changes/`（目录待建） | 持久化类型变更确认、发布对比和完整的历史格式 schema | 纯行为变更；当前运行时契约（→ subsystems 或模块文档） |
+| `docs/cookbook/`（目录待建） | 带编号验证步骤的分步操作指南 | 设计理由（→ 各指南链接的 Agent Note） |
+| 研发输入 `研发输入/` | 原始需求、外部约束、参考资料和梳理成果 | 已验证的决策（→ Agent Note）、当前系统契约（→ docs 或模块文档） |
 | Skills（`.agents/skills/`） | 可复用工作流和专门的决策标准 | 产品与运行时契约（→ docs 或源码） |
+| 生成的参考（生成器尚未建立） | 从源码重新生成的穷举参考；新鲜度由门禁校验 | 手工编辑生成的英文源或生成区域 |
 
-放置：bug → 复盘；理由 → Agent Note；流程 → cookbook；类型定义 → subsystems；包契约 → 包 README；常驻指令 → 根 `AGENTS.md` 并附理由链接；按工件区分的评审规则 → `defensive-patterns/`；写代码的设计规则 → `core-guidelines/`。
+放置：bug → 复盘；理由 → Agent Note；流程 → cookbook；类型定义 → subsystems；模块契约 → 模块文档；模块分组 → 模块组文档；常驻指令 → 根 `AGENTS.md` 并附理由链接；按工件区分的评审规则 → `defensive-patterns/`；写代码的设计规则 → `core-guidelines/`。
 
 <a id="writing-rules"></a>
 ## 写作规则
 
-- **记录当前状态。** 把历史留在 commit、PR、Agent Note、复盘或有范围的持久化记录中。其他文字只命名当前机制，不写变更或技术栈位置。通用的 Session 格式文字链接[版本/状态权威](session-format-status.md)；版本特定的契约、示例或证据保留具体数字。
-- **应用 Agent Note 的创建标准。** 机械性/本地编辑豁免，包括本地 UI 改动；保持现有归属笔记准确（[范围](../.agents/notes/README.md#when-to-write-one)）。
+- **记录当前状态。** 把历史留在 commit、PR、Agent Note、复盘或有范围的持久化记录中。其他文字只命名当前机制，不写变更或技术栈位置。版本特定的契约、示例或证据保留具体数字。
+- **应用 Agent Note 的创建标准。** 机械性/本地编辑豁免，包括本地 UI 改动；保持现有归属笔记准确（[范围](../.agents/notes/README.md#何时需要写一份)）。
 - **每个段落只占一个物理行**（`verify-md-wrap`）：使用编辑器软换行。代码块、表格和列表结构保持各自格式；代码注释保持在校验器的列宽限制内。
-- **`ts` 围栏块必须能编译**（`doc-typecheck`）；粘贴的类型声明及其原始 JSDoc 使用 ` ```ts type-equiv `，而去掉函数体的公开类声明使用 ` ```ts public-api `；两者都要登记到 manifest 中，以免漂移（[机制](development.md#documenting-types-verbatim-ts-type-equiv)）。
-- **所属 [subsystems 页面](subsystems/README.md) 必须在同一次变更中更新**，只要该变更重塑了已记录的类型。`verify-type-equiv` 只能发现漂移的粘贴，不能发现从未记录的新类型；类型记录在其声明包组的页面上（[页面范围](../scripts/verify-subsystem-pages.ts)）。
-- **配对数一起更新**：[术语引导](i18n/terminology.md)、单轮由活跃 agent 执行的工作会重新定位首次出现的注释、保留未改动的文字并重新记录；`dsh-translate-docs` 仍由用户调用（[契约](i18n/README.md)）。
+- **示例必须可执行或可解析。** 命令、配置和代码片段按文档展示的样子验证过；复制源码类型或接口时链接所属源码，不制造第二份定义。
+- **所属 [subsystems 页面](subsystems/README.md) 必须在同一次变更中更新**，只要该变更重塑了已记录的类型。类型记录在其声明模块所属的子系统页面上；模块文档只链接类型定义，不复制。
 - **注释和 JSDoc 陈述完整契约，而不是推理过程记录。** 保留行为、失败、时序、归属、情态、例外、后果和非显而易见的定位；删除叙述、测试走查、评审分析和代码复述。保留本地契约并链接其理由。细节使用 [prose-standard](../.agents/skills/prose-standard/SKILL.md)。
-- 直接写：写明执行者和事实（[参考](../.agents/skills/prose-standard/SKILL.md)）。`seam` 只留给已定义的能力。写明确切的检查、类型、API、操作或行为，而不是隐喻性的 "gate"、"vocabulary" 或 "surface"。
+- **元数据与模块门禁。** 模块和模块组 README 必须声明 `description` 与 `kind`（`verify-doc-metadata`）；模块 Summary 与限制章节由 `verify-module-readmes` 校验；模块组表由 `verify-module-groups` 校验；子系统关联由 `verify-subsystem-pages` 校验。豁免登记在 `scripts/module-readme-limitations.allowlist.json` 与 `scripts/subsystem-page-exemptions.json`，每条写明理由。
+- 直接写：写明执行者和事实（[参考](../.agents/skills/prose-standard/SKILL.md)）。写明确切的检查、类型、API、操作或行为，避免没有定义的隐喻。
 
 <a id="wordcount-budgets"></a>
 ## 字数预算
 
-[scripts/doc-budgets.manifest.json](../scripts/doc-budgets.manifest.json) 设置常驻文档的字数上限；`pnpm run verify-doc-budgets` 拒绝超限或缺失的文件。
+[scripts/doc-budgets.manifest.json](../scripts/doc-budgets.manifest.json) 设置常驻文档的字数上限；`pnpm run verify-doc-budgets` 拒绝超限或缺失的文件。上限按“CJK 字符逐个计数，其余按空白分词”的口径计算，具体实现见脚本头注释；登记新文件或调整口径时在同一次变更中更新 manifest。
 
 门禁变红时：
 
 1. **迁移**属于其他层级的内容；必要时留一行链接。
 2. **压缩**属于此处但可以更短的内容。
-3. 只有当文字确实需要空间时才**上调**上限；在 PR 中说明 manifest 改动的理由。上限过低是预算 bug。
+3. 只有当文字确实需要空间时才**上调**上限；说明 manifest 改动的理由。上限过低是预算 bug。
 
-上限是护栏，不是削减目标。达到或低于目标时，至少保留 5% 余量；高于目标时，冻结上限，直到迁移或压缩把文档降到目标以下。只有文档仍有空间时才下调上限。目标：根 `AGENTS.md` ≤ 2,080；`architecture.md` ≤ 2,400；子树 `AGENTS.md` ≤ 600，但 `packages/AGENTS.md` ≤ 810、本文件 ≤ 1,430；`packages/README.md` ≤ 1,100；另外 `cordis-primer.md` 600、`testing.md` 1,300、`examples/AGENTS.md` 310。未设预算的层级由评审负责。
+上限是护栏，不是削减目标。达到或低于目标时，至少保留 5% 余量；高于目标时，冻结上限，直到迁移或压缩把文档降到目标以下。只有文档仍有空间时才下调上限。具体目标值登记在 manifest 中，本文件不复述；未登记在 manifest 的层级由评审负责。
 
 ## 冗余清单
 
@@ -67,8 +67,8 @@
 
 - 重复规则：搜索一个有辨识度的短语；只保留一个归属处，其余链接过去。
 - 出现在不允许层级的历史：陈述当前事实并链接历史归属方。
-- 文字或图中的实现状态标注（"implemented!"、"future: …"）。状态会腐烂；仓库布局和包 manifest 承载它。
-- 手工复述的目录、JSDoc，或在源码或生成器具有权威性时手写测试、包和状态清单。
+- 文字或图中的实现状态标注（"implemented!"、"future: …"）。状态会腐烂；仓库布局和模块 manifest 承载它。
+- 手工复述的目录、JSDoc，或在源码或生成器具有权威性时手写测试、模块和状态清单。
 - 推理过程记录：逐步实现叙述、显而易见分支的证明、测试走查或被否决的本地替代方案。保留由此产生的契约或持久理由；删除推导路径。
 - 在兄弟方法旁重复理由，而不是在所属能力或辅助函数处写一次。
 - 段落墙：一个段落承载多条规则和插入语。拆分它，或把细节降级到其归属处。
@@ -77,4 +77,4 @@
 
 ## 仓库引用
 
-当前文件使用相对 Markdown 链接，历史引用使用 tag 或 PR 编号。`verify-md-links` 检查本地目标。[引用校验](../scripts/verify-repository-references.ts)会拒绝受维护文件中包含十六进制字母的 commit 标识符和被禁止的组织 URL。纯十进制 token 会被忽略，以避免与数字数据冲突，即使它们确实标识 commit。
+当前文件使用相对 Markdown 链接，历史引用使用 tag 或 PR 编号。文档改动提交前运行 `pnpm run test:docs`：它依次检查元数据与 kind、模块与模块组文档、子系统关联、源码文档引用、持久化记录、生成区域、相对链接与锚点、段落换行、commit 标识引用和字数预算。生成区域登记在 `scripts/generated-docs.manifest.json`，声明生产方后才能进入门禁。

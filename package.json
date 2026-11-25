@@ -4,11 +4,29 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "verify-agent-note-classification": "node scripts/verify-agent-note-classification.ts",
+        "verify-agent-note-format": "node scripts/verify-agent-note-format.ts",
+        "verify-archived-agent-notes": "node scripts/verify-archived-agent-notes.ts",
+        "verify-md-wrap": "node scripts/verify-md-wrap.ts",
+        "verify-md-links": "node scripts/verify-md-links.ts",
+        "verify-repository-references": "node scripts/verify-repository-references.ts",
+        "verify-doc-budgets": "node scripts/verify-doc-budgets.ts",
+        "verify-doc-metadata": "node scripts/verify-doc-metadata.ts",
+        "verify-module-readmes": "node scripts/verify-module-readmes.ts",
+        "verify-module-groups": "node scripts/verify-module-groups.ts",
+        "verify-subsystem-pages": "node scripts/verify-subsystem-pages.ts",
+        "verify-doc-refs": "node scripts/verify-doc-refs.ts",
+        "verify-persistence-records": "node scripts/verify-persistence-records.ts",
+        "verify-generated-docs": "node scripts/verify-generated-docs.ts",
+        "test:docs": "node scripts/verify-doc-metadata.ts && node scripts/verify-module-readmes.ts && node scripts/verify-module-groups.ts && node scripts/verify-subsystem-pages.ts && node scripts/verify-doc-refs.ts && node scripts/verify-persistence-records.ts && node scripts/verify-generated-docs.ts && node scripts/verify-md-wrap.ts && node scripts/verify-md-links.ts && node scripts/verify-repository-references.ts && node scripts/verify-doc-budgets.ts"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
+    "engines": {
+        "node": ">=22.18.0"
+    },
     "devEngines": {
         "packageManager": {
             "name": "pnpm",
@@ -17,5 +35,12 @@
         }
     },
     "packageManager": "pnpm@11.24.0",
-    "type": "module"
+    "type": "module",
+    "devDependencies": {
+        "@types/mdast": "^4.0.4",
+        "js-yaml": "^5.5.0",
+        "mdast-util-from-markdown": "^2.1.0",
+        "mdast-util-gfm": "^3.1.0",
+        "micromark-extension-gfm": "^3.0.0"
+    }
 }
