@@ -1,8 +1,8 @@
 /**
  * Enforce Agent Note headers, lifecycle-specific sections, alternatives, and retired
  * marker rules. Classification and filenames belong to the sibling tree gate;
- * translation structure belongs to the pairing gate. Exact format and
- * grandfathering rules live in `.agents/notes/README.md`.
+ * archived records add the archive date line checked by the archive gate. Exact
+ * format and grandfathering rules live in `.agents/notes/README.md`.
  */
 
 import { readFileSync } from 'node:fs'

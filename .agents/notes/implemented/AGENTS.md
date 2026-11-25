@@ -6,7 +6,7 @@
 
 在改动路径、符号、默认值与机制的同一处改动中，同步更新它们。就地重写过时的事实；不要追加变更历史。
 
-当某条已交付的 note 不太可能指导未来工作时，通过 [archive-agent-notes](../../skills/archive-agent-notes/SKILL.md) 归档其完整 triplet，而不是继续维护它。
+当某条已交付的 note 不太可能指导未来工作时，通过 [archive-agent-notes](../../skills/archive-agent-notes/SKILL.md) 归档其完整记录，而不是继续维护它。
 
 ### 这并不是重写 *decision* 的许可
 

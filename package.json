@@ -19,7 +19,8 @@
         "verify-doc-refs": "node scripts/verify-doc-refs.ts",
         "verify-persistence-records": "node scripts/verify-persistence-records.ts",
         "verify-generated-docs": "node scripts/verify-generated-docs.ts",
-        "test:docs": "node scripts/verify-doc-metadata.ts && node scripts/verify-module-readmes.ts && node scripts/verify-module-groups.ts && node scripts/verify-subsystem-pages.ts && node scripts/verify-doc-refs.ts && node scripts/verify-persistence-records.ts && node scripts/verify-generated-docs.ts && node scripts/verify-md-wrap.ts && node scripts/verify-md-links.ts && node scripts/verify-repository-references.ts && node scripts/verify-doc-budgets.ts"
+        "test:docs": "node scripts/verify-doc-metadata.ts && node scripts/verify-module-readmes.ts && node scripts/verify-module-groups.ts && node scripts/verify-subsystem-pages.ts && node scripts/verify-doc-refs.ts && node scripts/verify-persistence-records.ts && node scripts/verify-generated-docs.ts && node scripts/verify-md-wrap.ts && node scripts/verify-md-links.ts && node scripts/verify-repository-references.ts && node scripts/verify-doc-budgets.ts",
+        "test:notes": "node scripts/verify-agent-note-classification.ts && node scripts/verify-agent-note-format.ts && node scripts/verify-archived-agent-notes.ts"
     },
     "keywords": [],
     "author": "",

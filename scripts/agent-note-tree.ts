@@ -59,8 +59,10 @@ export function walkAgentNoteTree(): { notes: AgentNote[]; errors: string[] } {
       const segs = match.split('/')
       // Allowlisted file directly at the lifecycle root (e.g. implemented/AGENTS.md).
       if (segs.length === 2 && ROOT_ALLOWLIST.has(segs[1] ?? '')) continue
-      // A Chinese counterpart (foo.zh.md) is the same note indexed via its English filename.
-      if (match.endsWith('.zh.md')) continue
+      if (match.endsWith('.zh.md')) {
+        errors.push(`structure: ${match} — bilingual counterparts are not supported; keep one Chinese note`)
+        continue
+      }
       const cls = segs[1]
       const base = segs[2]
       if (segs.length !== 3 || cls === undefined || base === undefined) {
