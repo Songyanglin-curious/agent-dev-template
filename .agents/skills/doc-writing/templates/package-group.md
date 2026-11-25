@@ -1,26 +1,26 @@
-# 模板：package-group
+# Template: package-group
 
-用于 `packages/README.md` 和每份 `packages/<group>/README.md`。页面用于导航，介绍这一组包提供的能力，为每个直接下属包写一句职责说明，并链接到各包负责的文档。不要在组索引重复包契约。
+Use this template for `packages/README.md` and every `packages/<group>/README.md`. The page is a map: it orients the capability family, lists its direct packages with one-line roles, and links package-owned details. It never restates a package's contract.
 
-## 元数据
+## Frontmatter
 
 ```yaml
 ---
-description: "介绍 <group> 包组下各包的职责，帮助读者选用包或查找相关文档。"
+description: "The <group> package group: what the packages under packages/<group>/ own, for readers choosing or navigating the family."
 kind: "package-group"
 ---
 ```
 
-## 骨架
+## Skeleton
 
 ```markdown
-# <group>/ — <一句话主题>
+# <group>/ — <one-line subject>
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-用三到五句说明这一组提供什么、读者能做什么、各部分由哪个包负责，以及最重要的使用边界。英文用 `wc -w` 的方式计数，最多 100 个词。遵循[摘要表述规则](../SKILL.md#voice-rules)。
+Three to five sentences and at most 100 `wc -w`-style words: what the family provides, what a reader can DO with it, which package owns which half, and the main boundary. Apply the [Summary voice rules](../SKILL.md#voice-rules).
 
 ## Table of Contents
 
@@ -33,16 +33,16 @@ English | [中文](README.zh.md)
 <a id="packages"></a>
 ## Packages
 
-先用一句话交代主题，再列出下属包：
+One short orienting sentence, then the package map:
 
-| 包 | 职责 |
+| Package | Role |
 |---|---|
-| [`<pkg>`](<pkg>/README.md) | 一句话说明该包提供的能力 |
+| [`<pkg>`](<pkg>/README.md) | One-line role: what it contributes |
 
 <a id="related-documentation"></a>
 ## Related documentation
 
-- [相关内容的负责方](../../<path>.md) — 概述它补充了什么。
+- [Adjacent owner](../../<path>.md) — what it adds to this family.
 
 <a id="dev-note"></a>
 ## Dev Note
@@ -50,10 +50,10 @@ English | [中文](README.zh.md)
 None.
 ```
 
-## 规则
+## Rules
 
-- 每个直接下属包占一行，职责只描述它提供的能力。
-- 只有在该信息有助于读者选包时，才增加 `ctx key`、包类型或 npm 包名列。
-- 相关文档链接到邻近的负责方，如组索引、子系统页面和 Agent Note。用短语说明各链接的用途。
-- 组索引不负责运行时行为，因此无需 Model Experience 或 Known Limitations 章节。
-- 修改双语文档后，重跑 `pnpm run verify-translation-pairing --write packages/<group>/README.md`。
+- One row per direct package; role text states the package's contribution, never its internals.
+- Add a `ctx key`, package shape, or npm-name column only when that distinction helps readers choose among the direct packages.
+- Related documentation links adjacent owners (group maps, subsystem pages, Agent Notes) with a short phrase per link.
+- Do not add a Model Experience or Known Limitations section; the group map owns no runtime behavior.
+- Re-run `pnpm run verify-translation-pairing --write packages/<group>/README.md` after editing the pair.

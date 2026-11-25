@@ -1,81 +1,81 @@
 ---
 name: dsh-prose-standard
-description: 用于编写、审查、恢复、精简或审计 deepseek-harness 仓库中的文字，以及判断 Markdown、JSDoc、代码和测试注释、提示词、说明、诊断信息与 CLI 或 UI 字符串何处需要说明。
+description: Use when writing, reviewing, restoring, trimming, or auditing prose in the deepseek-harness repo, including deciding where documentation or comments are required across Markdown, JSDoc, code and test comments, prompts, descriptions, diagnostics, and CLI or UI strings.
 ---
 
-# DeepSeek Harness 文字规范
+# DeepSeek Harness Prose Standard
 
-写足以保留契约的内容，再删去推理过程、重复和修饰。契约是调用方、被调用方、实现方、生产者或消费者依赖的义务、不变量、前置条件、后置条件或兼容性承诺。本技能负责编辑判断和必需的文字覆盖范围。文档位置、篇幅预算、双语配对与校验使用 [dsh-doc-writing](../dsh-doc-writing/SKILL.md)，排查和修复推理过程泄漏使用 [dsh-trim-cot-leakage](../dsh-trim-cot-leakage/SKILL.md)。应用本技能时需要结合实际情况判断。
+Write enough to preserve the contract, then remove reasoning transcripts, repetition, and decoration. A contract is an obligation, invariant, precondition, postcondition, or compatibility promise that a caller, callee, implementer, producer, or consumer relies on. This skill owns editorial judgment and required prose coverage; use [dsh-doc-writing](../dsh-doc-writing/SKILL.md) for placement, budgets, bilingual pairs, and documentation gates, and [dsh-trim-cot-leakage](../dsh-trim-cot-leakage/SKILL.md) for hunting and fixing reasoning-transcript leakage. It is guidance, not a script.
 
-使用 `contract`、`boundary`、`shape`、`surface`、`seam`、`gate` 和 `vocabulary` 前先判断：直接说出规则、API、字段集合、类型、校验、时点、组件分工或失败情形是否更准确？术语能准确指明技术对象时应保留，例如调用双方的契约和安全或流程边界。
+Treat `contract`, `boundary`, `shape`, `surface`, `seam`, `gate`, and `vocabulary` as terms to check before use, not banned words. First ask whether the exact rule, API, field set, type, validation, timing point, component split, or failure states the fact better. Keep a term when it names the exact technical subject, including caller/callee contracts and security/process boundaries.
 
-注释用于解释代码难以表达的契约或理由。删除代码已经说明的内容。
+Comments describe non-obvious contracts or rationale that code cannot express; they do not restate what code already implies.
 
-## 输入与排除范围
+## Inputs and exclusions
 
-要求显式提供 `scope`。缺少时说明需要此项输入并停止。禁止自行推断为整个仓库或开始访谈。
+Require an explicit `scope`. If it is missing, report the required input and stop; do not infer a repository-wide scope or begin an interview.
 
-接受 `mode: automatic | interactive`，默认 `automatic`。只有用户明确要求提问或校准判断时才进入交互模式。
+Accept `mode: automatic | interactive`; default to `automatic`. Enter interactive mode only when the user explicitly requests questions or calibration.
 
-`mode` 只决定是否提问。审查和审计任务只报告发现。用户明确要求编写、修复或精简时，才应用判断明确的改动。
+`mode` controls questions, not write authority. Review and audit tasks report findings without editing; explicitly requested write, fix, or trim tasks apply clear changes.
 
-即使任务范围为整个仓库，也始终从查找、审查和编辑中排除 `vendor/`，也不要通过符号链接进入。把排除规则放在包含规则之后，防止后续包含规则重新纳入该目录。例如在 ripgrep 命令末尾使用 `--glob '!vendor/**'`，并给 Git 命令传入明确的 `:(exclude)vendor/**` 路径规则。若范围只有 `vendor/`，报告没有符合条件的文件。
+Always exclude `vendor/` from discovery, review, and edits, even when the requested scope is the whole repository. Do not follow a symlink into it. Put exclusions after inclusion globs so a later include cannot re-admit it: for example, end ripgrep commands with `--glob '!vendor/**'`, and give Git commands an explicit `:(exclude)vendor/**` pathspec. If the requested scope contains only `vendor/`, report that no eligible files remain.
 
-文字审查和编辑也排除 `.agents/notes/archived/`。归档的 Agent Note 是冻结的快照，只有为理解指向它的历史引用时，才查看确切的目标。禁止更新其文字或出站链接。
+Also exclude `.agents/notes/archived/` from prose review and edits. Archived Agent Notes are frozen snapshots; inspect an exact target only to understand a historical inbound citation, never to modernize its prose or outbound links.
 
-生成目录、快照和测试夹具是派生产物。编辑前追踪所有消费者，例如源 JSDoc 也可能用于生成模型可见的目录。先改负责的源文件或场景，再重新生成所有派生产物。生成器从源文档提取摘要时，确保被提取的句子在产物中能独立表达完整信息。双语文档的任一语言都可以作为本次修改的起点。遵循[轻量日常流程](../../../docs/AGENTS.md#writing-rules)，对另一语言做最小同步，并重新记录配对。
+Treat generated catalogs, snapshots, and fixtures as derivative. Trace every consumer before editing: source JSDoc may also feed a generated model-visible catalog. Edit the owning source or scenario first, then regenerate every derivative. When a generator extracts a summary from owner prose, make the extracted sentence complete for that surface. Bilingual pairs have no permanent owner: either language may be the authored side for an update. Follow the [lightweight routine path](../../../docs/AGENTS.md#writing-rules), update the counterpart minimally, and re-record the pair.
 
-## 保留完整命题
+## Preserve the complete proposition
 
-编辑前识别段落中的每一条命题。保留相关的：
+Before editing, identify every proposition in the passage. Preserve each relevant:
 
-- 主体和动作；
-- 条件、时点和顺序；
-- 必须、可以、禁止等约束强度；
-- 否定性保证和例外；
-- 责任归属、副作用、失败情形和后果。
+- actor and action;
+- condition, timing, and ordering;
+- modality such as must, may, or never;
+- negative guarantee and exception;
+- ownership, side effect, failure mode, and consequence.
 
-只有在所有事实都保留且表达更清楚时，才删去形容词、重复和叙述。字数减少本身不足以说明改进。
+Remove adjectives, repetition, and narration only when every factual clause survives and the result is clearer. A smaller word count alone is not an improvement.
 
-在使用点保留完整的局部契约，涵盖调用方或维护者在此处需要的行为、失败、责任归属和后果。架构、理由、算法、历史和扩展示例应链接到负责的文档。一项解释只设一处主文档，必需的契约事实可以在使用点重述。
+Keep a complete local contract at the point of use: behavior, failure, ownership, and consequence that a caller or maintainer needs there. Aggressively link to the owning document for architecture, rationale, algorithms, history, or extended examples. One explanation has one home; essential contract facts may repeat locally.
 
-如果省略某个不明显的理由可能导致误用或错误简化，就保留它。其他情况下说明后果，并链接到理由所在的文档。
+Keep non-obvious rationale when omitting it could plausibly cause misuse or an incorrect simplification. Otherwise state the consequence and link the rationale home.
 
-## 各类文字的必需覆盖范围
+## Required coverage by prose location
 
-代码、类型和结构未能传达下列必要契约时，补充或恢复文字。局部已经能直接看出这些事实时，无需再加注释。
+This is not a one-way shortening pass. Add or restore prose when code, types, and structure do not communicate a required contract below. Do not add a comment when those facts are already obvious locally.
 
-- **公共 JSDoc**：说明调用方可见的返回值差异、抛出异常或拒绝、副作用、责任归属、时序、取消和持久性。
-- **内部注释**：交代跨局部的结构或明显复杂的局部结构，包括不变量、竞态顺序、责任归属、安全边界和出乎预期的失败行为。删除控制流叙述和对代码的复述。
-- **模块注释**：说明模块角色、依赖、职责和不明显的架构选择。架构选择链接到负责解释它的文档。
-- **测试**：只解释不明显的测试设计，例如为何需要某个夹具、断言、平台适配、真实入口或间接观测。删除逐步讲解和清单式复述。
-- **操作指南**：提供前置条件、必要操作、真实入口、可观察的验证结果和简短的警示。
-- **README**：说明消费者契约，包括配置、语义、失败、限制、扩展点和模型可见的效果。引用本包负责的稳定模型可见文本，并链接到生成目录和跨包内容的负责方。保留长期存在且影响使用的问题和维护陷阱。遵循[包 README 要求](../../../docs/cookbook/adding-a-package.md#4-write-the-package-readme)。
-- **Agent Note**：保留独有的理由、机制、备选方案、后果、已交付功能的验证证据及具体覆盖缺口。已实现的 Agent Note 用现在时描述已交付的行为。删掉计划清单并保留支撑决策的证据。
-- **复盘**：保留事件顺序、证据、因果链、影响和预防措施。删除重复论证和与因果关系无关的实现细节。
-- **技能和 Agent 指令**：说明行为约束及明确的范围限制，例如「这些是指导原则，使用时需结合情境判断」。工作流程应简洁，并链接到权威资料。
-- **示例和配置注释**：解释访问限制、不明显的接线方式或加载顺序、安全约束、重放行为、例外和常见误用。配置本身已展示的条目无需复述。
-- **提示词和可见字符串**：把措辞视为行为。客户端 UI 文案放在有类型约束的语言字典中，通过显式的本地化 props 传给独立于 Cordis 的基础组件。一起检查文本、无障碍名称、工具提示、占位符和格式模板，再运行 `verify-client-ui-i18n`。英文 UI 文案（包括插件 `meta.title` 和 `meta.description`）采用句首大写，只将首词、专有名词和产品名大写，例如 `Chrome DevTools`、`Git`、`MCP`，以及 `Git worktrees`。中文文案遵循自己的惯例。涉及模型可见文本和仓库要求的 GUI 证据时，更新负责的可运行快照。如果授权范围内没有对应场景，保留原文并报告延期。
-- **诊断信息**：指明失败对象或路径、违反的规则，以及难以自行推断时的修正方式。删除内部执行过程的叙述。
+- **Public JSDoc:** document caller-visible return distinctions, throws or rejections, side effects, ownership, timing, cancellation, and durability.
+- **Internal comments:** orient non-local structure and obviously complicated local structure, including invariants, race ordering, ownership, security boundaries, and surprising failure behavior. Delete control-flow narration and code restatement.
+- **Module comments:** state the module's role, dependencies, responsibilities, and non-obvious architecture choices; link architecture choices to their owning explanation.
+- **Tests:** explain only non-obvious test design—why a fixture, assertion, platform accommodation, real entry path, or indirect observation is necessary. Delete walkthroughs and inventories.
+- **Cookbooks:** include prerequisites, required actions, the real entry path, observable verification, and concise warnings.
+- **READMEs:** include the consumer contract: configuration, semantics, failures, limitations, extension points, and model-visible effects. Quote stable model-visible text owned by the package; link generated catalogs and cross-package owners. Keep durable gaps and maintainer traps, not ordinary cleanup inventories. Follow the [package README requirements](../../../docs/cookbook/adding-a-package.md#4-write-the-package-readme).
+- **Agent Notes:** retain unique rationale, mechanisms, alternatives, consequences, shipped verification evidence, and named coverage gaps. Implemented Agent Notes state shipped reality in the present tense; remove planning checklists, not evidence of what pins the decision.
+- **Postmortems:** retain the incident sequence, evidence, causal chain, impact, and prevention. Remove repeated persuasion or implementation detail that does not establish causality.
+- **Skills and agent instructions:** state behavioral guardrails and explicit scope limitations such as “guidance, not a script/checklist.” Keep the workflow concise and link its source of truth.
+- **Examples and configuration comments:** explain access limits, non-obvious wiring or load order, security stance, replay behavior, exceptions, and likely misuse. Do not narrate entries that the configuration already shows.
+- **Prompts and visible strings:** treat wording as behavior. Client UI copy belongs in typed locale dictionaries and reaches Cordis-free primitives as explicit localized props; inspect text, accessibility names, tooltips, placeholders, and format templates together, then run `verify-client-ui-i18n`. English UI copy, including plugin `meta.title` and `meta.description`, uses sentence case: capitalize only the first word, proper nouns, and product names such as `Chrome DevTools`, `Git`, or `MCP` (`Git worktrees`, not `Git Worktrees`). Chinese copy keeps its own conventions. Update the owning runnable snapshot for model-visible text and repository-required GUI evidence. If the authorized scope has no owning scenario, leave the wording unchanged and report the deferral; do not silently fold it into a prose-only edit.
+- **Diagnostics:** name the failing subject or path, violated rule, and correction when it is non-obvious. Remove internal execution narration.
 
-保留可搜索的机制名，以及表达约束强度、时序或否定时有实际意义的强调。只统一装饰性的强调。
+Preserve searchable mechanism names and meaningful modal, temporal, or negative emphasis. Normalize decorative emphasis only.
 
-## 工作流程
+## Workflow
 
-1. 确认范围、模式、当前分支或 PR 基线，以及适用的 `AGENTS.md`。不要检查无关分支。
-2. 判断段落之前，阅读[文档规范](../../../docs/AGENTS.md)及负责的代码或文档。需要校准判断或遇到陌生情况时，阅读[精选示例](references/examples.md)。
-3. 检查请求范围内的内容。借助搜索和字数统计定位候选段落，再依语义判断。
-4. 将各候选项归为保留、补充、精简、恢复、重组或延期。任务授权编辑时应用明确的改动，无需凑删除量。
-5. 先更新源头，再更新派生产物。确定新规则后，复查类似段落。
-6. 运行范围最小的相关检查、文档校验、`git diff --check`，以及可见字符串的行为测试。确认最终差异没有 `vendor/` 路径。如果曾意外匹配到该目录，应如实报告。
-7. 报告检查范围、明确改动、有意保留的内容、延期事项和实际执行的检查。
+1. Confirm the scope, mode, current branch or PR base, and applicable `AGENTS.md` files. Do not inspect unrelated branches.
+2. Read [the documentation standard](../../../docs/AGENTS.md) and the owning code or document before judging a passage. For calibration or unfamiliar cases, read [the distilled examples](references/examples.md).
+3. Inspect the requested scope, not only the largest files. Use searches and word counts to find candidates, then judge passages semantically.
+4. Classify each candidate as keep, add, trim, restore, restructure, or defer. Apply clear changes only when the task authorizes edits; do not manufacture edits to satisfy a deletion target.
+5. Update the owner before derivative artifacts. Re-check analogous passages after learning a new rule.
+6. Run the narrow relevant checks, documentation gates, `git diff --check`, and behavior tests for visible strings. Verify the final diff contains no `vendor/` path and report any accidental vendor match rather than claiming a clean exclusion history.
+7. Report the inspected scope, clear changes, deliberate keeps, deferred cases, and checks actually run.
 
-## 难以取舍的情况
+## Borderline decisions
 
-只有当至少两种写法都满足完整命题要求，却需要在已接受的原则间取舍，且本技能未给出判断时，才算难以取舍。只有一种能保留命题的改写可以直接采用。
+A case is borderline only when at least two versions satisfy the complete-proposition rule but trade accepted principles, and this skill does not already resolve the tradeoff. A rewrite with one proposition-preserving answer is not borderline.
 
-在自动模式下，获得授权后执行明确的改动，并直接报告确实难以取舍的情况。禁止为推动工作而削弱命题。
+In automatic mode, apply clear edits when authorized and report genuine borderline cases without asking questions. Do not weaken a proposition to make progress.
 
-在交互模式下，按适用原则归并类似段落。给出两到三个可行版本，推荐其一，并说明事实或结构上的差别。只列真正可行的选项。使用用户指定的沟通渠道。通过 PR 行内评论校准时，把暂时推荐的版本放在差异里，其余方案附在对应行上。
+In interactive mode, group analogous passages under the governing principle. Present two or three viable versions, recommend one, and state the factual or structural difference. Do not offer inferior distractors. Use the user's requested channel; when calibrating a PR through inline comments, place the recommended provisional version in the diff and attach the alternatives to that exact line.
 
-用户决定后，将相应原则和版本整理到[示例](references/examples.md)，省去 PR 历史或评审经过，并在范围内的所有类似段落应用该规则。
+After the user decides, distill the principle and versions into [the examples](references/examples.md), without PR history or reviewer narration, and apply the learned rule to every analogous passage in scope.

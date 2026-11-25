@@ -1,25 +1,25 @@
-# 模板：persistence-format
+# Template: persistence-format
 
-此类型用于 `docs/persistence-changes/historical-formats/vN.md` 及其中文对应文档。每条记录描述一个明确选定的历史 Session 格式检查点，包含完整的声明类型。该记录用于格式查阅，不承担发行记录或兼容性确认的作用。当前检出版本的写入器使用现行目录。
+Use this kind for `docs/persistence-changes/historical-formats/vN.md` and its Chinese sibling. Each record describes one explicitly selected historical Session format checkpoint with complete declared types. It is a format reference, not a release record or compatibility acknowledgement. The checkout writer uses the existing current catalog.
 
-## 元数据
+## Frontmatter
 
 ```yaml
 ---
-description: "记录历史 Session 格式、源码检查点及持久化类型。"
+description: "The historical Session format, source checkpoint, and persistence types documented here."
 kind: persistence-format
 ---
 ```
 
-## 章节
+## Sections
 
-1. **Summary**：指出格式及其有辨识度的持久化字段。
-2. **Table of Contents**：用双语共用的锚点链接后续章节。
-3. **Source evidence**：注明标签或 PR，并提供足以确定源码树的信息。PR 的中间源码树不能当作最终合并版本或产品发行版本。历史源文件路径不附行号，只有能指向确切源码时才写成链接。
-4. **Format characteristics**：解释头部、事件和物理编码的差异。声明类型清单之外的行为链接到负责的编解码器。
-5. **Declaration**：每种语言各含一个相同的 `yaml persistence-format` 块，字段包括 `schemaVersion: 1`、数值型 `sessionFormatVersion`、仅含一个 `tag` 或数值型 `pullRequest` 的 `source`，以及将每个根类型键映射到所记录 SHA-256 摘要的 `roots`。链接同级 `vN.schema.json`。
-6. **Complete schemas**：保留一个由 `persistence-format-schema:start` 和 `persistence-format-schema:end` 注释划定的区域。格式校验器在此生成根摘要和所有可达定义。
-7. **Verification and limitations**：说明实际提取证据、覆盖限制和离线校验器。保留历史可选字段和不透明声明，避免据此宣称编解码器会接纳该格式或迁移是安全的。
-8. **Dev Note**：存放非权威工作背景。没有内容时填写 `None.`。
+1. **Summary:** identify the format and its distinguishing persisted fields.
+2. **Table of Contents:** link subsequent sections with shared bilingual anchors.
+3. **Source evidence:** name the tag or PR and enough context to select the source tree. A PR's intermediate tree must not be presented as its final merge or as a product release. Historical sources use file paths without line numbers and remain text unless linked to the exact source.
+4. **Format characteristics:** explain header, event, and physical encoding distinctions; link codec owners for behavior beyond the declared-type inventory.
+5. **Declaration:** include one identical `yaml persistence-format` block per language with `schemaVersion: 1`, numeric `sessionFormatVersion`, `source` containing exactly one `tag` or numeric `pullRequest`, and a `roots` mapping from every root key to its captured SHA-256 digest. Link the sibling `vN.schema.json`.
+6. **Complete schemas:** keep one `persistence-format-schema:start` / `persistence-format-schema:end` comment region. The format verifier renders root digests and all reachable definitions here.
+7. **Verification and limitations:** state actual extraction evidence, coverage limits, and the offline verifier. Preserve historical optional fields and opaque declarations without claiming codec admission or migration safety.
+8. **Dev Note:** reserve non-authoritative working context, or write `None.`.
 
-[格式索引](../../../../docs/persistence-changes/historical-formats/README.md) 负责覆盖范围和维护。`pnpm run verify-persistence-formats --write` 验证 schema 后，再刷新生成区域和配对记录。该命令无法创建历史证据或修复机器数据。写入器升级时继续记录每个旧的整数版本，避免以历史文件名复制当前目录。
+The [format index](../../../../docs/persistence-changes/historical-formats/README.md) owns coverage and maintenance. `pnpm run verify-persistence-formats --write` validates schemas before refreshing generated regions and pairing records. It cannot create historical evidence or repair machine data. Keep every older integer documented when the current writer advances; do not duplicate the current catalog under a historical filename.

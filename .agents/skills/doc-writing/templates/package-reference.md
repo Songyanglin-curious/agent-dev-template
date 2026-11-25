@@ -1,17 +1,17 @@
-# 模板：package-reference
+# Template: package-reference
 
-用于入口为 Cordis 插件的包。入口可默认导出服务，也可导出 `apply` 函数，通过组合配置挂载。这是 `packages/<group>/<pkg>/README.md` 的默认模板。`session-persistence-jsonl` 的双语 README 是使用此模板的实例。
+Use this template for a package whose entry is a Cordis plugin — a service default export or an `apply` function — mounted in a composition. This is the default for `packages/<group>/<pkg>/README.md`. The `session-persistence-jsonl` README pair is the worked example of this template.
 
-## 元数据
+## Frontmatter
 
 ```yaml
 ---
-description: "用一到两句具体说明读者如何选择、配置或排查这个包，并使用可检索的领域术语。"
+description: "What the package lets a reader choose, configure, or debug, in one or two concrete sentences with searchable domain terms."
 kind: "package-reference"
 ---
 ```
 
-## 骨架
+## Skeleton
 
 ```markdown
 # @deepseek-ai/dsh-<name>
@@ -20,7 +20,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-用三到五句说明用户或 Agent 借此能做什么，包括结果、适用情形、主要代价和最重要的边界。英文用 `wc -w` 的方式计数，最多 100 个词。遵循[摘要表述规则](../SKILL.md#voice-rules)，省略内部角色、类型和身份。
+Three to five sentences and at most 100 `wc -w`-style words on what a user or agent can DO with the package: outcomes, when to choose it, main cost, most important boundary. Apply the [Summary voice rules](../SKILL.md#voice-rules); never describe its role, type, or internal identity.
 
 ## Table of Contents
 
@@ -36,21 +36,21 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-用一句话交代最常见的使用路径。
+One orienting sentence: the common path.
 
 ### When to choose it
 
-用一段说明哪些条件决定采用或避开这个包，以及可用哪个包替代。
+Choose or avoid the package: one paragraph naming the deciding conditions and the fallback package.
 
 ### Minimal configuration
 
-给出能运行的最小 `cordis.yml` 挂载片段，以及配置表：
+The smallest mount that works, as a `cordis.yml` snippet, plus the config table:
 
-| 字段 | 默认值 | 含义 |
+| Field | Default | Meaning |
 |---|---|---|
-| `<field>` | `<default>` 或 `required` | 一句话说明含义 |
+| `<field>` | `<default>` or `required` | One-line meaning |
 
-生成的[配置目录](../../../docs/config-catalog.md#deepseek-aidsh-<name>)是所有受支持字段的完整来源。
+The generated [configuration catalog](../../../docs/config-catalog.md#deepseek-aidsh-<name>) is the exhaustive source for every accepted field.
 
 -----
 
@@ -58,9 +58,9 @@ English | [中文](README.zh.md)
 ## Understand the implementation
 
 <details>
-<summary>实现细节（点击展开）</summary>
+<summary>Implementation internals — click to expand</summary>
 
-说明设计思路、组件架构和数据流概况，帮助读者理解包如何工作。用源码索引表链接到负责具体细节的文件。省略 API 全量目录和 JSDoc 复述。
+Design concept, component architecture, and hand-waving dataflow — enough to understand the package. A source-map table links files for exact detail. No API catalogs or JSDoc restatement.
 
 </details>
 
@@ -69,35 +69,35 @@ English | [中文](README.zh.md)
 <a id="further-exploration"></a>
 ## Further Exploration
 
-列出三到七个相关页面，最贴近的前置知识放在前面，每项附简短说明。
+Three to seven adjacent pages, closest prerequisite first, one short phrase each.
 
 -----
 
 <a id="model-experience"></a>
 ## Model Experience
 
-<按照 docs/cookbook/adding-a-package.md#4-write-the-package-readme 的 Model Experience 契约编写，具体形式由 verify-package-readme-model-experience 校验规定>
+<per the Model Experience contract in docs/cookbook/adding-a-package.md#4-write-the-package-readme; the verify-package-readme-model-experience gate owns the required form>
 
 ## Known Limitations and Deferred Work
 
 <a id="known-limitations-and-deferred-work"></a>
 
-先用一句话交代主题，再用顶层列表列出包当前的限制。没有限制的包使用 scripts/verify-package-readme-limitations.ts 中的允许名单。
+One orienting sentence, then top-level bullets naming current package constraints. Packages with none use the allowlist in scripts/verify-package-readme-limitations.ts.
 
 <a id="dev-note"></a>
 ### Dev Note
 
 <details>
-<summary>维护者的工作背景（点击展开）</summary>
+<summary>Working context for maintainers — click to expand</summary>
 
 None.
 
 </details>
 ```
 
-## 规则
+## Rules
 
-- **动笔前核验事实。** 在测试组合中挂载该包，实际执行每条命令并验证每个配置字段、默认值和行为声明。删去无法复现的内容。字段清单链接到生成的配置目录。
-- **安装说明。** 插件包通过 `cordis.yml` 条目挂载。只有声明 `dsh.bundle.patch` 的包才可用 `dsh plugin --profile <name> add <package>` 安装为配置档层。若包没有该声明，只说明如何在组合中挂载。
-- **Model Experience 和 Known Limitations 由校验定义。** 使用两项校验规定的确切标题和该包对应的格式。行为变更导致包改用另一种格式时，在同一变更中更新校验的审计清单。
-- 修改双语文档后，重跑 `pnpm run verify-translation-pairing --write packages/<group>/<pkg>/README.md`。
+- **Fact-check before writing.** Mount the package in a test composition and run every command, config field, default, and behavior claim this README makes. Delete anything you did not reproduce; link the generated config catalog instead of restating fields.
+- **Installation guidance.** A plugin package mounts through `cordis.yml` rows. Only a package declaring `dsh.bundle.patch` installs as a profile layer via `dsh plugin --profile <name> add <package>` — if this package lacks that declaration, say how it mounts in a composition, never `dsh plugin add`.
+- **Model Experience and Known Limitations are gate-owned.** Match the exact headings and per-package forms the two gates enforce; update the gates' audited lists in the same change when behavior moves a package between forms.
+- Re-run `pnpm run verify-translation-pairing --write packages/<group>/<pkg>/README.md` after editing the pair.

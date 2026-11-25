@@ -1,19 +1,19 @@
-# 模板：package-library
+# Template: package-library
 
-用于无插件接口的包。此类包的入口只导出普通模块 API，不向组合注册任何内容。示例包括 `boot/app-boot`、`util/*`、`sdk/protocol`、`typert/generator`。`boot/app-boot` 的双语 README 是使用此模板的实例。
+Use this template for a package with no plugin surface: its entry exports a plain module API and it registers nothing into a composition. Examples: `boot/app-boot`, `util/*`, `sdk/protocol`, `typert/generator`. The `boot/app-boot` README pair is the worked example.
 
-库作为依赖使用，没有配置档安装步骤，也不需要在 `cordis.yml` 中配置挂载。Model Experience 只采用校验给该库规定的格式，多数库是 `none` 或 `indirect`。
+A library README differs from a package reference in three ways: no "install into a profile" guidance (a library is a dependency, not a layer), no mount configuration (there is no `cordis.yml` row), and a Model Experience section only in the audited form the gate assigns (most libraries are `none` or `indirect`).
 
-## 元数据
+## Frontmatter
 
 ```yaml
 ---
-description: "用一到两句说明调用者借此库能构建什么，并提到使用该库的包或可检索的领域术语。"
+description: "What the library lets a caller build, in one or two concrete sentences with the consuming packages or searchable domain terms."
 kind: "package-library"
 ---
 ```
 
-## 骨架
+## Skeleton
 
 ```markdown
 # @deepseek-ai/dsh-<name>
@@ -22,7 +22,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-用三到五句说明调用者借此库能做什么、使用者是谁、最小入口和主要边界。英文用 `wc -w` 的方式计数，最多 100 个词。遵循[摘要表述规则](../SKILL.md#voice-rules)。
+Three to five sentences and at most 100 `wc -w`-style words: what a caller can DO with the library, who consumes it, the smallest entry point, and the main boundary. Apply the [Summary voice rules](../SKILL.md#voice-rules).
 
 ## Table of Contents
 
@@ -40,11 +40,11 @@ English | [中文](README.zh.md)
 
 ### When to use it
 
-指出哪些可执行程序、包或运行时导入该库，以及何时应选用该库。
+Name the consuming call sites (which bins, packages, or runtimes import it) and when a caller should reach for it instead of a plugin.
 
 ### Entry point
 
-用 `text` 或 `ts` 围栏代码块展示可运行的最小导入和调用，随后说明成功与失败时的表现。具体契约链接到 `src/index.ts` 中负责的定义。
+The smallest import-plus-call that works, in a `text` or `ts` fence, followed by what success and failure look like. Link the owning contracts in `src/index.ts` for exact detail instead of restating them.
 
 -----
 
@@ -52,9 +52,9 @@ English | [中文](README.zh.md)
 ## Understand the implementation
 
 <details>
-<summary>实现细节（点击展开）</summary>
+<summary>Implementation internals — click to expand</summary>
 
-说明设计思路，并用源码索引表链接到相关文件。省略 API 全量目录。
+Design notes and a source-map table. No API catalogs.
 
 </details>
 
@@ -63,34 +63,34 @@ English | [中文](README.zh.md)
 <a id="further-exploration"></a>
 ## Further Exploration
 
-列出相关页面，最贴近的前置知识优先。
+Adjacent pages, closest prerequisite first.
 
 -----
 
 <a id="model-experience"></a>
 ## Model Experience
 
-只使用 verify-package-readme-model-experience 给这个包规定的格式（`none`、`indirect` 或规定的内容块）。按库实际产生的模型侧效果编写。
+Only the form the verify-package-readme-model-experience gate assigns this package (`none`, `indirect`, or the canonical blocks). A library never invents model effects it does not have.
 
 ## Known Limitations and Deferred Work
 
 <a id="known-limitations-and-deferred-work"></a>
 
-以顶层列表写明当前包的约束。没有限制时，把包加入 scripts/verify-package-readme-limitations.ts 的允许名单。
+Current package constraints as top-level bullets; allowlist the package in scripts/verify-package-readme-limitations.ts when none exist.
 
 <a id="dev-note"></a>
 ### Dev Note
 
 <details>
-<summary>维护者的工作背景（点击展开）</summary>
+<summary>Working context for maintainers — click to expand</summary>
 
 None.
 
 </details>
 ```
 
-## 规则
+## Rules
 
-- **根据入口判断类型。** 选择模板前读取 `src/index.ts`。用 `export default` 导出服务类或导出 `apply` 时用 `package-reference`。`package.json` 声明 `dsh.bundle.patch` 时用 `package-bundle`。只提供普通模块 API 的包是库。
-- **库只作为依赖使用。** `dsh plugin --profile <name> add <package>` 可以安装任意 npm 依赖，但只有声明 `dsh.bundle` 的包才会激活一个配置档层。对库而言，该命令最多只是添加依赖，不得列为安装路径。
-- 修改双语文档后，重跑 `pnpm run verify-translation-pairing --write packages/<group>/<pkg>/README.md`。
+- **Classify by the entry, not the folder.** Read `src/index.ts` before choosing this template: `export default` a service class or an `apply` export makes the package a `package-reference`, and `dsh.bundle.patch` in `package.json` makes it a `package-bundle`. A plain module API without those is a library.
+- **Never write profile-install guidance.** `dsh plugin --profile <name> add <package>` installs any npm dependency but activates a profile layer only for `dsh.bundle`-declaring packages; for a library it is at best a no-op dependency and must not appear as an install path.
+- Re-run `pnpm run verify-translation-pairing --write packages/<group>/<pkg>/README.md` after editing the pair.

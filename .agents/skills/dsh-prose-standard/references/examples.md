@@ -1,186 +1,169 @@
-# 精选文字示例
+# Distilled prose examples
 
-用这些示例判断适用的编辑原则。「适度」版本用当前位置所需的最少说明保留每条必要命题。实际写作时应按语境组织文字。
+Use these examples to identify the governing principle, not as text templates. “Balanced” preserves every load-bearing proposition with the least explanation needed at that location.
 
-<a id="preserve-every-factual-clause"></a>
-## 保留每一项事实
+## Preserve every factual clause
 
-**原文：**「协调器仔细地按会话串行执行写入，在释放操作完成前刷新缓冲事件，并向调用方报告后端故障。」
+**Original:** “The coordinator carefully serializes writes per session, flushes buffered events before disposal resolves, and reports backend failures to the caller.”
 
-**删减过度：**「协调器串行执行持久化操作。」
+**Over-trimmed:** “The coordinator serializes persistence.”
 
-**适度：**「协调器按会话串行执行写入，在释放操作完成前刷新缓冲事件，并向调用方报告后端故障。」
+**Balanced:** “The coordinator serializes writes per session, flushes buffered events before disposal resolves, and reports backend failures to the caller.”
 
-可删去修饰和重复。动作主体、按会话限定的范围、释放顺序和调用方可见的失败，都是独立事实。
+Remove decoration and repetition, not propositions. Actor, per-session scope, disposal ordering, and failure visibility are separate facts.
 
-<a id="explicit-skill-scope-is-functional"></a>
-## 技能范围应明确
+## Explicit skill scope is functional
 
-**删减过度：**「阅读源文件，结合实际判断。」
+**Over-trimmed:** “Read the sources and use judgment.”
 
-**适度：**「本技能提供指导。除列出的检查外，还需按实际情况作出判断，文档中的要求仍适用。」
+**Balanced:** “This skill is guidance, not a complete checklist. Use judgment beyond the named checks; documented requirements still apply.”
 
-**过于详细：**用几段论述为什么清单无法代替独立判断。
+**Over-detailed:** Several paragraphs defending why lists cannot replace independent reasoning.
 
-保留限制说明，因为它会影响 Agent 执行流程的方式。可以删去反复论证。
+Keep the explicit limitation because it changes how an agent applies the workflow. Trim repeated persuasion, not the guardrail.
 
-<a id="a-cookbook-keeps-action-and-verification"></a>
-## 操作指南保留操作和验证
+## A cookbook keeps action and verification
 
-**删减过度：**「为工具添加测试。」
+**Over-trimmed:** “Add tests for the tool.”
 
-**适度：**「用单元测试覆盖注册和释放，通过真实加载路径调用工具，并在渲染输出变化时添加快照。确认断言检查的是外部结果，不能仅依据模型的自述。」
+**Balanced:** “Test registration and disposal at unit level, exercise the tool through the real loader path, and add a snapshot when its rendered output changes. Verify the assertion observes the external result rather than the model's report.”
 
-**过于详细：**逐一讲解示例代码里已经显示的每个夹具文件和断言。
+**Over-detailed:** A walkthrough of every fixture file and assertion already visible in the example code.
 
-保留测试层级、必要操作、真实入口和可观察的验证结果。删去对夹具的复述。
+Keep the test tiers, required action, real entry path, and observable verification. Remove fixture narration.
 
-<a id="preserve-ownership-and-timing"></a>
-## 保留责任归属和时序
+## Preserve ownership and timing
 
-**删减过度：**「拆除期间取消提供方的工作。」
+**Over-trimmed:** “Provider work is cancelled during teardown.”
 
-**适度：**「运行时在释放子作用域前请求取消提供方的工作。提供方仍负责在释放操作完成前等待其工作线程结束。」
+**Balanced:** “The runtime requests provider cancellation before releasing the child scope; the provider remains responsible for joining its workers before disposal resolves.”
 
-**过于详细：**按时间顺序讲述拆除过程中使用的每个 Promise 和回调。
+**Over-detailed:** A chronological account of every promise and callback used to implement teardown.
 
-动作主体、事件顺序、责任转移的时点和完成保证都是独立事实。
+The actor, ordering, point where ownership changes, and completion guarantee are separate factual clauses.
 
-<a id="event-jsdoc-preserves-boundary-timing"></a>
-## 事件 JSDoc 保留关键时序
+## Event JSDoc preserves boundary timing
 
-**删减过度：**「组装并缓存会话前缀。」
+**Over-trimmed:** “Composes and caches the session prefix.”
 
-**适度：**「在首次前置步骤和模型请求前一次性组装会话前缀。监听器追加的内容会并入当前请求，前置步骤的压力统计会使用组装完成的前缀。」
+**Balanced:** “Composes the session prefix once before the first pre-step and model request. Listener appends join the current request, and pre-step pressure accounting receives the composed prefix.”
 
-**过于详细：**逐一介绍实现该顺序所用的循环辅助函数、缓存字段和 Promise 回调。
+**Over-detailed:** A walkthrough of the loop helpers, cache fields, and promise callbacks that implement the ordering.
 
-事件顺序及其对当前请求的影响是调用方可见的行为，应予保留。
+Event order and its current-request consequence are caller-visible behavior, not implementation narration.
 
-<a id="orient-complicated-code-without-narrating-it"></a>
-## 复杂代码的注释交代结构
+## Orient complicated code without narrating it
 
-**删减过度：**「支持工作线程的 Realm。」
+**Over-trimmed:** “Worker realm support.”
 
-**适度：**「负责工作线程的 Realm 及其与宿主的桥接。Realm 只初始化一次。释放时终止工作线程，并拒绝后续调用。协议设计理由见工作线程隔离的 Agent Note。」
+**Balanced:** “Owns the worker realm and its host bridge. Realm initialization is single-shot; disposal terminates the worker and rejects later calls. See the worker-isolation Agent Note for the protocol rationale.”
 
-**过于详细：**逐段预告下方的类和辅助函数。
+**Over-detailed:** A paragraph-by-paragraph preview of the classes and helper functions below.
 
-保留模块角色、依赖、职责和不明显的生命周期行为。架构理由以链接提供，局部控制流由代码呈现。
+Keep the module's role, dependencies, responsibilities, and non-obvious lifecycle behavior. Link architecture rationale and let the code show local control flow.
 
-<a id="public-jsdoc-includes-failures"></a>
-## 公共 JSDoc 说明失败
+## Public JSDoc includes failures
 
-**删减过度：**「返回 Realm 的全局对象。」
+**Over-trimmed:** “Returns the realm global.”
 
-**适度：**「返回已初始化的 Realm 全局对象。如果初始化尚未完成，或 Realm 已释放，则抛出异常。」
+**Balanced:** “Returns the initialized realm global. Throws if initialization has not completed or the realm has already been disposed.”
 
-**过于详细：**列举导致每种异常的内部状态机分支和辅助函数调用。
+**Over-detailed:** The internal state-machine branches and exact helper calls that lead to each throw.
 
-异常和状态前置条件都属于调用方可见的契约。
+Throws and state preconditions are caller-visible contract facts.
 
-<a id="keep-a-concise-implementation-mapping"></a>
-## 简明说明转换关系
+## Keep a concise implementation mapping
 
-**删减过度：**「由外部 API 支撑的搜索提供方。」
+**Over-trimmed:** “Search provider backed by an external API.”
 
-**适度：**「把每条提供方结果映射到通用搜索结果字段，保留标题、URL 和正文，省略提供方专有的排序元数据。」
+**Balanced:** “Maps each provider result to the shared search-result fields, preserving the title, URL, and text while omitting provider-only ranking metadata.”
 
-**过于详细：**逐字段复述映射代码，包括同名字段和一眼可见的赋值。
+**Over-detailed:** A field-by-field restatement of the mapping code, including fields with identical names and obvious assignments.
 
-保留能说明适配器在哪里丢弃或改变信息的映射细节。
+Keep mapping details that explain where an adapter drops or changes information.
 
-<a id="link-rationale-while-keeping-the-local-contract"></a>
-## 保留局部契约并链接理由
+## Link rationale while keeping the local contract
 
-**删减过度：**「释放过程见生命周期 Agent Note。」
+**Over-trimmed:** “Disposal is documented in the lifecycle Agent Note.”
 
-**适度：**「释放时中止本次运行，并等待提供方停止活动。责任归属和竞态处理见生命周期 Agent Note。」
+**Balanced:** “Disposal aborts the run and waits for provider quiescence. See the lifecycle Agent Note for ownership and race handling.”
 
-**过于详细：**在每个释放函数旁重复 Agent Note 中的 Promise 调度细节和已弃用的责任分配方案。
+**Over-detailed:** Repeating the Agent Note's promise choreography and rejected ownership models beside every disposer.
 
-在调用方需要的位置保留行为和完成保证。算法和理由链接到负责的说明，链接无法替代局部契约。
+Keep the behavior and completion guarantee where callers need them. Link aggressively for the algorithm and rationale; a link cannot replace the local contract.
 
-<a id="implemented-agent-notes-retain-verification-contracts"></a>
-## 已实现的 Agent Note 保留验证契约
+## Implemented Agent Notes retain verification contracts
 
-**删减过度：**功能已交付，所以删除整个测试章节。
+**Over-trimmed:** Deleting the entire Testing section because the Agent Note has already shipped.
 
-**适度：**「单元测试覆盖发布前后取消、释放时等待操作停止，以及提供方重载。针对构建后入口的冒烟测试覆盖真实加载路径。由于传输依赖具体进程，快照覆盖延期。」
+**Balanced:** “Unit tests cover cancellation before and after publication, disposal quiescence, and provider reload. A built-entry smoke covers the real loader path; snapshot coverage is deferred because the transport is process-specific.”
 
-**过于详细：**逐文件讲述夹具和断言，没有提供额外的行为区别。
+**Over-detailed:** A file-by-file walkthrough of fixtures and assertions with no additional behavioral distinction.
 
-删除迁移待办和测试过程的复述。保留测试层级、它们所锁定的行为、真实入口和明确的覆盖缺口。
+Remove migration tasks and test narration. Keep the tiers, behaviors they pin, real entry path, and named coverage gaps.
 
-<a id="a-security-boundary-may-need-one-concrete-example"></a>
-## 安全边界有时需要一个具体示例
+## A security boundary may need one concrete example
 
-**删减过度：**「挂载的插件共享宿主权限。」
+**Over-trimmed:** “Mounted plugins share the host's authority.”
 
-**适度：**「挂载的插件共享宿主权限。例如，能访问 `ctx.shell` 的插件可以用宿主执行器的权限运行命令。」
+**Balanced:** “Mounted plugins share the host's authority; for example, access to `ctx.shell` permits commands with the host executor's privileges.”
 
-**过于详细：**罗列插件可能滥用的所有服务和每种假设中的利用方式。
+**Over-detailed:** A list of every service a plugin could misuse and every hypothetical exploit.
 
-如果一个示例能把抽象的安全限制说明白，就保留它。
+Keep one example when it makes an otherwise abstract security limit operationally clear.
 
-<a id="delete-reasoning-transcripts-entirely"></a>
-## 删除推理过程记录
+## Delete reasoning transcripts entirely
 
-**过于详细：**「循环先检查值是否缺失。缺失时下一分支会提前返回。否则循环继续，所以最终断言是安全的。」
+**Over-detailed:** “First the loop checks whether the value is absent. If it is absent, the next branch returns early. Otherwise it continues, which is why the final assertion is safe.”
 
-**适度：**代码已经表现这些分支时，无需注释。若提前返回保护了某个不明显的不变量，仅陈述该不变量。
+**Balanced:** No comment when the code already expresses those branches. If the early return protects a non-obvious invariant, state only that invariant.
 
-直接删除推理过程记录，无需把它压缩成更短的叙述。
+Do not compress a reasoning transcript into shorter narration; remove it.
 
-<a id="configuration-comments-explain-what-the-tree-cannot"></a>
-## 配置注释解释配置树无法体现的信息
+## Configuration comments explain what the tree cannot
 
-**过于详细：**相邻条目已经展示加载顺序时，仍写「这个条目加载本地文件系统提供方，随后加载策略插件，再加载读取、写入和编辑工具。」
+**Over-detailed:** “This entry loads the local filesystem provider, followed by the policy plugin, followed by the read, write, and edit tools,” when the adjacent entries already show that order.
 
-**适度：**「在面向模型的工具前加载策略，使写入和编辑调用都经过先读后改校验。」
+**Balanced:** “Load policy before the model-facing tools so their write and edit calls pass through the read-before-mutation gate.”
 
-保留顺序的后果、意料之外的作用域规则或安全边界。具体条目直接从配置阅读。
+Keep the consequence of order, a surprising scope rule, or a security boundary. Let the configuration show its own inventory.
 
-<a id="do-not-trim-for-word-count-alone"></a>
-## 避免只为减少字数而精简
+## Do not trim for word count alone
 
-**现有写法：**「适配器把提供方错误转换成通用错误类型，调用方因此可以统一处理认证失败、限流和暂时性故障。」
+**Current:** “The adapter converts provider errors into the shared error type so callers can handle authentication, rate-limit, and transient failures uniformly.”
 
-**更短但信息不足：**「适配器统一处理提供方错误。」
+**Shorter but worse:** “The adapter normalizes provider errors.”
 
-**适度的处理：**除非链接或周围的契约已经列出错误分类，否则保留原句。缩短后的版本丢失了后果和分类，结构并未改善。
+**Balanced decision:** Keep the current sentence unless a link or surrounding contract already lists the failure categories. The shorter version loses the consequence and distinctions without improving structure.
 
-<a id="model-visible-text-follows-ownership"></a>
-## 模型可见文本遵循责任归属
+## Model-visible text follows ownership
 
-**删减过度：**「调用失败时，该工具返回错误。」
+**Over-trimmed:** “The tool returns errors when a call fails.”
 
-**过于详细：**将另一个包的 schema 和渲染文本复制到这个后端的 README。
+**Over-detailed:** Copying another package's schema and renderer strings into this backend's README.
 
-**适度：**引用本包负责的稳定提示、结果和错误文本。schema 链接到生成的工具目录，其他包负责的文字链接到消费者 README。本地只写本包特有的条件或差异。
+**Balanced:** Quote stable prompt, result, and error text owned by this package. Link the generated tool catalog for schemas and the consumer README for text another package owns; state only this package's conditions or deltas locally.
 
-模型接收的措辞属于行为。重复维护可能导致不同步，精确的文字应由负责方维护。
+Wording that reaches a model is behavior, but duplication still drifts. Exactness belongs at the owner.
 
-只审查文字时可以指出可疑的措辞。若没有对应的可运行快照，保留原文并报告延期，或在获得授权后将负责的场景和所需的 GUI 证据一并纳入修改范围。
+A prose-only audit may identify suspect wording but must not silently change it when no owning runnable snapshot exists. Leave it unchanged and report the deferral, or expand the authorized change to include the owner scenario and required GUI evidence.
 
-<a id="generated-summaries-must-stand-alone"></a>
-## 生成的摘要应能独立阅读
+## Generated summaries must stand alone
 
-**删减过度：**「审批请求和策略服务。」源文在后文解释了策略执行顺序和审计日志，但生成目录只导出首句。
+**Over-trimmed:** “Approval request and policy service.” The owner explains policy order and audit logging later, but the catalog exports only its first sentence.
 
-**过于详细：**把服务的整个生命周期和提示通知行为塞入被提取的句子。
+**Over-detailed:** Moving the service's full lifecycle and prompt-notice behavior into the extracted sentence.
 
-**适度：**「审批服务先应用会话策略，再交给审批应答方处理，并把每次请求及其结果写入发起请求的会话。」目录不需要的细节放在后续句子里。
+**Balanced:** “Approval service that applies session policy before answerers and logs every ask/outcome pair to the requesting session.” Keep non-catalog detail in later sentences.
 
-确认生成器提取哪段文字。被提取的文字必须完整表达生成产物所需的契约。
+Know what the generator extracts. That fragment must preserve the contract needed on its generated output.
 
-<a id="limitations-are-contracts-not-debt-inventories"></a>
-## 限制说明保留影响使用的约束
+## Limitations are contracts, not debt inventories
 
-**删减过度：**省去贯穿进程生命周期的缓存，导致读者不知道配置改变后需要重载插件。
+**Over-trimmed:** Omitting a process-lifetime cache that makes configuration changes require plugin reload.
 
-**过于详细：**列出只涉及私有辅助函数的清理项，以及未使用、仅供测试的访问方法，这些对调用方或维护者没有实际后果。
+**Over-detailed:** Listing private helper cleanup and unused test-only accessors with no caller or maintainer consequence.
 
-**适度：**「插件在其生命周期内缓存对提供方的选择。安装或修复提供方后需要重载插件。」日常清理事项留在对应的 TODO 或 Agent Note。
+**Balanced:** “Provider selection is cached for the plugin lifetime; installing or repairing a provider requires reload.” Keep ordinary cleanup in its TODO or Agent Note.
 
-保留影响使用或安全维护的缺口与不明显的约束。包 README 只记录与上述目标有关的内容。
+Retain gaps and non-obvious constraints that affect use or safe maintenance. A package README is not a backlog dump.

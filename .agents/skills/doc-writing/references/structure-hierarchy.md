@@ -1,53 +1,53 @@
-# 页面结构和文档层级
+# Page structure and hierarchy
 
-## 摘要
+## Summary
 
-每页先给新人一个简短的入口，再逐步展开操作或实现细节。跨包学习和工程资料按明确的层级放在 `docs/`，包契约随代码维护。适合独立检索的规则可单独成文，避免任意拆碎文档。结尾的 Dev Note 集中记录当前工作背景，上方保留稳定说明。
+Each page gives a newcomer a short front door before it exposes operational or implementation depth. Cross-package learning and engineering material lives under a deliberate `docs/` hierarchy, while package contracts stay beside code. Small rule files own one independently searchable requirement, but arbitrary fragmentation is not a goal. The final Dev Note isolates active working context from the stable explanation above it.
 
-## 目录
+## Table of Contents
 
-- [页面顺序](#页面顺序)
-- [章节递进](#章节递进)
-- [文档层级](#文档层级)
-- [小型规则文件](#小型规则文件)
-- [进一步阅读](#进一步阅读)
-- [开发备注的责任归属](#开发备注的责任归属)
-- [开发备注](#开发备注)
+- [Page order](#page-order)
+- [Section progression](#section-progression)
+- [Documentation hierarchy](#documentation-hierarchy)
+- [Small rule files](#small-rule-files)
+- [Further Exploration](#further-exploration)
+- [Dev Note ownership](#dev-note-ownership)
+- [Dev Note](#dev-note)
 
-## 页面顺序
+## Page order
 
-格式规范允许时，面向人的手写页面采用以下顺序。生成产物可以生成相同的入口章节。Agent Note 和复盘沿用仓库规定的骨架。
+Use this order for authored human-facing pages when the format owner permits it. Generated artifacts may generate the same entry sections, while Agent Notes and postmortems retain their repository-defined skeletons.
 
-1. YAML 元数据。
-2. H1 标题。
-3. 双语页面的语言切换链接。
-4. `## Summary`。用三到五句说明读者能做什么或观察到什么、为什么需要了解、主要运作方式以及最重要的边界。英文包 README 的摘要须满足校验规定的 100 词上限。
-5. `## Table of Contents`。链接页面的 H2 章节，只用于导航。
-6. 稳定正文，按面向用户的用法、面向开发者的设计和操作细节顺序展开。
-7. 可选的 `## Further Exploration`，向新人提供相邻主题的链接。
-8. 结尾的 `## Dev Note`，记录非权威的当前工作背景。
+1. YAML metadata.
+2. H1 title.
+3. Language switcher for a bilingual page.
+4. `## Summary`: three to five explanatory sentences stating what the reader can do or observe, why a reader would care, the main operating model, and the most important boundary. English package README Summaries stay within the gate-owned 100-word limit.
+5. `## Table of Contents`: links to the page's H2 sections; keep it navigational rather than descriptive.
+6. Stable content, ordered from user-facing use to developer-facing design and operational detail.
+7. Optional `## Further Exploration` for newcomer-oriented links to adjacent subjects.
+8. Final `## Dev Note` for non-authoritative active working context.
 
-由机器维护的极小文件、生成片段或解析器要求其他标题的格式无需套用 Summary 和 Table of Contents。例外应记在负责该格式的规范中，避免生成无效文档。包 README 校验要求最后两个 H2 为 `Model Experience` 和 `Known Limitations and Deferred Work`。将 `Further Exploration` 放在它们之前，并以限制章节内的 `### Dev Note` 结尾。
+Do not force a Summary/Table of Contents wrapper around tiny machine-owned files, generated fragments, or formats whose executed parser defines another header. State the exception in the format owner rather than creating invalid output. The package README gate requires `Model Experience` and `Known Limitations and Deferred Work` as the final two H2 sections: place `Further Exploration` before them and end with a final `### Dev Note` inside the limitations H2.
 
-## 章节递进
+## Section progression
 
-每个有实质内容的 H2 都先写一小段引言，再放表格、代码或 H3。引言说明本节主题和影响读者判断的要点。
+Open every substantive H2 with a short orienting paragraph before tables, code, or H3 subsections. Explain the section's subject and decision-relevant point; do not repeat its complete contents.
 
-一页内按读者所需的深度排列内容：
+Within a page, order content by reader depth:
 
-1. 基础用法：何时选用功能、必需输入、最短安全示例、可观察的成功表现和常见恢复方法。
-2. 进阶用法：配置选项、限制、操作和集成行为。
-3. 开发细节：责任归属、生命周期、数据模型、失败情形、性能、安全和值得维护的扩展点。
+1. Basic use: when to choose the feature, required inputs, shortest safe example, observable success, and likely recovery.
+2. Advanced use: configuration choices, limits, operations, and integration behavior.
+3. Developer detail: ownership, lifecycle, data model, failures, performance, security, and extension points worth maintaining.
 
-用 `<details>` 折叠较重的开发细节和结尾的 Dev Note，保留章节标题可见。具体写法见 [style.md](style.md)。
+Fold heavy developer detail and the final Dev Note behind `<details>` blocks with the section titles visible (mechanics in [style.md](style.md)).
 
-折叠的开发细节保持在概念层，说明整体设计、主要组件架构和数据流概况，让读者理解包如何工作，再用源码索引表和代码链接承载精确细节。省略完整 API 清单、列清单、事件负载枚举和 JSDoc 复述。未成形的想法、草稿和未定方向仅允许放在 Dev Note。其他内容（含折叠部分）应是整理过的当前状态说明。
+Folded developer detail is concept-level by requirement: the overall design concept, the architecture of the main components, and hand-waving dataflow — enough to understand how the package works — plus source-map tables and links to code for exact detail. It never becomes an exhaustive catalog: no full API inventories, column lists, event-payload enumerations, or JSDoc restatement. The Dev Note is the only place allowed to hold partial ideas, scratches, and undecided directions; everything else, folds included, is polished current-state prose.
 
-详尽的生成类型、schema 或目录应提供简短引言和稳定索引。如果一次查询需要扫描无关分组，就按现有领域负责方拆分。
+Keep exhaustive generated types, schemas, or catalogs behind a compact entry paragraph and stable index. Split them by an existing domain owner when one lookup requires scanning unrelated groups.
 
-## 文档层级
+## Documentation hierarchy
 
-包契约由包内的 README 维护，与源码相邻。跨包 Markdown 按读者和学习目的放入相应层级，避免将无关页面平铺在 `docs/`。
+Use package-local READMEs for package contracts and keep them next to source. Organize cross-package Markdown under audience and learning intent instead of leaving unrelated pages flat at `docs/`.
 
 ```text
 docs/
@@ -62,26 +62,26 @@ docs/
   subsystems/
 ```
 
-这是目标结构。每次只移动一个完整主题，在同一变更中修复所有入站链接和网站映射，保留公开路由或别名。`subsystems/` 下的页面彼此并列，因此保持扁平。
+Treat this as a target map, not permission for an opportunistic mass move. Move one coherent topic at a time, repair every inbound link and website mapping atomically, preserve public routes or aliases, and keep `subsystems/` flat because its pages are logically parallel.
 
-`docs/scratch/` 存放需要跨交接保留、纳入版本管理且有时效的讨论。每页注明负责方、创建日期、到期时间和拟转入的位置。可随时丢弃的本地笔记应被忽略，无需提交。
+`docs/scratch/` contains tracked, expiring discussion that must survive a handoff. Each scratch page names its owner, creation date, expiry, and promotion target. Local disposable notes remain ignored and uncommitted.
 
-## 小型规则文件
+## Small rule files
 
-规则、实践、一组示例或一项决策若有独立的负责方、变更频率、入站链接或校验，可用一个便于检索的小文件承载。将有关的文件放在名称明确的目录，如 `docs/developer/code-quality/`。需要一起阅读才能理解一项义务的规则放在同一文件。
+Give an independently searchable rule, practice, example family, or decision one small file when it has its own owner, change cadence, inbound links, or validation. Group related files under a descriptive hierarchy such as `docs/developer/code-quality/`. Keep tightly coupled rules together when splitting would force readers to open several files to understand one obligation.
 
-索引页用三到五句介绍本目录，并按用途链接直接子项。规则细节留在子项中。
+An index page explains the folder in three to five sentences and links its direct children by purpose. It does not restate each child's rule.
 
-## 进一步阅读
+## Further Exploration
 
-读完本页的新人需要了解相邻主题时，可以使用此节。链接三到七个直接相关的页面，从最近的前置主题排到更深入的内容，每项用短语说明补充了什么。保持范围集中。
+Use this optional section for a newcomer who finished the page and wants adjacent understanding. Link three to seven directly related pages, order them from closest prerequisite to deeper exploration, and say in a short phrase what each adds. Do not turn it into a complete site index.
 
-## 开发备注的责任归属
+## Dev Note ownership
 
-手写页面以 Dev Note 结尾，并明确其非权威性。可记录正在验证的假设、兼容性疑问、粗略的备选方案、进度指针和待解问题。稳定行为、必要限制和已接受的理由放在原本负责它们的地方。
+End authored pages with Dev Note, but keep it explicitly non-authoritative. Active hypotheses, compatibility concerns, rough alternatives, progress pointers, and unresolved questions may live there; stable behavior, required limitations, and accepted rationale belong in their ordinary owners.
 
-Dev Note 可以转述或链接任务进度。任务队列仍应集中维护。工作结束时，将长期有效的结论归入正式文档，可复用的理由移入 Agent Note，事件经过放在复盘中，已解决的讨论可以删除。旧的迭代由 Git 历史保存。
+Dev Note may mirror or link task progress but must not become a second writable queue. When work closes, promote durable conclusions, move reusable rationale to an Agent Note, keep incident chronology in a postmortem, and delete resolved chatter. Git history preserves old iterations.
 
-## 开发备注
+## Dev Note
 
-这一必需的末尾章节允许保留未完全整理的内容，仍须按其生命周期维护。空章节写 `None.`。生成格式和由解析器定义的格式，可以在明确列出例外时省略此节。
+The mandatory final section is intentionally the least polished part of an authored page, but it still has lifecycle discipline. A blank Dev Note should say `None.` rather than accumulate placeholder prose; generated and parser-owned formats may omit it through a named exception.

@@ -1,28 +1,28 @@
-# 模板：package-bundle
+# Template: package-bundle
 
-用于清单声明 `dsh.bundle.patch` 的包。这类包是可安装的配置档层，例如 `packages/bundle/*`、`dsh-subagent-codex`、`dsh-subagent-claude-code`。`bundle/base` 的双语 README 是使用此模板的实例。
+Use this template for a package whose manifest declares `dsh.bundle.patch` — an installable profile layer: `packages/bundle/*`, `dsh-subagent-codex`, `dsh-subagent-claude-code`. The `bundle/base` README pair is the worked example.
 
-捆绑包 README 优先说明如何安装到配置档以及这一层的语义，再在折叠的实现章节解释补丁文档。使用者通过配置档层获取能力，无需导入库或单独挂载插件。
+A bundle README leads with the profile-install path and the layer semantics; the implementation fold explains the patch document. It never presents the package as a library to import or as a single plugin to mount.
 
-## 元数据
+## Frontmatter
 
 ```yaml
 ---
-description: "说明捆绑包层为 dsh --profile 增添哪些能力，帮助用户组装或定制配置档。"
+description: "What the bundle layer adds to a dsh --profile surface, for users composing or customizing a profile."
 kind: "package-bundle"
 ---
 ```
 
-## 骨架
+## Skeleton
 
-````markdown
+```markdown
 # @deepseek-ai/dsh-<name>
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-用三到五句说明该层为配置档增加什么、哪些配置档已包含它、用户如何添加或移除，以及主要限制。英文用 `wc -w` 的方式计数，最多 100 个词。遵循[摘要表述规则](../SKILL.md#voice-rules)。
+Three to five sentences and at most 100 `wc -w`-style words: what a profile gains from this layer, which profiles already include it, how a user adds or removes it, and the main boundary. Apply the [Summary voice rules](../SKILL.md#voice-rules).
 
 ## Table of Contents
 
@@ -40,18 +40,18 @@ English | [中文](README.zh.md)
 
 ### Install into a profile
 
-动笔前在当前检出版本实际运行下列命令，验证安装路径：
+The verified install path — run it against the current checkout before writing:
 
 ```text
 dsh plugin --profile <name> add @deepseek-ai/dsh-<name>
 dsh plugin --profile <name> remove @deepseek-ai/dsh-<name>
 ```
 
-说明内置捆绑包从哪里解析、配置档协调步骤会激活什么，以及缺少补丁声明时会发生什么错误。
+State where in-box bundles resolve from, what the reconcile step activates, and what fails when the patch declaration is missing.
 
 ### What you get
 
-说明该层带来的可观察能力，如工具、提供方或 UI 条目，并指明每项行为由哪个包负责。
+The observable surface this layer adds: tools, providers, or UI rows, and which package owns each row's behavior.
 
 -----
 
@@ -59,9 +59,9 @@ dsh plugin --profile <name> remove @deepseek-ai/dsh-<name>
 ## Understand the implementation
 
 <details>
-<summary>实现细节（点击展开）</summary>
+<summary>Implementation internals — click to expand</summary>
 
-解释补丁文档中的插入清单、条目 ID、平台条件和覆盖语义。源码索引表链接 `cordis.patch.yml` 和 `src/`。省略 API 全量目录。
+The patch document: insert list, row ids, platform gating, override semantics. Source-map table links `cordis.patch.yml` and `src/`. No API catalogs.
 
 </details>
 
@@ -70,34 +70,34 @@ dsh plugin --profile <name> remove @deepseek-ai/dsh-<name>
 <a id="further-exploration"></a>
 ## Further Exploration
 
-链接到相关的组索引、配置档契约和组合关系图。
+Adjacent pages: the group map, the profile contract, the composition graph.
 
 -----
 
 <a id="model-experience"></a>
 ## Model Experience
 
-使用 verify-package-readme-model-experience 指定的格式。承载其他包的捆绑包使用 `indirect` 或 `none`，插入条目的模型侧行为由各条目对应的包负责。
+The form the verify-package-readme-model-experience gate assigns (bundle carriers are `indirect` or `none`: each inserted row's package owns its model-facing behavior).
 
 ## Known Limitations and Deferred Work
 
 <a id="known-limitations-and-deferred-work"></a>
 
-说明用户必须遵守的当前约束，包括覆盖语义、平台条件和冲突规则。
+Current constraints: override semantics, platform gates, and conflict rules a user must respect.
 
 <a id="dev-note"></a>
 ### Dev Note
 
 <details>
-<summary>维护者的工作背景（点击展开）</summary>
+<summary>Working context for maintainers — click to expand</summary>
 
 None.
 
 </details>
-````
+```
 
-## 规则
+## Rules
 
-- **模板只适用于声明 `dsh.bundle.patch` 的包。** 分类前在 `package.json` 核验声明。`dsh plugin` 的协调步骤只为这类包激活一层。
-- **验证安装路径。** 在临时配置档运行 `dsh plugin --profile <name> add <this-package>`。动笔前重现文档所述的警告、层激活和失败情况。
-- 修改双语文档后，重跑 `pnpm run verify-translation-pairing --write packages/<group>/<pkg>/README.md`。
+- **Only `dsh.bundle.patch` packages use this template.** Verify the declaration in `package.json` before classifying; the `dsh plugin` reconcile activates a layer for exactly these packages.
+- **Test the install path.** Run `dsh plugin --profile <name> add <this-package>` in a scratch profile and reproduce the documented warning, layer activation, and failure modes before writing them.
+- Re-run `pnpm run verify-translation-pairing --write packages/<group>/<pkg>/README.md` after editing the pair.

@@ -1,164 +1,131 @@
 ---
 name: doc-writing
-description: 用于创建、重组、审查、审计或迁移 agent-dev-template 的 Markdown 文档和 Module README。按读者组织层级，以 kind 映射 YAML 元数据及模板，用摘要和目录导航，从用户用法逐步深入开发细节，并通过实际执行操作和仓库校验核实事实。适用于新增或修订文档、整理文档树、审计文档质量和篇幅预算。
+description: Create, restructure, review, audit, or migrate DeepSeek Harness Markdown documentation, package READMEs, and the documentation website using audience-first hierarchy, kind-mapped YAML metadata, bilingual line alignment, summary/contents navigation, progressive user-to-developer detail, executed-operation fact-checking, and repository validation. Use for new or revised DSH docs, docs-tree organization, documentation-quality audits and budgets, website page publishing, and bilingual documentation structure changes.
 ---
-# 文档编写规范
+# DeepSeek Harness documentation
 
-## 摘要
+## Summary
 
-文档应便于检索和新人阅读，并为 Agent 和维护者提供准确的信息。先遵循仓库中的 `AGENTS.md` 和实际生效的工程校验规则，再按本流程处理类型元数据、文档结构和渐进式细节。每项事实只有一个权威归属。源代码、测试、生成目录、Module README、指南、Agent Note 和临时草稿各自负责对应的信息。
+The DeepSeek Harness documentation standard: make every page searchable, newcomer-readable, and exact enough for agents and maintainers, and keep the documentation website a tested projection of repository Markdown. Apply repository `AGENTS.md` files and executed gates first, then this workflow for kind-mapped metadata, progressive detail, line-aligned bilingual pages, corpus audits, and website publication. Preserve one owner per fact: source, tests, generated catalogs, package READMEs, guides, Agent Notes, and scratch each keep their own kind of truth. The `session-persistence-jsonl` README pair is the reference example of the format.
 
-## 目录
+## Table of Contents
 
-- [工作流程](#工作流程)
-- [事实核验流程](#事实核验流程)
-- [文档类型和模板](#文档类型和模板)
-- [表述规则](#表述规则)
-- [质量标准](#质量标准)
-- [审计文档集](#审计文档集)
-- [篇幅预算](#篇幅预算)
-- [详细参考](#详细参考)
-- [验证](#验证)
-- [开发备注](#开发备注)
+- [Workflow](#workflow)
+- [Fact-check procedure: test, do not assume](#fact-check-procedure-test-do-not-assume)
+- [Kind system and templates](#kind-system-and-templates)
+- [Voice rules](#voice-rules)
+- [Quality criteria](#quality-criteria)
+- [Audit the corpus](#audit-the-corpus)
+- [Wordcount budgets](#wordcount-budgets)
+- [Website publication](#website-publication)
+- [Detailed references](#detailed-references)
+- [Validation](#validation)
+- [Dev Note](#dev-note)
 
-## 工作流程
+## Workflow
 
-对每个请求范围按以下顺序处理。保持常用阅读路径简短，同时保留失败情形、责任归属、限制和其他必需的契约。
+Follow this sequence for each requested scope. Keep the common reader path brief, but do not delete failures, ownership, limitations, or other required contracts merely to reduce words.
 
-1. 阅读根目录及适用于当前目录的 `AGENTS.md`、文档规范、目标页面、对应的代码、测试和导航文档。
-2. 为页面确定一个主要用途及读者。用途包括产品快速入门、用户任务指南、开发者教程、架构概览、模块或子系统参考、生成参考、Agent 指令、决策记录及临时草稿。
-3. 把页面放在最接近其负责方的位置。模块契约随 Module 代码维护。跨模块的系统认知、用户指南、开发者指南和工程知识按照项目文档规范组织。
-4. 展开细节前，先确定读者的起点、可观察的结果、可能的失败、恢复路径，以及下一层有用的信息。
-5. 新增或修订 YAML 元数据，给 `kind` 赋值以选定符合页面用途的模板。文档类型允许时，依次编写概述、目录、面向用户的内容、面向开发者的内容、进一步探索和开发备注。
-6. 依据代码、测试、生成器、模块元数据或当前有效的研发决策核验每项声明。按下文的事实核验流程实际执行文档所述操作。先更新权威来源，再更新派生产物。
-7. 运行与本次变更相关的测试和文档检查，再运行项目规定的文档综合校验。完整重读差异，先检查准确性，再检查简洁性和是否符合仓库惯例。
+1. Read root and more-specific `AGENTS.md`, [the documentation standard](../../../docs/AGENTS.md), the target page, its source/tests, navigation owner, and bilingual record.
+2. Classify the page by one primary job and reader: product quick start, user task guide, contributor tutorial, architecture overview, package/subsystem reference, generated reference, agent instruction, decision record, or scratch.
+3. Place the page at its nearest owner. Keep package contracts beside package code; use `docs/` for cross-package learning, user, developer, architecture, discussion, and expiring scratch material.
+4. Define the reader's starting state, observable outcome, likely failure, recovery path, and next useful depth before writing details.
+5. Add or revise YAML metadata — assign the `kind` that maps to the template for this document's job — then write `Summary`, `Table of Contents`, user-facing content, developer-facing content, optional `Further Exploration`, and final `Dev Note` in that order where the document type permits.
+6. Update the bilingual counterpart in the same pass. Keep headings, lists, tables, code, links, frontmatter layout, and physical line count aligned.
+7. Verify every claim against code, tests, generators, package metadata, or a current decision owner — and run the operations the page instructs, per the fact-check procedure below. Update the owner before any derivative artifact.
+8. Run focused checks, then `pnpm run test:docs`, `pnpm run doc-sync`, `pnpm run lint`, and `git diff --check`; re-read the complete diff for correctness and then for brevity and repository fit.
 
-## 事实核验流程
+## Fact-check procedure: test, do not assume
 
-系统现状文档描述产品当前的行为。有关实际操作结果的声明应以执行结果为证据。新增文档或修改涉及操作、命令、配置、默认值、错误、平台差异和运行行为的内容时，执行以下流程。
+Documentation states how the product behaves today, and the only admissible evidence for an operation claim is having run it. This procedure is mandatory for every new document and every new paragraph that claims an operation, command, default, error, or platform difference.
 
-1. **先确定模块的性质，再编写使用说明。** 阅读实际工程配置、模块入口、公开接口及调用关系，确定模块的职责、使用方式和运行条件。不能仅根据目录名称、文件名称或技术框架推断模块行为。
-2. **在当前检出版本上执行文档所述操作。** 按文档展示的方式执行命令、配置示例、API 调用或其他可执行操作，核对成功结果、警告和失败情形。对于具有破坏性或外部副作用的操作，使用安全的测试环境或等效验证手段。
-3. **核验运行行为与技术契约。** 阅读对应的代码、测试和实际配置，检查默认值、数据语义、生命周期、错误处理和使用限制。必要时运行针对性测试或实验。
-4. **不得将未经核验的内容写成事实。** 禁止凭记忆、类比或相邻模块的 README 沿用命令、字段、默认值或行为。声明无法复现时，调查原因并修正不准确的内容。缺少密钥、设备、网络或运行环境时，明确说明验证限制，不得声称验证通过。
-5. **核对旧文档与当前实现。** 修改已有页面时，检查相关代码、测试、现有文档和有效研发决策。旧文档中的说法不因已经存在而具有正确性；确认失实后按实际情况纠正。
-6. **维护信息的权威归属。** 如果发现同一事实在多个位置重复维护，先确定其权威来源，再修正其他位置的描述或引用。生成内容应从其来源重新生成，不直接修改生成结果。
+1. **Classify the subject before writing install guidance.** Read the facts, never the folder name: `package.json` for a `dsh.bundle.patch` declaration, and the entry file for the plugin shape (`apply` export or a default service export is a plugin; a plain module API is a library). A bundle installs with `dsh plugin --profile <name> add <package>` and is the only package shape for which that command activates a profile layer; a plugin mounts as a `cordis.yml` row; a library is a dependency with no install path of its own. Packages with special status (libraries, bundles) get their own README template — never a plugin README with install guidance that does not apply.
+2. **Run every claimed operation against the current checkout.** Execute each CLI command, config snippet, and profile or patch example exactly as the document will show it; write down only what you observed, including the exact output, warnings, and failure modes. If a claim depends on a key or a network you do not have, say so and name the verification owner instead of asserting the behavior.
+3. **Delete what you could not reproduce.** Never carry a command, field, default value, or behavior from memory, analogy, or a neighboring package's README. When a claim fails to reproduce, fix the claim — not the test.
+4. **Check old docs against latest master.** Before revising pre-existing pages, `git fetch origin` and compare the section against `origin/master`; the pairing sidecar recovers the last-confirmed text of either side. A stale statement on master is still wrong: correct it against the code, not against the old prose.
+5. **Re-record the pair after every edit.** Each paired edit re-runs `pnpm run verify-translation-pairing --write <pair>` so the sidecar tracks the confirmed pair.
 
-## 文档类型和模板
+## Kind system and templates
 
-文档的类型由其主要用途、描述对象和目标读者决定，而不是由文件名称或目录名称单独决定。
+The `kind` frontmatter field selects exactly one README template. Every kind in [the metadata reference](references/metadata-links-i18n.md#the-kind-system) maps to one template file in [`templates/`](templates/), and every template backs exactly one kind; the documentation check derives the expected kind from the same mechanical facts.
 
-对于已纳入模板管理的文档，frontmatter 中的 `kind` 字段唯一对应一种文档模板，模板定义该类型的用途、页面结构及各章节需要核验的事实。
+- `package-group` → [templates/package-group.md](templates/package-group.md): group maps (`packages/README.md`, `packages/<group>/README.md`) — orient the family, map its direct packages, link package-owned details.
+- `package-reference` → [templates/package-reference.md](templates/package-reference.md): a Cordis plugin or service package — mount configuration, the config table, folded implementation, Model Experience and Known Limitations in the gate-owned forms.
+- `package-library` → [templates/package-library.md](templates/package-library.md): a package with no plugin surface — consumer entry points, no profile-install path, no mount configuration.
+- `package-bundle` → [templates/package-bundle.md](templates/package-bundle.md): a package declaring `dsh.bundle.patch` — the verified `dsh plugin` install path, layer semantics, patch document.
+- `persistence-change` → [templates/persistence-change.md](templates/persistence-change.md): a dated record in `docs/persistence-changes/` — acknowledge a detected type transition with per-root predecessors and generated after schemas.
+- `persistence-release` → [templates/persistence-release.md](templates/persistence-release.md): a pinned tag in `docs/persistence-changes/releases/` — compare reconstructed historical types without claiming compatibility acknowledgement.
+- `persistence-format` → [templates/persistence-format.md](templates/persistence-format.md): a historical Session format checkpoint in `docs/persistence-changes/historical-formats/`, with complete schemas; the current writer uses the existing catalog.
+- `upgrade-guide` → [templates/upgrade-guide.md](templates/upgrade-guide.md): `docs/upgrade-guide/v<version>/<item>/guide.md` and its Chinese sibling — migration steps for one externally perceptible break, owned by [dsh-create-upgrade-guide](../dsh-create-upgrade-guide/SKILL.md).
 
-- 动笔前打开当前文档类型对应的模板，遵循其结构和编写要求。
-- 根据描述对象的实际情况组织细节，不为填充模板而编造内容或增加无意义的章节。
-- 新增文档类型时，同时确定其适用范围、信息归属、独立模板和必要的校验规则。
-- 已有文档类型能够承担内容时，不新增用途重复的类型。
-- 尚未纳入模板管理的文档遵循项目文档规范，不自行创造新的 `kind` 值。
+Open the template before writing and follow its skeleton and rules; it states what the kind is, how the page is structured, and the fact checks each section owes. Add a new kind only together with a distinct template file, a documented repository position or declared owner, and a focused check that maps documents to it.
 
-具体文档类型及对应模板由项目的文档规范和模板清单定义。
+## Voice rules
 
-## 表述规则
+These rules decide what a section may say. They apply to every authored human-facing page, and to package READMEs with particular force.
 
-这些规则用于判断各章节应包含的内容，适用于面向人的手写文档，尤其是 Module README。
+- **Summary says what the subject does.** The opening `Summary` and the user-facing sections describe what a user or agent can DO with the subject — outcomes, benefits, when to choose it, main cost — never its role, type, or internal identity. In a package Summary, “what it is” means only its reader-visible capability, not its Cordis role, registrations, or internal components. Omit source identifiers unless the reader directly uses them in configuration, a command, or a public API. "The seam registers `ctx.x` and appends `x/event` records" is identity narration; "you can save a note per message and it survives restarts" is what it does.
+- **Developer sections explain, never enumerate.** Folded implementation content covers the overall design concept, architecture, and hand-waving dataflow — enough to understand how the package works — and links code for exact detail. No full API catalogs, exhaustive column lists, event-payload enumerations, or JSDoc restatement inside the folds.
+- **Dev Note is the only slop zone.** Partial ideas, scratches, undecided directions, measured artifacts, and working hypotheses live only in the final Dev Note, marked explicitly non-authoritative. Every other section is polished, current-state prose.
+- **Current state only.** Ordinary documentation describes the current codebase. Dedicated `persistence-change`, `persistence-release`, and `persistence-format` records retain historical type evidence; release comparisons and format checkpoints describe observed history without asserting compatibility. An `upgrade-guide` describes the change from its version directory's release to the next one. Agent Notes and postmortems retain their own historical scope.
+- **Use controlled technical English.** Give each sentence an explicit actor and one main action when ambiguity can change behavior. Reuse one term per concept, prefer direct verbs, split stacked instructions and conditions, and preserve modality and exceptions. Apply the non-certified, ASD-STE100-inspired discipline in [the page-style reference](references/style.md#controlled-technical-english). Do not force a shorter sentence when precision would fall.
 
-- **概述说明描述对象能够提供什么。** 概述和面向使用者的章节说明模块的职责、可获得的结果、适用场景、主要能力和必要限制。避免在概述中展开内部组件、实现细节和调用过程。只有读者直接使用或理解模块所必需的源码标识符才应出现。
-- **使用者章节描述可观察行为。** 说明使用方式、配置、输入输出、行为语义、失败情形、使用限制及必要的恢复方法。不要要求读者先理解内部实现才能使用模块。
-- **开发者章节解释整体设计。** 说明总体设计、内部组成、职责分配、架构和数据流，帮助开发者理解模块如何工作，并链接到代码查阅细节。避免罗列完整 API、全部字段、函数清单和对代码注释的复述。
-- **细节随文档层级逐步展开。** 当前文档充分描述自身负责的主题，对下级对象只说明其用途、职责、主要行为和协作关系，并链接到负责详细内容的文档。
-- **临时内容与正式内容分离。** 尚未确定的想法、草稿、工作假设和临时测量结果放在专门的草稿、研发记录或模板允许的开发备注中，明确其状态及非权威性。不要将其混入已经确认的系统现状描述。
-- **一般文档描述当前系统。** 架构、子系统及 Module README 描述当前实现。设计决策、故障复盘、版本变更和实验记录按照各自职责保留历史信息。尚未实现的设计不得描述为当前系统能力。
-- **描述完整的技术契约。** 保留行为、前置条件、结果、失败、时序、责任归属、例外和使用限制。不要因追求简短而删除使用者或维护者所依赖的信息。
-- **使用明确、直接的技术语言。** 当歧义可能改变行为时，明确句子的主体、动作和作用对象。同一概念使用一致的术语，拆开复杂的指令和条件，保留约束强度和例外。优先保证准确性。
-- **避免保留研发过程中的无效文字。** 不记录无意义的推理过程、临时讨论编号、过时的变更叙述、审查对话或代码执行过程的简单复述。确有长期价值的决策依据和证据由相应的研发记录承载。
+## Quality criteria
 
-## 质量标准
+Use these definitions in review. Each section opens with a short orienting paragraph before subsections or exhaustive detail.
 
-评审时使用以下标准。各主要章节应提供必要的主题说明，再展开小节或详细内容。
+- **Brief:** the common path contains only facts needed for its outcome; exhaustive truth remains one direct link or detail layer away.
+- **Intuitive:** prerequisites precede dependent concepts, one next action is obvious, and headings use terms readers search for.
+- **Friendly:** readers can recognize success, understand risk before acting, recover from likely failure, and choose whether to continue deeper.
+- **Accurate:** each durable claim has one owner and a verification path proportionate to its risk.
+- **Agent-readable:** metadata, stable headings, anchors, terminology, ownership, and current/proposed status support targeted retrieval without loading the corpus.
+- **Newcomer-complete:** a professional engineer with no repository context can reconstruct the relevant architecture or feature through three to five linked pages.
 
-- **简洁**：常用阅读路径只包含取得结果所需的事实。完整内容通过直接链接或下一层细节可达。
-- **直观**：先交代前置知识，再介绍依赖这些知识的概念。下一步行动清楚，标题采用读者会搜索的词。
-- **易用**：读者能辨认成功结果，在操作前理解风险，从常见失败中恢复，并决定是否继续深入。
-- **准确**：每项长期有效的声明都有明确的权威归属，以及与风险相称的验证路径。
-- **便于 Agent 阅读**：元数据、稳定的标题、链接、术语、责任归属及当前或提议状态，支持无需加载整个文档集的定向检索。
-- **足以让新人理解**：不了解仓库的专业工程师能够通过少量相互链接的页面，理解相关架构或功能，并定位进一步阅读的文档和代码。
+Do not apply a universal word limit to exhaustive references. Measure entry-path length, unrelated material scanned for one lookup, largest section, heading count, and page size; split by an existing domain owner when retrieval cost is high.
 
-详尽的参考文档无需统一的字数限制。衡量入口路径的长度、单次查询需要扫过的无关内容、最大章节、标题数量和页面大小。检索成本偏高时，按实际的信息归属拆分。
+## Audit the corpus
 
-## 审计文档集
+Read, do not re-summarize, the owning contracts: [docs/AGENTS.md](../../../docs/AGENTS.md) for hierarchy, tutorial/reference forms, taxonomy, budgets, and the slop checklist; [.agents/notes/README.md](../../notes/README.md) for Agent Note lifecycle; [docs/i18n/README.md](../../../docs/i18n/README.md) for the bilingual pairing rules; and [root AGENTS.md](../../../AGENTS.md) for standing orders. Exclude `.agents/notes/archived/` from audits and edits — archived notes are frozen history.
 
-直接阅读负责定义规则的文件，包括项目级研发规则、文档规范、研发记录管理规则和相关模块约束。不要在审计结果中重新复述完整规则。
+Apply the standard's authoring order to every human-facing document in scope (not to Agent Notes): locate the document and state its own subject; set the permitted detail level and move deeper explanations to owning descendants with links; classify tutorial or reference from intended use, not path; for a tutorial, order concepts by prerequisite and difficulty; split substantial mixed forms. Then check placement constraints: paired docs cost a counterpart update and a `--write` re-record on every edit; generated catalogs are never hand-edited; a move is atomic with every inbound link repaired in the same change.
 
-### 结构与归属审计
+After the structural pass, hunt the slop checklist with the cheapest probes first. Use [dsh-trim-cot-leakage](../dsh-trim-cot-leakage/SKILL.md) for reasoning-transcript leakage, grep distinctive phrases to find duplicated rules, replace hand-written catalogs and status inventories with their authoritative owners, and remove migration plans and future-tense spec language from implemented Agent Notes. Measure outliers with `pnpm run verify-doc-budgets --list` and a word-count scan; if removing prose changes a promised behavior rather than its explanation, propose the behavior change first (follow [dsh-find-simplifications](../dsh-find-simplifications/SKILL.md)). Keep every load-bearing rule, preferably as one to three lines plus a link to its rationale; do not create a new explanation merely to relocate disposable reasoning.
 
-对范围内的文档逐一执行：
+## Wordcount budgets
 
-1. 确定文档描述的主题、主要用途、目标读者和信息归属。
-2. 检查文档是否处于适当的位置，是否承担了其他文档的职责。
-3. 检查细节深度，将属于下级对象的详细说明移至对应文档，并建立引用。
-4. 判断文档属于教程还是参考文档。教程按照前置依赖和难度排列内容；参考文档按照查询对象及信息归属组织内容。两种用途均有大量内容时，考虑拆分。
-5. 检查目录、导航、文档间链接和代码引用。移动或删除文档时，在同一变更中修复受影响的引用。
-6. 对生成文档检查其生成来源及当前一致性，不直接修改生成结果。
+`pnpm run verify-doc-budgets` compares standing documents against ceilings in [scripts/doc-budgets.manifest.json](../../../scripts/doc-budgets.manifest.json); a red gate follows the ordered relocate-condense-raise policy in [docs/AGENTS.md](../../../docs/AGENTS.md#wordcount-budgets). Ceilings are guardrails, not reduction targets: at or below target, retain at least 5% headroom; raise a ceiling only when the words need the space, and justify the manifest diff in the PR.
 
-研发记录按照其自身的管理规则审计。已经明确冻结的历史记录不按当前系统现状修订。
+## Website publication
 
-### 内容审计
+The website is a tested projection, never a second copy: [website/docs.ts](../../../website/docs.ts) is the explicit public allowlist mapping canonical `docs/` sources into route trees, [scripts/project-doc-site.ts](../../../scripts/project-doc-site.ts) rewrites them into the disposable `website/.generated/` tree, and VitePress builds that tree. Repository Markdown stays the only editable content source; translations stay sibling pairs (`foo.md`, `foo.zh.md`, `foo.i18n.yaml`), never locale directories. Edit an already published page in its canonical source only; add one manifest entry for a new page; update source, manifest entry, and inbound links atomically for a move or removal; never edit `website/.generated/`, `website/.cache/`, or `website/.dist/`. Set every `DocsPage` field deliberately and honor the projector's link rules; see [references/website-sync.md](references/website-sync.md) for the fields, sidebar collections, and preview commands. Synchronizing content into the build does not publish it: deployment stays a separate, explicitly requested step.
 
-完成结构检查后，检查以下问题：
+## Detailed references
 
-- 与当前代码、测试、配置或有效研发决策不一致的描述。
-- 已失效的命令、路径、接口、配置字段和引用。
-- 在多个文档中重复维护的事实和规则。
-- 可以由代码或生成目录直接提供的手写清单。
-- 混入系统现状描述的未实施方案和过时计划。
-- 不具备长期价值的推理过程、临时讨论、审查历史和变更叙述。
-- 对代码、测试和其他文档的无意义复述。
-- 篇幅过大、内容职责混杂或检索成本过高的页面。
+Load only the reference needed for the task. Each reference links directly from this file so the skill has no deep reference chain.
 
-优先使用搜索、篇幅统计、链接检查和针对性源码调查等成本较低的方法定位问题，再进行语义审查。
+- [Metadata, links, and bilingual pairs](references/metadata-links-i18n.md): README frontmatter, the kind system and its derivation, description semantics, repository paths, line alignment, and the sidecar record.
+- [Page structure and hierarchy](references/structure-hierarchy.md): mandatory section order, section summaries, user-to-developer progression, docs tree placement, small rule files, Further Exploration, and Dev Note ownership.
+- [Page style](references/style.md): short Summary, `-----` section separators, foldable content sections, and emphasis discipline.
+- [Review criteria](references/review.md): newcomer test, evidence checks, package README review, the reference example, and verification commands.
+- [Website publication](references/website-sync.md): manifest fields, projector link rules, preview and validation, and deployment separation.
 
-删除或精简文字时，保留所有实际有效的行为约束、失败保证、限制及其适用条件。如果修改内容会改变现有技术契约而不仅是其表达，应作为研发变更处理，不得借文档整理直接改变约束。
+The templates in [`templates/`](templates/) provide one working skeleton per `kind`; open the one your document's kind names before writing.
 
-## 篇幅预算
+Use [dsh-prose-standard](../dsh-prose-standard/SKILL.md) for sentence-level contract coverage and editorial judgment. The `session-persistence-jsonl` README pair ([English](../../../packages/session/session-persistence-jsonl/README.md), [Chinese](../../../packages/session/session-persistence-jsonl/README.zh.md)) is the reference example: searchable YAML, Summary and Table of Contents, user-to-developer progression with a folded developer section, Further Exploration, canonical Model Experience and Known Limitations sections, and a final Dev Note.
 
-篇幅预算用于控制文档的阅读和检索成本，不是要求所有文档达到统一长度。
+## Validation
 
-优先约束长期进入 Agent 上下文的常驻指令、项目入口、导航页面和工作流说明。详细参考文档根据其负责的主题确定合理篇幅。
+Validate the affected format, not merely Markdown syntax. A strong promise needs a focused valid fixture and an invalid fixture that proves the top-level gate can fail.
 
-文档超出预算或检索成本过高时，按以下顺序处理：
+- README metadata: parse YAML, map `kind` to its template and document standard, reject `name`, `audience`, ungoverned `tags`, and README-local `i18n` metadata, and reject missing or advertisement-style descriptions.
+- Bilingual pages: verify structure, exact line count, terminology, link parity, and the sidecar record.
+- Tutorials: exercise the documented entry path or name an explicit manual verification owner.
+- Generated references: run the deterministic freshness check and report retrieval-size measures.
+- Package READMEs: run the Summary gate, which limits each English Summary to 100 `wc -w`-style words and directs failures back to this skill and the kind template; run model-experience and limitation checks, then package-focused tests when behavior claims changed; re-run every command the README instructs before merging a claim about it.
+- Skills: run the repository's skill-invocation metadata check.
 
-1. **移位**：将不属于当前文档的内容移至其权威归属位置，并建立引用。
-2. **精简**：删除重复、无效、过时和不必要的解释，保留实际约束及必要上下文。
-3. **拆分**：按照真实的信息归属和阅读需求拆分过大的文档。
-4. **调整预算**：内容确实需要更多篇幅且无法合理移位、精简或拆分时，提高对应文档的预算，并说明原因。
+Run `pnpm run test:docs` for the quick comprehensive documentation checks (pairing, wrap, links, README gates, budgets, skill metadata, Agent Note gates) before the full `pnpm run doc-sync`.
 
-项目已建立篇幅预算清单和检查脚本时，使用实际生效的预算及验证机制。
+## Dev Note
 
-## 详细参考
-
-仅加载当前任务所需的参考文件。各参考文件应从本页直接访问，避免形成过深的引用链。
-
-文档类型、模板、元数据、页面结构、文档层级、表述规范和审查标准的详细要求，由对应的参考文件承载。
-
-对 Module README 的组织方式，可参考 DeepSeek Harness 的 [session-persistence-jsonl README](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/session/session-persistence-jsonl/README.zh.md)。重点参考其概述、目录、使用说明、逐步深入的实现细节、源码地图、进一步探索和已知限制等内容的组织方式。
-
-## 验证
-
-按受影响的文档类型和实际变更范围进行验证，而不是仅检查 Markdown 语法。
-
-- **元数据**：检查 YAML 是否有效、描述是否准确、`kind` 是否与实际文档用途及对应模板一致。
-- **文档结构**：检查章节职责、文档层级、导航、链接及信息归属。
-- **教程与操作指南**：实际执行文档给出的操作，核对成功结果、失败情形和恢复方法。无法执行时明确验证限制。
-- **生成参考文档**：检查生成来源和生成结果的一致性，运行已有的确定性新鲜度检查。
-- **Module README**：检查概述、使用方式、行为约束、实现说明、源码地图和已知限制是否与当前实现一致。行为声明变更后运行相关测试。
-- **研发记录**：按照研发记录管理规则检查分类、状态、内容、关联关系及其与实际实施结果的一致性。
-- **Skills**：检查元数据、触发条件、执行指令和引用的资源是否有效。
-- **篇幅预算**：按照项目已建立的篇幅限制进行检查。
-
-优先运行与本次变更直接相关的检查，再运行项目规定的文档综合校验。对于能够机械判断的关键约束，建立针对性的有效样例与无效样例，确认检查能够识别并拒绝违规输入。
-
-完成后重读文档及其变更，确认内容准确、职责清晰、引用有效，并如实报告已经执行的验证及未能验证的事项。
-
-## 开发备注
-
-无。
+None.
