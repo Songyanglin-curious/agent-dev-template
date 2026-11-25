@@ -1,8 +1,8 @@
-# Template: package-bundle
+# 模板：package-bundle
 
-Use this template for a package whose manifest declares `dsh.bundle.patch` — an installable profile layer: `packages/bundle/*`, `dsh-subagent-codex`, `dsh-subagent-claude-code`. The `bundle/base` README pair is the worked example.
+用于 manifest 声明 `dsh.bundle.patch` 的包——一个可安装的 profile 层：`packages/bundle/*`、`dsh-subagent-codex`、`dsh-subagent-claude-code`。`bundle/base` 的 README 配对是实操范例。
 
-A bundle README leads with the profile-install path and the layer semantics; the implementation fold explains the patch document. It never presents the package as a library to import or as a single plugin to mount.
+bundle README 以 profile 安装路径和层语义开头；实现折叠区解释 patch 文档。它绝不把该包呈现为可导入的库或可挂载的单个插件。
 
 ## Frontmatter
 
@@ -13,7 +13,7 @@ kind: "package-bundle"
 ---
 ```
 
-## Skeleton
+## 骨架
 
 ```markdown
 # @deepseek-ai/dsh-<name>
@@ -96,8 +96,8 @@ None.
 </details>
 ```
 
-## Rules
+## 规则
 
-- **Only `dsh.bundle.patch` packages use this template.** Verify the declaration in `package.json` before classifying; the `dsh plugin` reconcile activates a layer for exactly these packages.
-- **Test the install path.** Run `dsh plugin --profile <name> add <this-package>` in a scratch profile and reproduce the documented warning, layer activation, and failure modes before writing them.
-- Re-run `pnpm run verify-translation-pairing --write packages/<group>/<pkg>/README.md` after editing the pair.
+- **只有声明 `dsh.bundle.patch` 的包才使用本模板。** 判定前先在 `package.json` 中确认该声明；`dsh plugin` 的 reconcile 只会为这类包激活层。
+- **测试安装路径。** 在一个临时 profile 中运行 `dsh plugin --profile <name> add <this-package>`，在写下文档化的警告、层激活和失败模式之前先复现它们。
+- 编辑配对后重跑 `pnpm run verify-translation-pairing --write packages/<group>/<pkg>/README.md`。

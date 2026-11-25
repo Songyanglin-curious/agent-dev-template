@@ -1,8 +1,8 @@
-# Template: package-library
+# 模板：package-library
 
-Use this template for a package with no plugin surface: its entry exports a plain module API and it registers nothing into a composition. Examples: `boot/app-boot`, `util/*`, `sdk/protocol`, `typert/generator`. The `boot/app-boot` README pair is the worked example.
+用于没有插件表面的包：其入口导出普通模块 API，不向组合注册任何东西。示例：`boot/app-boot`、`util/*`、`sdk/protocol`、`typert/generator`。`boot/app-boot` 的 README 配对是实操范例。
 
-A library README differs from a package reference in three ways: no "install into a profile" guidance (a library is a dependency, not a layer), no mount configuration (there is no `cordis.yml` row), and a Model Experience section only in the audited form the gate assigns (most libraries are `none` or `indirect`).
+库 README 与包参考有三点不同：不写“安装进 profile”的指引（库是依赖，不是层），不写挂载配置（没有 `cordis.yml` 行），且 Model Experience 章节只采用门禁为该包指定的受审计形式（多数库是 `none` 或 `indirect`）。
 
 ## Frontmatter
 
@@ -13,7 +13,7 @@ kind: "package-library"
 ---
 ```
 
-## Skeleton
+## 骨架
 
 ```markdown
 # @deepseek-ai/dsh-<name>
@@ -89,8 +89,8 @@ None.
 </details>
 ```
 
-## Rules
+## 规则
 
-- **Classify by the entry, not the folder.** Read `src/index.ts` before choosing this template: `export default` a service class or an `apply` export makes the package a `package-reference`, and `dsh.bundle.patch` in `package.json` makes it a `package-bundle`. A plain module API without those is a library.
-- **Never write profile-install guidance.** `dsh plugin --profile <name> add <package>` installs any npm dependency but activates a profile layer only for `dsh.bundle`-declaring packages; for a library it is at best a no-op dependency and must not appear as an install path.
-- Re-run `pnpm run verify-translation-pairing --write packages/<group>/<pkg>/README.md` after editing the pair.
+- **按入口判定，而不是按文件夹判定。** 选择本模板前先读 `src/index.ts`：`export default` 一个 service 类或导出 `apply` 都会使该包成为 `package-reference`，而 `package.json` 中的 `dsh.bundle.patch` 会使其成为 `package-bundle`。没有这些的普通模块 API 才是库。
+- **绝不写 profile 安装指引。** `dsh plugin --profile <name> add <package>` 可以安装任意 npm 依赖，但只为声明 `dsh.bundle` 的包激活 profile 层；对库而言它至多是一个空操作的依赖，绝不能作为安装路径出现。
+- 编辑配对后重跑 `pnpm run verify-translation-pairing --write packages/<group>/<pkg>/README.md`。

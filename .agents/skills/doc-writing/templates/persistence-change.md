@@ -1,6 +1,6 @@
-# Template: persistence-change
+# 模板：persistence-change
 
-Use this template for `docs/persistence-changes/YYYY-MM-DD-slug.md` and its Chinese sibling. The folder README is an index, not a record. A record acknowledges only mechanically detected persistence-type changes. Its generated JSON sibling retains complete after schemas so verification needs no Git baseline.
+用于 `docs/persistence-changes/YYYY-MM-DD-slug.md` 及其中文姊妹篇。该文件夹的 README 是索引，不是记录。记录只确认机械检测到的持久化类型变更。其生成的 JSON 姊妹文件保留完整的 after schema，因此核验不需要 Git 基线。
 
 ## Frontmatter
 
@@ -11,9 +11,9 @@ kind: persistence-change
 ---
 ```
 
-## Skeleton
+## 骨架
 
-The generator fills the machine declaration, schema companion, and consistency records. Structural changes outside the established same-version cases require an explicit compatibility decision. Supply `--prose` JSON with `en` and `zh` objects, each containing authored `summary`, `compatibility`, and `verification` strings. Use Compatibility to explain both reader directions and Verification to record executed checks. The [cookbook](../../../../docs/cookbook/reviewing-persistence-type-changes.md) shows the operation. Use the actual generated root names, record ids, and digests in the following fields.
+生成器会填充机器声明、schema 伴随文件和一致性记录。既有同版本用例之外的结构性变更需要明确的兼容性决策。提供带 `en` 和 `zh` 对象的 `--prose` JSON，每个对象包含由人编写的 `summary`、`compatibility` 和 `verification` 字符串。用 Compatibility 解释两个方向的读者行为，用 Verification 记录实际执行的检查。[cookbook](../../../../docs/cookbook/reviewing-persistence-type-changes.md) 演示了该操作。在下列字段中使用实际生成的 root 名称、记录 id 和 digest。
 
 ````markdown
 # Persistence change: <specific persisted change>
@@ -61,13 +61,13 @@ Record the commands actually run and their outcomes. Link focused tests or prese
 None.
 ````
 
-## Rules
+## 规则
 
-- Keep exactly one `yaml persistence-change` block. The English and Chinese blocks are byte-identical; the verifier parses the English record once and checks its counterpart.
-- The filename stem and `id` agree. A root's `previous` identifies its predecessor record; `null` introduces a root. Its `after` matches the generated companion schema digest; `null` records deletion.
-- One initial `baseline: true` record covers the complete inventory. Routine changes use `baseline: false` and preserve accepted predecessors. A version-bump record carries its own increasing `SessionHeader.version` transition.
-- Structural differences alone do not infer a bump. A same-version change requiring review needs explicit `--decision same-version`; a changed header version infers `version-bump`. An explicit decision cannot waive the required header increase. The command supplies no source changes or validation claims.
-- Explain only the detected persistence-type changes. This kind permits the before/after facts and historical evidence needed for that transition; behavior-only changes remain out of scope.
-- Record creation and terminal-record update generate the catalog pair and consistency sidecars. Review both languages and retain the generated companions. Direct prose edits still require re-recording pairing; do not hand-maintain schema nodes or digests.
-- Use explicit `--update` only for an unaccepted terminal record. It rejects baselines and depended-on records; `--prose` replaces its authored explanations, while omission preserves them. A flagged same-version update requires explicit `--decision same-version`; reassess the explanation against the complete transition. Accepted records receive successors.
-- The [folder reference](../../../../docs/persistence-changes/README.md) owns compatibility rules; the [cookbook](../../../../docs/cookbook/reviewing-persistence-type-changes.md) owns commands and recovery.
+- 只保留一个 `yaml persistence-change` 块。英文块和中文块逐字节一致；校验器解析一次英文记录，再检查其对应中文。
+- 文件名主干与 `id` 一致。某个 root 的 `previous` 标识其前驱记录；`null` 表示引入新 root。其 `after` 与生成的伴随 schema digest 一致；`null` 表示记录删除。
+- 一条初始的 `baseline: true` 记录覆盖完整清单。常规变更使用 `baseline: false` 并保留已接受的前驱。版本提升记录携带自己的、递增的 `SessionHeader.version` 迁移。
+- 仅凭结构差异不能推断出版本提升。需要评审的同版本变更要显式指定 `--decision same-version`；header 版本变化则推断为 `version-bump`。显式决策不能豁免必需的 header 提升。该命令不提供源码改动或校验声明。
+- 只解释检测到的持久化类型变更。该 kind 允许承载该迁移所需的 before/after 事实和历史证据；纯行为变更不在范围内。
+- 记录创建和终态记录更新会生成 catalog 配对和一致性 sidecar。评审两种语言并保留生成的伴随文件。直接编辑文字后仍需重新记录配对；不要手工维护 schema 节点或 digest。
+- 只对未被接受的终态记录使用显式 `--update`。它会拒绝 baseline 和被依赖的记录；`--prose` 会替换由人编写的说明，省略时则保留。被标记的同版本更新需要显式 `--decision same-version`；要对照完整迁移重新评估说明。已接受的记录会获得后继记录。
+- [文件夹参考](../../../../docs/persistence-changes/README.md)负责兼容性规则；[cookbook](../../../../docs/cookbook/reviewing-persistence-type-changes.md) 负责命令与恢复。

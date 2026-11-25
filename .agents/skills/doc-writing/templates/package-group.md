@@ -1,6 +1,6 @@
-# Template: package-group
+# 模板：package-group
 
-Use this template for `packages/README.md` and every `packages/<group>/README.md`. The page is a map: it orients the capability family, lists its direct packages with one-line roles, and links package-owned details. It never restates a package's contract.
+`packages/README.md` 和每个 `packages/<group>/README.md` 都使用本模板。该页面是一张地图：为能力族定位，用一行职责列出其直接包，并链接由包自己负责的细节。它绝不复述某个包的约定。
 
 ## Frontmatter
 
@@ -11,7 +11,7 @@ kind: "package-group"
 ---
 ```
 
-## Skeleton
+## 骨架
 
 ```markdown
 # <group>/ — <one-line subject>
@@ -50,10 +50,10 @@ One short orienting sentence, then the package map:
 None.
 ```
 
-## Rules
+## 规则
 
-- One row per direct package; role text states the package's contribution, never its internals.
-- Add a `ctx key`, package shape, or npm-name column only when that distinction helps readers choose among the direct packages.
-- Related documentation links adjacent owners (group maps, subsystem pages, Agent Notes) with a short phrase per link.
-- Do not add a Model Experience or Known Limitations section; the group map owns no runtime behavior.
-- Re-run `pnpm run verify-translation-pairing --write packages/<group>/README.md` after editing the pair.
+- 每个直接包一行；职责文字说明该包的贡献，绝不写它的内部细节。
+- 只有当 `ctx key`、包形态或 npm 名称的区别能帮助读者在直接包之间做选择时，才增加相应的列。
+- `Related documentation` 章节链接相邻归属方（分组映射、子系统页面、Agent Note），每个链接配一个短语。
+- 不要添加 Model Experience 或 Known Limitations 章节；分组映射不拥有任何运行时行为。
+- 编辑配对后重跑 `pnpm run verify-translation-pairing --write packages/<group>/README.md`。

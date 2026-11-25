@@ -1,6 +1,6 @@
-# Template: package-reference
+# 模板：package-reference
 
-Use this template for a package whose entry is a Cordis plugin — a service default export or an `apply` function — mounted in a composition. This is the default for `packages/<group>/<pkg>/README.md`. The `session-persistence-jsonl` README pair is the worked example of this template.
+用于入口是 Cordis 插件——service 默认导出或 `apply` 函数——并挂载在某个组合中的包。这是 `packages/<group>/<pkg>/README.md` 的默认模板。`session-persistence-jsonl` 的 README 配对是本模板的实操范例。
 
 ## Frontmatter
 
@@ -11,7 +11,7 @@ kind: "package-reference"
 ---
 ```
 
-## Skeleton
+## 骨架
 
 ```markdown
 # @deepseek-ai/dsh-<name>
@@ -95,9 +95,9 @@ None.
 </details>
 ```
 
-## Rules
+## 规则
 
-- **Fact-check before writing.** Mount the package in a test composition and run every command, config field, default, and behavior claim this README makes. Delete anything you did not reproduce; link the generated config catalog instead of restating fields.
-- **Installation guidance.** A plugin package mounts through `cordis.yml` rows. Only a package declaring `dsh.bundle.patch` installs as a profile layer via `dsh plugin --profile <name> add <package>` — if this package lacks that declaration, say how it mounts in a composition, never `dsh plugin add`.
-- **Model Experience and Known Limitations are gate-owned.** Match the exact headings and per-package forms the two gates enforce; update the gates' audited lists in the same change when behavior moves a package between forms.
-- Re-run `pnpm run verify-translation-pairing --write packages/<group>/<pkg>/README.md` after editing the pair.
+- **写之前先做事实核验。** 在测试组合中挂载该包，并运行本 README 作出的每条命令、配置字段、默认值和行为声明。删掉任何未能复现的内容；链接生成的配置 catalog，而不是复述字段。
+- **安装指引。** 插件包通过 `cordis.yml` 的行挂载。只有声明 `dsh.bundle.patch` 的包才通过 `dsh plugin --profile <name> add <package>` 作为 profile 层安装——如果本包没有该声明，就说明它如何在组合中挂载，绝不要写 `dsh plugin add`。
+- **Model Experience 和 Known Limitations 由门禁负责。** 与两个门禁强制的确切标题和每包形式保持一致；当行为使某个包在形式之间迁移时，在同一次改动中更新门禁的受审计列表。
+- 编辑配对后重跑 `pnpm run verify-translation-pairing --write packages/<group>/<pkg>/README.md`。

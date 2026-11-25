@@ -1,22 +1,22 @@
-# Metadata, links, and bilingual pairs
+# 元数据、链接与双语配对
 
 ## Summary
 
-README metadata is a retrieval and template-selection interface, not a miniature report or advertisement. The `kind` field selects exactly one README template that exists in this skill and maps to the document standard; the frontmatter carries no field that a filename convention or an executed gate already owns. Bilingual pages keep equal authority, one-to-one structure, and exact physical line alignment. The `*.i18n.yaml` sidecar records the last-confirmed pair and supports automatic merges. Link syntax must render correctly on GitHub and the documentation site, so repository links stay renderer-valid relative URLs.
+README 元数据是检索和模板选择的接口，不是缩微版报告或广告。`kind` 字段恰好选择一个存在于本 skill 中、并映射到文档标准的 README 模板；frontmatter 不携带任何已由文件名约定或已执行门禁负责的字段。双语页面保持同等权威、一一对应的结构和精确的物理行对齐。`*.i18n.yaml` sidecar 记录最后一次确认的配对，并支持自动合并。链接语法必须在 GitHub 和文档网站上都能正确渲染，因此仓库链接保持渲染器可识别的相对 URL。
 
 ## Table of Contents
 
-- [README metadata](#readme-metadata)
-- [The kind system](#the-kind-system)
-- [Description quality](#description-quality)
-- [Repository links and path mentions](#repository-links-and-path-mentions)
-- [Bilingual line alignment](#bilingual-line-alignment)
-- [Bilingual consistency records](#bilingual-consistency-records)
+- [README 元数据](#readme-元数据)
+- [kind 体系](#kind-体系)
+- [description 质量](#description-质量)
+- [仓库链接与路径提及](#仓库链接与路径提及)
+- [双语行对齐](#双语行对齐)
+- [双语一致性记录](#双语一致性记录)
 - [Dev Note](#dev-note)
 
-## README metadata
+## README 元数据
 
-Start every authored README with YAML frontmatter. Permit custom fields, but keep common fields stable enough for search and indexing.
+每个由人编写的 README 都以 YAML frontmatter 开头。允许自定义字段，但通用字段要保持足够稳定，以支持搜索和索引。
 
 ```yaml
 ---
@@ -25,53 +25,53 @@ kind: "package-reference"
 ---
 ```
 
-`description` and `kind` are required for package README pairs. The page title and package manifest already own the name, while the document job and its reader path express the audience; duplicating either in frontmatter adds no retrieval value. The counterpart path comes from the sibling filename (`README.zh.md`), and the sidecar owns pair state, so README-local `i18n` metadata is redundant. Do not add `tags` until a repository-owned taxonomy and search consumer justify them beyond description and full-text search. Keep keys lowercase and hyphenated unless an existing owner defines another spelling, and do not copy volatile code inventories into frontmatter.
+包 README 配对必须包含 `description` 和 `kind`。页面标题和包 manifest 已经负责名称，文档职责及其读者路径已经表达受众；在 frontmatter 里重复其中任何一项都不会增加检索价值。对侧路径由同目录文件名（`README.zh.md`）得出，配对状态由 sidecar 负责，因此 README 局部的 `i18n` 元数据是多余的。在仓库自有的分类法和搜索消费方证明 `tags` 的价值超过 description 与全文搜索之前，不要添加 `tags`。键名保持小写并带连字符，除非已有归属方定义了别的拼写；不要把易变的代码清单复制进 frontmatter。
 
-## The kind system
+## kind 体系
 
-`kind` selects the document template directly; every kind maps to exactly one template that exists in this skill, and no template exists without a kind. Files named `docs/persistence-changes/YYYY-MM-DD-slug.md` use `persistence-change`; files named `docs/persistence-changes/releases/dsh-v*.md` use `persistence-release`. Files named `docs/persistence-changes/historical-formats/vN.md` use `persistence-format`. Their Chinese siblings use the same kind. Files named `docs/upgrade-guide/v<version>/<item>/guide.md` and their `guide.zh.md` siblings use `upgrade-guide`. Folder READMEs are indexes, not records. Derive package README kinds mechanically, in this order:
+`kind` 直接选择文档模板；每个 kind 恰好映射到一个存在于本 skill 中的模板，没有 kind 就不会有模板。命名为 `docs/persistence-changes/YYYY-MM-DD-slug.md` 的文件使用 `persistence-change`；命名为 `docs/persistence-changes/releases/dsh-v*.md` 的文件使用 `persistence-release`。命名为 `docs/persistence-changes/historical-formats/vN.md` 的文件使用 `persistence-format`。它们的中文姊妹篇使用相同的 kind。命名为 `docs/upgrade-guide/v<version>/<item>/guide.md` 的文件及其 `guide.zh.md` 姊妹篇使用 `upgrade-guide`。文件夹 README 是索引，不是记录。按以下顺序机械推导包 README 的 kind：
 
-1. The README is `packages/README.md` or `packages/<group>/README.md` → `package-group`.
-2. The package manifest declares `dsh.bundle.patch` → `package-bundle`.
-3. The package is in the audited library registry of `scripts/doc-standard.spec.ts` → `package-library`.
-4. Everything else — a service default export or an `apply` plugin — is `package-reference`.
+1. README 是 `packages/README.md` 或 `packages/<group>/README.md` → `package-group`。
+2. 包 manifest 声明了 `dsh.bundle.patch` → `package-bundle`。
+3. 包在 `scripts/doc-standard.spec.ts` 的受审计库注册表中 → `package-library`。
+4. 其余情况——service 默认导出或 `apply` 插件——都是 `package-reference`。
 
-| `kind` | Repository position | Template | Standard |
+| `kind` | 仓库位置 | 模板 | 标准 |
 |---|---|---|---|
-| `package-group` | `packages/README.md`, `packages/<group>/README.md` | [package-group.md](../templates/package-group.md) | Group map: orient the capability family, map its direct packages, explain composition relationships, and link package-owned details. |
-| `package-reference` | `packages/<group>/<package>/README.md` with a plugin entry | [package-reference.md](../templates/package-reference.md) | Package contract: follow the [package README review standard](review.md#package-readme-review) and the canonical [package documentation requirements](../../../../docs/cookbook/adding-a-package.md#4-write-the-package-readme). |
-| `package-library` | `packages/<group>/<package>/README.md` with a plain module entry | [package-library.md](../templates/package-library.md) | Library contract: consumer entry points and boundaries; no profile-install path and no mount configuration. |
-| `package-bundle` | `packages/<group>/<package>/README.md` declaring `dsh.bundle.patch` | [package-bundle.md](../templates/package-bundle.md) | Installable layer: the verified `dsh plugin` install path, layer semantics, and patch document. |
-| `persistence-change` | `docs/persistence-changes/YYYY-MM-DD-slug.md` and its Chinese sibling | [persistence-change.md](../templates/persistence-change.md) | Historical acknowledgement: mechanically detected type changes, per-root predecessor references, compatibility decision, and generated after schemas. |
-| `persistence-release` | `docs/persistence-changes/releases/dsh-v*.md` and its Chinese sibling | [persistence-release.md](../templates/persistence-release.md) | Retrospective observation: pinned tag, adjacent before/after digests, actual version constants, and changed after schemas; no compatibility acknowledgement. |
-| `persistence-format` | `docs/persistence-changes/historical-formats/vN.md` and its Chinese sibling | [persistence-format.md](../templates/persistence-format.md) | Selected historical format: source evidence, complete root schemas and reachable types; the current writer uses the generated catalog. |
-| `upgrade-guide` | `docs/upgrade-guide/v<version>/<item>/guide.md` and its Chinese sibling | [upgrade-guide.md](../templates/upgrade-guide.md) | Upgrade path: one externally perceptible break from the directory's release to the next, with `Change` and `Migration` sections in at most 500 English words. |
+| `package-group` | `packages/README.md`、`packages/<group>/README.md` | [package-group.md](../templates/package-group.md) | 分组映射：为能力族定位，映射其直接包，说明组合关系，链接由包自己负责的细节。 |
+| `package-reference` | 带插件入口的 `packages/<group>/<package>/README.md` | [package-reference.md](../templates/package-reference.md) | 包约定：遵循[包 README 评审标准](review.md#包-readme-评审)和规范的[包文档要求](../../../../docs/cookbook/adding-a-package.md#4-write-the-package-readme)。 |
+| `package-library` | 带普通模块入口的 `packages/<group>/<package>/README.md` | [package-library.md](../templates/package-library.md) | 库约定：消费方入口与边界；没有 profile 安装路径，也没有挂载配置。 |
+| `package-bundle` | 声明 `dsh.bundle.patch` 的 `packages/<group>/<package>/README.md` | [package-bundle.md](../templates/package-bundle.md) | 可安装层：经过验证的 `dsh plugin` 安装路径、层语义和 patch 文档。 |
+| `persistence-change` | `docs/persistence-changes/YYYY-MM-DD-slug.md` 及其中文姊妹篇 | [persistence-change.md](../templates/persistence-change.md) | 历史确认：机械检测到的类型变更、各 root 的前驱引用、兼容性决策和生成的 after schema。 |
+| `persistence-release` | `docs/persistence-changes/releases/dsh-v*.md` 及其中文姊妹篇 | [persistence-release.md](../templates/persistence-release.md) | 回溯观察：固定的 tag、相邻的 before/after digest、实际版本常量和变更的 after schema；不做兼容性确认。 |
+| `persistence-format` | `docs/persistence-changes/historical-formats/vN.md` 及其中文姊妹篇 | [persistence-format.md](../templates/persistence-format.md) | 选定的历史格式：源码证据、完整的 root schema 和可达类型；当前写入器使用生成的 catalog。 |
+| `upgrade-guide` | `docs/upgrade-guide/v<version>/<item>/guide.md` 及其中文姊妹篇 | [upgrade-guide.md](../templates/upgrade-guide.md) | 升级路径：从该目录对应的发布到下一个发布之间的单个外部可感知破坏，`Change` 与 `Migration` 章节合计不超过 500 个英文单词。 |
 
-Before assigning `package-library` or `package-bundle`, inspect the facts: read `package.json` for `dsh.bundle.patch` and `src/index.ts` for the entry shape (`apply` export or a default service export is a plugin; a plain module API is a library). `dsh plugin --profile <name> add <package>` installs any npm dependency, but the profile reconcile activates a layer only for a package that declares `dsh.bundle`; never present that command as an install path for a library or a plain plugin. The documentation check derives the expected kind from these same facts, rejects another value, and rejects `name`, `audience`, `tags`, and README-local `i18n` metadata. Add a new kind only with a distinct template, an unambiguous repository position or declared owner, and a focused check that maps documents to it.
+在指定 `package-library` 或 `package-bundle` 之前先检查事实：读 `package.json` 看 `dsh.bundle.patch`，读 `src/index.ts` 看入口形态（导出 `apply` 或默认导出 service 的是插件；普通模块 API 是库）。`dsh plugin --profile <name> add <package>` 可以安装任意 npm 依赖，但 profile reconcile 只会为声明 `dsh.bundle` 的包激活层；绝不要把这个命令说成库或普通插件的安装路径。文档检查会根据同样的这些事实推导出应使用的 kind，拒绝其他取值，并拒绝 `name`、`audience`、`tags` 和 README 局部的 `i18n` 元数据。只有具备独立模板、明确的仓库位置或已声明归属方，以及能把文档映射到该 kind 的针对性检查时，才新增 kind。
 
-## Description quality
+## description 质量
 
-Agents search frontmatter `description` values to shortlist pages before loading full documents. Write each value like a Skill description: state what the page covers and when a reader should open it. Use one or two concrete sentences, include searchable domain terms, and distinguish the page from nearby owners. Do not summarize every section, claim superiority, repeat the title, advertise vaguely, preserve change history, or write a technical status report.
+agent 会搜索 frontmatter 的 `description` 值，在加载完整文档之前先筛选页面。每个值都要像 skill 描述那样写：说明页面涵盖什么，以及读者应在何时打开它。用一到两个具体句子，包含可搜索的领域术语，并把该页面与邻近的归属方区分开。不要逐节复述、宣称优越、重复标题、含糊宣传、保留变更历史，也不要写成技术状态报告。
 
-Good: `The shipped JSONL session-persistence backend for deployments and maintainers choosing, configuring, or debugging per-session durable logs with optional Zstandard compression.`
+好：`The shipped JSONL session-persistence backend for deployments and maintainers choosing, configuring, or debugging per-session durable logs with optional Zstandard compression.`
 
-Weak: `The best and most advanced session storage implementation with lots of optimizations.`
+弱：`The best and most advanced session storage implementation with lots of optimizations.`
 
-## Repository links and path mentions
+## 仓库链接与路径提及
 
-Keep link destinations machine-checkable and mentions context-relative. Use fragment-only links for the current page's menu. Use full URLs for external resources.
+链接目标保持可被机器检查，路径提及保持相对于上下文。当前页面的菜单使用仅含 fragment 的链接。外部资源使用完整 URL。
 
-The desired internal-link model names a target from the repository root, but a leading `/docs/...` Markdown URL resolves outside the repository on GitHub, remains untouched by the website projector, and is skipped by `verify-md-links`. Until a repository-owned resolver supports root paths in every renderer, use the current renderer-valid relative URL in Markdown links and write logical path mentions such as `docs/` or `packages/session/` relative to the discussion. Never adopt an unchecked leading-slash link merely to resemble an absolute path.
+期望的内部链接模型是从仓库根目录命名目标，但以 `/docs/...` 开头的 Markdown URL 在 GitHub 上会解析到仓库之外，网站投影器也不会处理它，`verify-md-links` 还会跳过它。在仓库自有的解析器支持所有渲染器中的根路径之前，Markdown 链接中要使用当前渲染器可识别的相对 URL，而 `docs/` 或 `packages/session/` 这类逻辑路径提及则相对于讨论上下文书写。绝不要仅仅为了看起来像绝对路径就采用未经检查的斜杠开头链接。
 
-## Bilingual line alignment
+## 双语行对齐
 
-Keep English and Simplified Chinese equally authoritative. Match frontmatter key order, headings, blank lines, paragraphs, list items, tables, code fences, link targets, and total physical line count one to one. The English side points every relative link at the `.md` target; the Chinese side points it at the `.zh.md` sibling when that counterpart exists and falls back to the `.md` target otherwise — the pairing gate compares `.md` and `.zh.md` targets as the same document. Translate prose naturally within its corresponding line; do not hard-wrap either language. Keep code blocks byte-identical and reposition first-use terminology annotations without changing line structure.
+英文和简体中文保持同等权威。frontmatter 键顺序、标题、空行、段落、列表项、表格、代码围栏、链接目标和物理总行数都要一一对应。英文侧把所有相对链接指向 `.md` 目标；中文侧在存在对侧文件时指向 `.zh.md` 姊妹篇，否则回退到 `.md` 目标——配对门禁会把 `.md` 和 `.zh.md` 目标视为同一文档。在对应行内自然翻译，不要对任一语言硬换行。代码块保持逐字节一致，并在不改变行结构的前提下调整首次出现的术语注释位置。
 
-Line equality is a structural check, not proof of faithful meaning. Review still owns completeness, terminology, natural language, and whether each line expresses the same proposition.
+行数相等是结构性检查，不能证明含义忠实。完整性、术语、自然语言以及每行是否表达同一命题，仍然由评审负责。
 
-## Bilingual consistency records
+## 双语一致性记录
 
-Keep the `*.i18n.yaml` sidecar for every bilingual pair. It records a hash pair per heading section, excluding fenced code blocks and generated regions, so edits to different sections merge with Git's default text merge; generated data belongs in generated regions that the generator writes into both pages; `verify-translation-pairing` compares those entries with the current contents and verifies structure. Re-record it with `pnpm run verify-translation-pairing --write <pair>` after either language changes. Do not copy content hashes into README frontmatter: independent edits would change the same header line and turn otherwise mergeable prose into an owner-file conflict.
+每个双语配对都要保留 `*.i18n.yaml` sidecar。它按标题章节记录一对哈希，排除代码围栏和生成区域，因此对不同章节的编辑可以用 Git 默认的文本合并方式合并；生成数据属于生成区域，由生成器写入两侧页面；`verify-translation-pairing` 会把这些条目与当前内容比较并校验结构。任一语言改动后，都用 `pnpm run verify-translation-pairing --write <pair>` 重新记录。不要把内容哈希复制进 README frontmatter：相互独立的编辑会改动同一行头部，把本可合并的文字变成归属文件冲突。
 
 ## Dev Note
 

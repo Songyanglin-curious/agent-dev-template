@@ -1,81 +1,81 @@
-# Website publication
+# 网站发布
 
 ## Summary
 
-The documentation website is a tested projection of repository Markdown, never a second copy. [website/docs.ts](../../../../website/docs.ts) is the explicit public allowlist, [scripts/project-doc-site.ts](../../../../scripts/project-doc-site.ts) rewrites mapped sources into the disposable `website/.generated/` tree, and VitePress builds that tree. The build also emits a raw-Markdown twin of every route and a root `llms.txt` index from the same manifest. This reference owns the manifest fields, the projector's link rules, preview and validation commands, and the deployment boundary.
+文档网站是仓库 Markdown 经过测试的投影，绝不是第二份副本。[website/docs.ts](../../../../website/docs.ts) 是显式的公开允许列表，[scripts/project-doc-site.ts](../../../../scripts/project-doc-site.ts) 把映射的源文件改写进一次性的 `website/.generated/` 树，VitePress 构建这棵树。构建还会基于同一份 manifest，为每条路由产出一个原始 Markdown 孪生副本，并生成根级 `llms.txt` 索引。本参考负责 manifest 字段、投影器的链接规则、预览与校验命令，以及部署边界。
 
 ## Table of Contents
 
-- [Manifest ownership](#manifest-ownership)
-- [Classify the change](#classify-the-change)
-- [DocsPage fields](#docspage-fields)
-- [Preserve link behavior](#preserve-link-behavior)
-- [Preview and validate](#preview-and-validate)
-- [Keep deployment separate](#keep-deployment-separate)
+- [manifest 归属](#manifest-归属)
+- [判定改动类型](#判定改动类型)
+- [DocsPage 字段](#docspage-字段)
+- [保持链接行为](#保持链接行为)
+- [预览与校验](#预览与校验)
+- [部署保持独立](#部署保持独立)
 - [Dev Note](#dev-note)
 
-## Manifest ownership
+## manifest 归属
 
-Read [docs/AGENTS.md](../../../../docs/AGENTS.md) and the current `DocsPage` type and entries in [website/docs.ts](../../../../website/docs.ts) before changing the manifest; do not rely on a remembered field set. Read [website/.vitepress/config.ts](../../../../website/.vitepress/config.ts) before adding a new section, sidebar collection, locale, or top-level navigation item. For an edited bilingual source, follow the lightweight routine path in [docs/AGENTS.md](../../../../docs/AGENTS.md#writing-rules) and the [pairing contract](../../../../docs/i18n/README.md); never invoke the extended translation skill automatically.
+改动 manifest 之前，先阅读 [docs/AGENTS.md](../../../../docs/AGENTS.md) 以及 [website/docs.ts](../../../../website/docs.ts) 中当前的 `DocsPage` 类型和条目；不要依赖记忆中的字段集合。新增章节、侧边栏集合、locale 或顶层导航项之前，先阅读 [website/.vitepress/config.ts](../../../../website/.vitepress/config.ts)。对于被编辑的双语源文件，遵循 [docs/AGENTS.md](../../../../docs/AGENTS.md#writing-rules) 中的轻量常规路径和[配对约定](../../../../docs/i18n/README.md)；不要自动调用扩展翻译 skill。
 
-Never edit or commit `website/.generated/`, `website/.cache/`, or `website/.dist/`. Except for `website/AGENTS.md`, never add Markdown under `website/`; locale and route directories such as `website/zh-CN/`, `website/en/`, and `website/api/` are invalid source layouts. Keep generated catalogs under `docs/`, freshness-gate them there, and publish them through the manifest.
+绝不编辑或提交 `website/.generated/`、`website/.cache/` 或 `website/.dist/`。除 `website/AGENTS.md` 之外，绝不在 `website/` 下添加 Markdown；`website/zh-CN/`、`website/en/`、`website/api/` 这类 locale 和路由目录都是无效的源布局。生成的 catalog 放在 `docs/` 下，在那里做新鲜度门禁，并通过 manifest 发布。
 
-## Classify the change
+## 判定改动类型
 
-- **Edit an already published page:** change only its canonical Markdown source. Do not touch the manifest unless its route or navigation metadata changes.
-- **Publish a new page:** create it in its owning `docs/` tier, then add one manifest entry.
-- **Rename, move, or remove a page:** update the canonical file, manifest entry, and inbound repository links atomically. Remove stale manifest entries; `docs:check` rejects missing sources.
-- **Publish a generated catalog:** map the generated `docs/` file, but change its generator or source metadata rather than editing the catalog by hand.
-- **Change site structure:** update the manifest for ordinary pages; update VitePress configuration only when the existing sidebar, section, or locale model cannot express the change.
+- **编辑已发布的页面：** 只改它的权威 Markdown 源。除非路由或导航元数据变化，否则不要动 manifest。
+- **发布新页面：** 在它所属的 `docs/` 层级创建，然后添加一条 manifest 条目。
+- **重命名、移动或删除页面：** 原子更新权威文件、manifest 条目和仓库内的入站链接。删除过时的 manifest 条目；`docs:check` 会拒绝缺失的源。
+- **发布生成的 catalog：** 在 manifest 中映射生成的 `docs/` 文件，但要改它的生成器或源元数据，而不是手工编辑 catalog。
+- **改动站点结构：** 普通页面更新 manifest；只有当现有侧边栏、章节或 locale 模型无法表达该改动时，才更新 VitePress 配置。
 
-Keep the manifest an explicit public allowlist. Do not publish RFCs, postmortems, testing guides, `AGENTS.md`, or maintainer workflows merely because they exist under `docs/`; add internal material only when the user explicitly expands what the site publishes.
+让 manifest 保持显式的公开允许列表。不要因为 RFC、复盘、测试指南、`AGENTS.md` 或维护者工作流存在于 `docs/` 下就发布它们；只有当用户明确扩大站点发布范围时，才加入内部材料。
 
-## DocsPage fields
+## DocsPage 字段
 
-Set every `DocsPage` field deliberately. The canonical field set and the `DocsSidebar` union live in [website/docs.ts](../../../../website/docs.ts) — read them there rather than copying values into prose; sections are owned by the `sections` record in that file, with no separate order list in the VitePress config.
+每个 `DocsPage` 字段都要有意识地设置。权威字段集合和 `DocsSidebar` 联合类型位于 [website/docs.ts](../../../../website/docs.ts)——在那里阅读，而不是把取值抄进文字；章节由该文件中的 `sections` 记录负责，VitePress 配置中没有单独的顺序列表。
 
-- `source`: repository-relative canonical Markdown path. For a complete bilingual pair, add the English `.md` path through `pairedPages()`; it derives the sibling `.zh.md`, the content locales, and counterpart aliases.
-- `route`: public VitePress path including the `.md` suffix.
-- `label`: sidebar label, not necessarily the document H1.
-- `sidebar`: reuse an existing `DocsSidebar` collection unless the information architecture genuinely needs another one.
-- `section`: reuse an existing section when possible. If adding one, also define it in the `sections` record.
-- `order`: stable order within the section.
-- `sourceAliases`: optional additional repository paths that should resolve to this page when links are projected. It does not create another public route.
+- `source`：仓库相对的权威 Markdown 路径。对于完整的双语配对，通过 `pairedPages()` 添加英文 `.md` 路径；它会推导出 `.zh.md` 姊妹篇、内容 locale 和对侧别名。
+- `route`：公开的 VitePress 路径，包含 `.md` 后缀。
+- `label`：侧边栏标签，不必等于文档的 H1。
+- `sidebar`：复用已有的 `DocsSidebar` 集合，除非信息架构确实需要另一个。
+- `section`：尽量复用已有章节。若要新增，也要在 `sections` 记录中定义它。
+- `order`：章节内的稳定顺序。
+- `sourceAliases`：可选的额外仓库路径，在投影链接时应解析到本页面。它不会创建另一条公开路由。
 
-Use `mirroredPages()` only for a source that intentionally falls back to the same available language in both route trees. Convert that entry to `pairedPages()` when its counterpart is added. The site route trees are independent of the source layout: `foo.zh.md` projects to the root route and `foo.md` projects to the matching `/en/` route.
+只有当某个源有意在两条路由树中都回退到同一种可用语言时，才使用 `mirroredPages()`。对侧文件加入后，把该条目转换为 `pairedPages()`。站点路由树与源布局相互独立：`foo.zh.md` 投影到根路由，`foo.md` 投影到对应的 `/en/` 路由。
 
-## Preserve link behavior
+## 保持链接行为
 
-Write normal repository-relative Markdown links in canonical docs. The projector applies these rules:
+在权威文档中写普通的仓库相对 Markdown 链接。投影器应用以下规则：
 
-- A target present in the manifest becomes a site-relative route.
-- An existing target outside the manifest becomes a GitHub source link, including supported line suffixes.
-- An image is the exception: its file is copied into the generated tree and referenced from there, so the site serves it regardless of repository visibility. It must be a regular file inside the repository.
-- External URLs, site-absolute URLs, email links, and fragment-only links remain unchanged.
-- A missing repository-relative target fails projection instead of silently producing a broken link.
-- Cross-page fragments use the English GitHub heading id as their canonical id. If an authored heading emits a different VitePress id, place an explicit `<a id="..."></a>` immediately before it; add generated aliases in the owning generator.
+- 目标出现在 manifest 中时，变成站点相对路由。
+- 存在于 manifest 之外的目标，变成 GitHub 源码链接，包括支持的行号后缀。
+- 图像是例外：其文件会被复制进生成树并从那里引用，因此无论仓库是否公开，站点都能提供它。它必须是仓库内的常规文件。
+- 外部 URL、站点绝对 URL、邮件链接和仅含 fragment 的链接保持不变。
+- 缺失的仓库相对目标会让投影失败，而不是悄悄产生坏链接。
+- 跨页面 fragment 以英文 GitHub 标题 id 作为规范 id。如果由人编写的标题生成了不同的 VitePress id，紧挨着它之前放一个显式的 `<a id="..."></a>`；生成的别名则在所属生成器中添加。
 
-Do not write website-specific routes into canonical Markdown just to satisfy VitePress. Use `sourceAliases` for directory-style repository links that should resolve to a mapped index page.
+不要为了满足 VitePress 就把网站专用路由写进权威 Markdown。对于应当解析到已映射索引页的目录式仓库链接，使用 `sourceAliases`。
 
-## Preview and validate
+## 预览与校验
 
-Run local preview while editing:
+编辑时运行本地预览：
 
 ```sh
 pnpm docs:dev
 ```
 
-The dev server watches mapped source files and reprojects them. Restart it after changing the manifest if the new source is not picked up automatically.
+开发服务器会监听已映射的源文件并重新投影。如果新源没有被自动拾取，修改 manifest 后重启它。
 
-Run the focused website gate before treating the mapping as valid:
+在认为映射有效之前，先运行针对性的网站门禁：
 
 ```sh
 pnpm docs:check
 ```
 
-If Markdown link checks pass but the site build reports a missing fragment, follow the `verify-doc-site-fragments` source and target paths. Preserve the English GitHub id with an explicit alias in authored Markdown or in the owning generator.
+如果 Markdown 链接检查通过，但站点构建报告缺失 fragment，按 `verify-doc-site-fragments` 给出的源路径和目标路径处理。在由人编写的 Markdown 中或所属生成器中，用显式别名保留英文 GitHub id。
 
-Before committing a documentation-site change, run:
+提交文档站点改动之前，运行：
 
 ```sh
 pnpm run test:docs
@@ -84,11 +84,11 @@ pnpm run lint
 git diff --check
 ```
 
-Use [dsh-pre-push-checks](../../dsh-pre-push-checks/SKILL.md) before pushing. Report the canonical files changed, manifest entries added or removed, public routes affected, and the exact checks run.
+推送前使用 [dsh-pre-push-checks](../../dsh-pre-push-checks/SKILL.md)。报告改动的权威文件、增删的 manifest 条目、受影响的公开路由，以及实际运行的检查。
 
-## Keep deployment separate
+## 部署保持独立
 
-Synchronizing content into the VitePress build does not publish it to the internet. Do not add GitHub Pages permissions, deployment workflows, custom domains, or public hosting unless the user explicitly requests deployment and confirms the hosting policy.
+把内容同步进 VitePress 构建并不等于发布到互联网。除非用户明确要求部署并确认托管策略，否则不要添加 GitHub Pages 权限、部署工作流、自定义域名或公开托管。
 
 ## Dev Note
 
