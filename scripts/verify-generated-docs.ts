@@ -10,7 +10,7 @@
 
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { readRepositoryFile, REPO_ROOT, repositoryMarkdownFiles } from './doc-tooling.ts'
+import { markdownSourcePaths, readRepositoryFile, REPO_ROOT } from './doc-tooling.ts'
 
 const MANIFEST_PATH = 'scripts/generated-docs.manifest.json'
 const MARKER = /<!--\s*([A-Za-z0-9_-]+):(start|end)\s*-->/gu
@@ -23,7 +23,7 @@ function isScriptPath(producer: string): boolean {
 const failures: string[] = []
 const documentsWithRegions = new Set<string>()
 
-for (const file of repositoryMarkdownFiles(['docs/**/*.md', 'README.md'], { excludeTemplate: true })) {
+for (const file of markdownSourcePaths()) {
   const source = readRepositoryFile(file)
   const lines = source.split('\n')
   const stack: { name: string; line: number }[] = []

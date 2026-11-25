@@ -10,33 +10,18 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, relative, resolve, sep } from 'node:path'
 import type { Nodes } from 'mdast'
+import { markdownSourcePaths } from './doc-tooling.ts'
 import { markdownHeadingLines, parseMarkdown, visitMarkdown } from './markdown.ts'
-import { isArchivedAgentNotePath, uniqueRepoFiles } from './repo-files.ts'
 
 const root = resolve(import.meta.dirname, '..')
 
 /**
- * Repo-authored Markdown checked for relative links. Archived Agent Notes are
- * frozen history. Template deliverables stay out of the gate until they are
- * handled separately.
+ * Discover authored Markdown sources, deduplicating symlinks. The corpus is
+ * shared with the other structure gates so module READMEs are checked too.
+ * @returns forward-slash source paths relative to the repository root.
  */
-const PATTERNS = [
-  'README.md',
-  'AGENTS.md',
-  'docs/**/*.md',
-  '.agents/notes/**/*.md',
-  '.agents/skills/**/*.md',
-]
-
-/**
- * Discover authored Markdown sources, deduplicating symlinks.
- * Archived notes are excluded as sources, but links to them remain checked.
- * @param scanRoot - absolute repository root; pass the same root to findViolations for matching diagnostics.
- * @returns forward-slash source paths relative to scanRoot.
- */
-export function markdownLinkSourcePaths(scanRoot: string = root): string[] {
-  return uniqueRepoFiles(scanRoot, PATTERNS, isArchivedAgentNotePath)
-    .map(file => relative(scanRoot, file.abs).replaceAll('\\', '/'))
+export function markdownLinkSourcePaths(): string[] {
+  return markdownSourcePaths()
 }
 
 /** A broken relative link: a missing target path or a missing anchor on it. */
@@ -235,7 +220,7 @@ export function findViolations(
 }
 
 if (process.argv[1] && import.meta.filename === resolve(process.argv[1])) {
-  const files = markdownLinkSourcePaths(root)
+  const files = markdownLinkSourcePaths()
   const cache = markdownLinkCache()
   const all = files.flatMap(file => findViolations(resolve(root, file), cache))
   const checked = files.length

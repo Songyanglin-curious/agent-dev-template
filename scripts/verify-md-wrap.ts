@@ -10,22 +10,10 @@
 import { readFileSync } from 'node:fs'
 import { relative, resolve, sep } from 'node:path'
 import type { Nodes } from 'mdast'
+import { markdownSourcePaths } from './doc-tooling.ts'
 import { parseMarkdown, visitMarkdown } from './markdown.ts'
-import { isArchivedAgentNotePath, uniqueRepoFiles } from './repo-files.ts'
 
 const root = resolve(import.meta.dirname, '..')
-
-/**
- * Authored Markdown checked for hard-wrapped prose. Template deliverables stay
- * out of the gate until they are handled separately.
- */
-const PATTERNS = [
-  'README.md',
-  'AGENTS.md',
-  'docs/**/*.md',
-  '.agents/notes/**/*.md',
-  '.agents/skills/**/*.md',
-]
 
 /** A located hard-wrap: a prose paragraph spanning more than one source line. */
 interface Violation {
@@ -73,8 +61,8 @@ function findViolations(absPath: string): Violation[] {
   return out
 }
 
-const files = uniqueRepoFiles(root, PATTERNS, isArchivedAgentNotePath)
-const all = files.flatMap(file => findViolations(file.abs))
+const files = markdownSourcePaths().map(path => resolve(root, path))
+const all = files.flatMap(file => findViolations(file))
 const checked = files.length
 
 if (all.length === 0) {

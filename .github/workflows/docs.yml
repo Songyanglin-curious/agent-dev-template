@@ -1,0 +1,30 @@
+name: docs
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test:gates
+      - run: pnpm run test:docs
+      - run: pnpm run test:notes
+      - name: Change ownership (strict)
+        if: github.event_name == 'pull_request'
+        run: node scripts/verify-change-docs.ts --base "origin/${{ github.base_ref }}" --strict

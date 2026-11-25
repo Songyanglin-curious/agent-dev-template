@@ -178,6 +178,47 @@ export interface MarkdownScanOptions {
 }
 
 /**
+ * Maintained Markdown sources checked by the structure gates. `**` patterns do
+ * not descend into dot directories, so the explicit `.agents` patterns cover
+ * Notes and Skills; `**\/README.md` brings module docs that live next to code
+ * into the same link, wrap, and generated-region checks.
+ */
+const MAINTAINED_MARKDOWN_PATTERNS = [
+  'README.md',
+  'AGENTS.md',
+  'docs/**/*.md',
+  '.agents/notes/**/*.md',
+  '.agents/skills/**/*.md',
+  '**/README.md',
+]
+
+/** Directories whose content is not maintained prose for Markdown gates. */
+function skipUnauthoredDirectory(relativeDirectory: string): boolean {
+  const path = relativeDirectory.replaceAll('\\', '/')
+  return path === 'node_modules'
+    || path.startsWith('node_modules/')
+    || path === 'template'
+    || path.startsWith('template/')
+    || path === '研发输入'
+    || path.startsWith('研发输入/')
+}
+
+/**
+ * Discover repository-relative Markdown sources for the structure gates.
+ * Frozen Agent Notes, `node_modules/`, the template deliverable, and research
+ * inputs are excluded as sources; active documents may still link to them.
+ * @returns forward-slash paths relative to the repository root, sorted.
+ */
+export function markdownSourcePaths(): string[] {
+  return uniqueRepoFiles(
+    REPO_ROOT,
+    MAINTAINED_MARKDOWN_PATTERNS,
+    path => isArchivedAgentNotePath(path.replaceAll('\\', '/')),
+    skipUnauthoredDirectory,
+  ).map(file => repositoryRelative(file.abs))
+}
+
+/**
  * Discover repository Markdown files matching the given glob patterns.
  * @param patterns - repository-relative glob patterns.
  * @param options - exclusion switches.
@@ -194,7 +235,14 @@ export function repositoryMarkdownFiles(
     if (options.includeArchived !== true && isArchivedAgentNotePath(normalized)) return true
     return false
   }
-  return uniqueRepoFiles(REPO_ROOT, patterns, isExcluded)
+  const skipDirectory = (relativeDirectory: string): boolean => {
+    const normalized = relativeDirectory.replaceAll('\\', '/')
+    if (normalized === 'node_modules' || normalized.startsWith('node_modules/')) return true
+    if (normalized === '研发输入' || normalized.startsWith('研发输入/')) return true
+    return options.excludeTemplate === true
+      && (normalized === 'template' || normalized.startsWith('template/'))
+  }
+  return uniqueRepoFiles(REPO_ROOT, patterns, isExcluded, skipDirectory)
     .map(file => repositoryRelative(file.abs))
 }
 

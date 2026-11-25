@@ -39,7 +39,7 @@
 
 归档路径编码为 `archived/{class}/yyyy-mm-dd-topic-title.md`；其中有意省略 `implemented`，因为只有 implemented Agent Note 可以进入归档。归档变更只移动该记录文件，保留 `Status: implemented`，紧接状态行插入 `Archived: YYYY-MM-DD` 行，并修复或删除入站链接。归档时只允许对内容做这些更改。既有标题标点与空行布局不阻止归档；与正文一起保留。
 
-封存后，每条归档记录都永久冻结。禁止编辑、重新格式化、更新、移动或删除，也不得将其视为当前行为的权威依据。文档门禁会跳过归档源文件，包括其中的出站链接；当活跃文档有意引用历史时，仍可链接到归档 Agent Note。[`verify-archived-agent-notes`](../../scripts/verify-archived-agent-notes.ts) 强制执行封闭的类别目录树、归档元数据、内容 hash，以及仅追加的冻结内容 manifest（元数据清单）。归档政策的设计依据待补。
+封存后，每条归档记录都永久冻结。禁止编辑、重新格式化、更新、移动或删除，也不得将其视为当前行为的权威依据。文档门禁会跳过归档源文件，包括其中的出站链接；当活跃文档有意引用历史时，仍可链接到归档 Agent Note。[`verify-archived-agent-notes`](../../scripts/verify-archived-agent-notes.ts) 强制执行封闭的类别目录树、归档元数据、内容 hash，以及仅追加的冻结内容 manifest（元数据清单）。
 
 ## 何时需要写一份
 

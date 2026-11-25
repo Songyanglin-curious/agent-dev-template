@@ -1,4 +1,4 @@
-﻿---
+---
 name: archive-agent-notes
 description: 在本项目中新增、审计、精简、归档、恢复或复核 Agent Notes 时使用；检查每条新 note 是否已被 active 记录取代，删除小 UI 与纯机械性记录，按未来决策价值对其余 implemented notes 分类，删除不再能阻止诱人谬误的 rejected notes，并应用冻结的 archived/{kind} 记录与 manifest 规则。
 ---
@@ -29,9 +29,7 @@ description: 在本项目中新增、审计、精简、归档、恢复或复核 
 
 ## 校准示例
 
-以下示例给出判断尺度；其中的字数说明篇幅并不是判据。
-
-暂时没有例子，后续遇见进行补充
+在归档判断出现边界案例时，把该案例补充到本节，记录当时的依据与结论，用于校准后续判断。示例不参与归档流程的自动检查。
 
 ## 归档一条 implemented 记录
 

@@ -2,9 +2,9 @@
  * Verify root-relative documentation paths cited by source comments. The scan
  * covers repo-authored source under `src/`, `app/`, and `scripts/`; a token
  * such as `docs/AGENTS.md` or `.agents/notes/README.md` must name an existing file.
- * Generated output, vendored sources, and the template deliverable are out of
- * scope. Add language extensions to {@link SOURCE_EXTENSIONS} when the project
- * adopts another stack.
+ * Generated output, vendored sources, the template deliverable, and test
+ * fixtures are out of scope. Add language extensions to {@link SOURCE_EXTENSIONS}
+ * when the project adopts another stack.
  */
 
 import { existsSync } from 'node:fs'
@@ -29,8 +29,10 @@ const DOC_REF = /(?:\bdocs|\.agents\/notes)\/[A-Za-z0-9._/-]+\.md/gu
 const failures: string[] = []
 let scanned = 0
 
-const isExcluded = (path: string): boolean =>
-  path.replaceAll('\\', '/').includes('node_modules/')
+const isExcluded = (path: string): boolean => {
+  const normalized = path.replaceAll('\\', '/')
+  return normalized.includes('node_modules/') || normalized.startsWith('scripts/tests/')
+}
 
 for (const { abs } of uniqueRepoFiles(REPO_ROOT, PATTERNS, isExcluded)) {
   const extension = abs.slice(abs.lastIndexOf('.')).toLowerCase()

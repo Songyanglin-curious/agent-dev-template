@@ -1,0 +1,45 @@
+{
+    "version": 1,
+    "rules": [
+        {
+            "when": [
+                "scripts/**/*.ts"
+            ],
+            "owners": [
+                "docs/subsystems/documentation-gates.md",
+                "scripts/README.md"
+            ],
+            "reason": "门禁的语料、检查项与失败语义由文档门禁子系统页拥有；模块说明拥有使用方式与内部设计。",
+            "level": "remind"
+        },
+        {
+            "when": [
+                ".agents/notes/README.md",
+                ".agents/notes/AGENTS.md",
+                ".agents/notes/implemented/AGENTS.md",
+                ".agents/notes/archived/AGENTS.md",
+                "scripts/agent-note-tree.ts",
+                "scripts/archived-agent-notes.ts",
+                "scripts/verify-agent-note-classification.ts",
+                "scripts/verify-agent-note-format.ts",
+                "scripts/verify-archived-agent-notes.ts"
+            ],
+            "owners": [
+                ".agents/notes/README.md"
+            ],
+            "reason": "Agent Note 的生命周期、类别、格式与归档规则由笔记规则页拥有。",
+            "level": "remind"
+        },
+        {
+            "when": [
+                "package.json"
+            ],
+            "owners": [
+                "AGENTS.md",
+                "docs/subsystems/documentation-gates.md"
+            ],
+            "reason": "命令入口由根 AGENTS.md 拥有；命令背后的门禁语义由文档门禁页拥有。",
+            "level": "remind"
+        }
+    ]
+}
