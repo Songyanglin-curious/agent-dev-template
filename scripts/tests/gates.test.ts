@@ -77,6 +77,13 @@ function initGit(current: Workspace, commit = false): void {
   }
 }
 
+/** Return the current commit hash of a test workspace. */
+function headCommit(current: Workspace): string {
+  const result = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: current.dir, encoding: 'utf8' })
+  if (result.status !== 0) throw new Error(`git rev-parse HEAD failed: ${result.stderr ?? ''}`)
+  return (result.stdout ?? '').trim()
+}
+
 /** Remove a workspace, including its dependency junction, without following it. */
 function cleanup(current: Workspace): void {
   rmSync(current.dir, { recursive: true, force: true })
@@ -188,6 +195,41 @@ test('verify-agent-note-format rejects a malformed note', () => {
     assert.equal(result.status, 1)
     assert.match(result.stderr, /line 1 must be/u)
     assert.match(result.stderr, /2026-01-01-bad\.md/u)
+  } finally {
+    cleanup(current)
+  }
+})
+
+test('verify-repository-references rejects a maintained commit reference', () => {
+  const current = workspace({
+    '.gitignore': 'node_modules/\n',
+    'docs/bad.md': '# Bad\n',
+  })
+  try {
+    initGit(current, true)
+    const commit = headCommit(current)
+    writeFileSync(join(current.dir, 'docs/bad.md'), `# Bad\n\n${commit}\n`)
+    const result = current.run('verify-repository-references.ts')
+    assert.equal(result.status, 1)
+    assert.match(result.stderr, /docs\/bad\.md/u)
+    assert.match(result.stderr, new RegExp(commit, 'u'))
+  } finally {
+    cleanup(current)
+  }
+})
+
+test('verify-repository-references ignores raw research inputs', () => {
+  const current = workspace({
+    '.gitignore': 'node_modules/\n',
+    '研发输入/raw.md': '# Raw\n',
+  })
+  try {
+    initGit(current, true)
+    const commit = headCommit(current)
+    writeFileSync(join(current.dir, '研发输入/raw.md'), `# Raw\n\n${commit}\n`)
+    const result = current.run('verify-repository-references.ts')
+    assert.equal(result.status, 0)
+    assert.doesNotMatch(result.stderr, /研发输入\/raw\.md/u)
   } finally {
     cleanup(current)
   }

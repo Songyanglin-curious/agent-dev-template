@@ -29,7 +29,7 @@
 | `verify-generated-docs` | 维护中的 Markdown（含模块 README） | 生成区域标记成对、不嵌套、不重复，且每个含生成区域的文档在清单中声明生产者 |
 | `verify-md-wrap` | 维护中的 Markdown（根、`docs/`、Notes、Skills、模块 README；排除研发输入与归档） | 每个段落只占一个物理行；归档记录除外 |
 | `verify-md-links` | 同上 | 相对链接目标存在；指向 Markdown 的锚点存在 |
-| `verify-repository-references` | Git 跟踪与未忽略的新文件 | 维护中的文件不引用可解析为 commit 的十六进制标识 |
+| `verify-repository-references` | Git 跟踪与未忽略的新维护文件（排除 `vendor/`、归档记录、`研发输入/`） | 维护中的文件不引用可解析为 commit 的十六进制标识；原始资料保留原文，不因门禁改写 |
 | `verify-doc-budgets` | `scripts/doc-budgets.manifest.json` 登记的文件 | 每个常驻文档不超过登记上限；缺失文件失败 |
 | `verify-agent-note-classification` | `.agents/notes/{proposed,implemented,rejected}/` | 生命周期、类别目录与文件名结构合法，禁止集中索引 |
 | `verify-agent-note-format` | 活跃 Agent Note | 头部三行、`Status:` 与目录一致、必需章节、`## Alternatives considered`、implemented 禁用提案标题 |
@@ -69,9 +69,9 @@
 
 ## 回归测试与 CI
 
-`pnpm run test:gates` 用 `node:test` 在临时工作区运行关键门禁的失败路径：坏链接（含模块 README）、缺失的预算文档、无效基线、Git 缺失时的跳过、错误的 Agent Note 格式，以及 `require` 在默认与 `--strict` 下的差异。正向通过不能证明门禁能发现错误，新增或修改门禁时同时补失败用例。
+`pnpm run test:gates` 用 `node:test` 在临时工作区运行关键门禁的失败路径：坏链接（含模块 README）、缺失的预算文档、无效基线、Git 缺失时的跳过、错误的 Agent Note 格式、维护文件中的 commit 标识，以及 `require` 在默认与 `--strict` 下的差异；同时验证 `研发输入/` 中的原始 commit 标识被排除。正向通过不能证明门禁能发现错误，新增或修改门禁时同时补失败用例。
 
-`.github/workflows/docs.yml` 在 push 和 pull request 上运行 `test:gates`、`test:docs`、`test:notes`；pull request 额外以 `--strict` 运行变更影响检查。CI 能发现问题，但只有把该工作流设为仓库的必需检查，才会阻止不合规的合并。
+`.github/workflows/docs.yml` 在 push 和 pull request 上运行 `test:gates`、`test:tools`、`test:docs`、`test:notes`；pull request 额外以 `--strict` 运行变更影响检查。CI 能发现问题，但只有把该工作流设为仓库的必需检查，才会阻止不合规的合并。
 
 ## 新增门禁
 

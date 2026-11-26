@@ -5,8 +5,9 @@
  * token only counts as a commit reference when the local Git object database
  * resolves it to exactly one object of type `commit`, so digests, sizes, and
  * decimal-only tokens never trigger the gate. Frozen history under
- * `.agents/notes/archived/` and third-party sources under `vendor/` are
- * excluded.
+ * `.agents/notes/archived/`, third-party sources under `vendor/`, and raw
+ * research inputs under `研发输入/` are excluded: original materials keep
+ * their external identifiers instead of being rewritten for a maintenance gate.
  */
 
 import { execFileSync } from 'node:child_process'
@@ -18,7 +19,7 @@ const root = resolve(import.meta.dirname, '..')
 // A hexadecimal run with at least one hex letter; decimal-only tokens collide
 // with sizes, counts, and version components.
 const commitCandidate = /(?<![a-z0-9])(?=[\da-f]{0,39}[a-f])[\da-f]{7,40}(?![a-z0-9])/gi
-const excludedPrefixes = ['vendor/', '.agents/notes/archived/']
+const excludedPrefixes = ['vendor/', '.agents/notes/archived/', '研发输入/']
 const gitOutputLimit = 64 * 1024 * 1024
 // One 41-byte line per object; 1.2 million objects produce about 49 MiB.
 const objectListingLimit = 1024 * 1024 * 1024

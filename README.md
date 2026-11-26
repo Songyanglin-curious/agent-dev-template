@@ -8,7 +8,7 @@
 
 - **认知分层**：架构、子系统、模块文档分别回答“由什么组成”“能力契约是什么”“这个单元怎么用”，读者按需深入。
 - **决策留存**：Agent Notes 记录问题、方案、取舍和后果，被否决的方案一并保留，避免反复争论。
-- **文档跟随研发**：触发表、研发流程 Skill 和变更影响检查共同推动一次改动同步它所属的文档。
+- **文档跟随研发**：触发表、专项 Skills 和变更影响检查共同推动一次改动同步它所属的文档。
 - **知识参与研发**：缺陷模式、开发准则、操作指南和 Skills 在对应场景被加载，而不是堆在知识库里。
 - **机械约束优先**：能由脚本判定的结构、格式、链接、预算和冻结规则不依赖 Agent 自觉。
 
@@ -22,13 +22,15 @@
 | 工程知识 | `docs/core-guidelines/`、`docs/defensive-patterns/`、`docs/cookbook/`、`docs/postmortem/`、`.agents/skills/` | 怎样正确地设计和操作 |
 | 治理 | 根 `AGENTS.md`、`docs/AGENTS.md`、`scripts/` | 何时做、做没做、格式是否正确 |
 
-完整的职责边界与信息流见 [体系架构](docs/architecture.md)；具体执行步骤与判断标准见 [dev-workflow](.agents/skills/dev-workflow/SKILL.md)。
+职责边界与信息流见 [体系架构](docs/architecture.md)；任务边界见根 [AGENTS.md](AGENTS.md)；文档与决策规则见 [文档标准](docs/AGENTS.md) 与 [Agent Note 规则](.agents/notes/README.md)，专项操作见各 [Skill](.agents/skills/)。
 
 ## 命令
 
 ```sh
 pnpm install                     # Node ≥ 22.18
+pnpm run change-scope --base main # 列出相对基线的变更路径
 pnpm run test:gates              # 关键门禁的失败路径测试
+pnpm run test:tools              # 变更范围等工具的测试
 pnpm run test:docs               # 文档门禁总入口
 pnpm run test:notes              # Agent Note 门禁
 pnpm run verify-change-docs      # 列出本次改动需要核对的文档（本地提醒）
@@ -39,10 +41,11 @@ pnpm run verify-doc-budgets --list
 
 ## 持续集成
 
-`.github/workflows/docs.yml` 在 push 与 pull request 上运行 `test:gates`、`test:docs` 和 `test:notes`；pull request 额外以 `--strict` 运行变更影响检查。CI 能发现问题，但只有把该工作流设为仓库的必需检查，才会阻止不合规的合并。
+`.github/workflows/docs.yml` 在 push 与 pull request 上运行 `test:gates`、`test:tools`、`test:docs` 和 `test:notes`；pull request 额外以 `--strict` 运行变更影响检查。CI 能发现问题，但只有把该工作流设为仓库的必需检查，才会阻止不合规的合并。
 
 ## 已知限制
 
+- 不提供统一研发流程或任务管理系统；调查、实施、文档同步、记录和检查按任务性质触发，边界见根 `AGENTS.md`。
 - 这套体系只提供通用的文档与流程机制，不包含任何具体技术栈的代码检查、构建或发布流程。
 - 语义层面的归属判断和内容质量仍由评审与 Skill 承担，脚本只检查可机械判定的结构。
 - 模块门禁按 `kind` 发现文档；未声明元数据的 README 不进入检查，由评审发现。

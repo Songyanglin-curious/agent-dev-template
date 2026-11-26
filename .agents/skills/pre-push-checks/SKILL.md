@@ -1,0 +1,72 @@
+---
+name: pre-push-checks
+description: 在本地提交或推送前使用；按 change-scope 报告选择与变更范围相称的最小检查，避免全量和重复执行，失败停止；处理历史重写与远端验证，发布和部署另行处理。
+---
+# 本地检查与推送
+
+## 建立变更范围
+
+1. 确认 checkout、分支和未提交改动：
+
+```sh
+git status --short --branch
+git rev-parse --show-toplevel
+```
+
+2. 验证基线，运行：
+
+```sh
+pnpm run change-scope --base <verified-base>
+```
+
+`change-scope` 输出 committed、staged、unstaged、untracked 路径。它不猜测基线，也不决定检查；基线必须来自当前分支、远端分支或用户明确指定。
+
+## 选择证据
+
+没有脱离变更面的“通用全套检查”。每个行为变化至少需要一个会因该回归而失败的最小检查；只有 diff 实际触及的面才扩大范围。
+
+| 变更面 | 优先检查 |
+|---|---|
+| 文档、链接、预算、模块/子系统关联 | `pnpm run test:docs` |
+| Agent Note 规则、目录、格式、归档 | `pnpm run test:notes` |
+| 门禁脚本、共享解析、清单、失败路径 | `pnpm run test:gates` + 受影响的单独门禁 |
+| `change-scope` 或其他工具 | `pnpm run test:tools` |
+| 代码行为 | 拥有该行为的聚焦测试；共享契约变化再加相邻测试 |
+| 持久化结构 | 持久化记录检查 + 兼容性/迁移测试 |
+| 依赖、manifest、构建入口 | 相关构建、约束和 smoke 检查 |
+| UI/CLI/模型可见输出 | 对应的实际检查或快照；测试通过不等于界面被看过 |
+
+- 不默认运行全量测试；CI 负责 exhaustive coverage 和平台矩阵。
+- 不重复已经通过且未被新改动影响的检查。
+- 不因为“马上要 push”就重复跑 pre-push 已经覆盖的检查。
+- 只有用户明确要求、正在诊断 CI、或变更跨到没有更窄可信集合时，才做完整本地 rehearsal。
+
+## 本地 Git 边界
+
+- 提交前检查 `git diff` 和 `git diff --cached`；只提交本次任务的文件，不盲目 `git add -A`。
+- 不覆盖用户未提交的改动；不把无关文件、生成物或凭据带入提交。
+- 推送前确认远端分支和本地 HEAD；推送后核对远端 ref。
+- 历史重写只在明确授权时进行；使用 `--force-with-lease`，禁止 raw `--force`。
+- 推送不等于发布。发布、部署、生产迁移和删除外部资源必须单独授权，并按项目发布流程执行。
+
+```sh
+git rev-parse HEAD
+git rev-parse origin/$(git branch --show-current)
+```
+
+## 失败处理
+
+- 相关检查失败时停止普通推送，修复或说明阻断原因；不带着失败推送并期待 CI 不同。
+- 保留实际命令、失败测试和平台差异；不要把未执行的检查报告为通过。
+- 如果必需的构建、测试、版本控制或生成命令因沙箱拦截（凭据、网络、IPC、文件监听等）失败，保留原始报错作为证据，以最小必要权限原样重试；严禁借此绕过测试失败、跳过校验或修改测试掩盖问题。
+- 只有用户明确同意时才绕过本地 hook，并说明失败内容、绕过原因和 CI 预期差异。
+
+## 报告
+
+交付时列出实际执行的命令、结果、未执行或未通过的检查，以及仍是 pending 的远端状态。当前没有平台 CI 时，明确说明验证只在本地完成。
+
+## 相关
+
+- [代码审查](../code-review/SKILL.md)：先判断变更，再选择检查。
+- [文档门禁](../../../docs/subsystems/documentation-gates.md)：`test:docs` 的覆盖范围。
+- [Agent Note 规则](../../notes/README.md)：Note 生命周期与归档。

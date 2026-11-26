@@ -4,7 +4,7 @@
 
 ## 与相邻层级的分界
 
-- **Skill**：面对需要判断的场景，规定加载哪些知识、按什么顺序决策，例如 [dev-workflow](../../.agents/skills/dev-workflow/SKILL.md)。
+- **Skill**：面对需要判断的场景，规定加载哪些知识、按什么顺序决策，例如 [doc-writing](../../.agents/skills/doc-writing/SKILL.md)。
 - **cookbook**：步骤确定、结果可验证、不需要临场设计，例如新增一条门禁或初始化模板。
 - **core-guidelines / defensive-patterns**：规则与缺陷检查，不描述操作序列。
 

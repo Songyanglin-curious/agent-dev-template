@@ -6,7 +6,7 @@ kind: "module"
 
 ## Summary
 
-本模块是仓库的文档与研发门禁工具链。它提供一组可单独运行、也可由 `test:docs` 和 `test:notes` 串联的检查脚本，用退出码和可定位诊断报告结构违规，并通过共享解析模块避免每条门禁复制 Markdown、frontmatter 与文件发现逻辑。门禁只判断可机械验证的结构，内容质量与归属判断仍属于评审和 Skills。
+本模块是仓库的文档与研发门禁工具链。它提供一组可单独运行、也可由 `test:docs` 和 `test:notes` 串联的检查脚本，用退出码和可定位诊断报告结构违规，并通过共享解析模块避免每条门禁复制 Markdown、frontmatter 与文件发现逻辑；`change-scope` 另外报告相对基线的变更路径。门禁只判断可机械验证的结构，内容质量与归属判断仍属于评审和 Skills。
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ kind: "module"
 
 ## 能力说明
 
-门禁工具链覆盖文档结构、Agent Note 生命周期、链接与锚点、段落换行、提交号引用、字数预算、持久化记录、生成区域、模块与子系统关联，以及变更影响清单；关键门禁配有失败路径回归测试。每条门禁只回答一个结构问题，失败时直接指向需要修改的位置。
+门禁工具链覆盖文档结构、Agent Note 生命周期、链接与锚点、段落换行、提交号引用、字数预算、持久化记录、生成区域、模块与子系统关联，以及变更影响清单；`change-scope` 报告已提交、暂存、未暂存和未跟踪路径；关键门禁与工具配有回归测试。每条门禁只回答一个结构问题，失败时直接指向需要修改的位置。
 
 ### 适用场景
 
@@ -37,8 +37,10 @@ Node ≥ 22.18（直接运行 `.ts` 脚本），仓库依赖已安装。`verify-
 
 ```sh
 pnpm run test:gates
+pnpm run test:tools
 pnpm run test:docs
 pnpm run test:notes
+pnpm run change-scope --base origin/main
 node scripts/verify-doc-budgets.ts --list
 node scripts/verify-change-docs.ts --base origin/main --strict
 ```
@@ -94,13 +96,15 @@ node scripts/verify-change-docs.ts --base origin/main --strict
 | `verify-generated-docs.ts` | 生成区域标记与生产者声明 |
 | `verify-md-wrap.ts` | 段落物理行规则 |
 | `verify-md-links.ts` | 相对链接与锚点 |
-| `verify-repository-references.ts` | 维护文件中的 commit 标识 |
+| `verify-repository-references.ts` | 维护文件中的 commit 标识（排除研发输入、归档和 vendor） |
+| `change-scope.ts` | 按基线报告已提交、暂存、未暂存和未跟踪路径 |
 | `verify-doc-budgets.ts` | 常驻文档字数上限 |
 | `verify-agent-note-classification.ts` | Agent Note 目录与文件名结构 |
 | `verify-agent-note-format.ts` | Agent Note 头部、状态与章节 |
 | `verify-archived-agent-notes.ts` | 归档元数据与冻结 hash |
 | `verify-change-docs.ts` | 变更文件到文档归属方的清单 |
 | `tests/gates.test.ts` | 关键门禁的失败路径回归测试 |
+| `tests/change-scope.test.ts` | 变更范围分类与基线错误测试 |
 | `doc-tooling.ts` | frontmatter、标题、章节、链接、表格与语料发现 |
 | `repo-files.ts` | 确定性 glob 遍历、符号链接去重与行级扫描 |
 | `markdown.ts` | Markdown AST 解析与遍历 |

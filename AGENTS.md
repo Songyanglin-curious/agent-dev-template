@@ -2,9 +2,15 @@
 
 agent-dev-template：面向 AI Agent 辅助软件研发的项目模板，以研发文档体系本身为交付物。说明见 [README](README.md)，体系结构见 [docs/architecture.md](docs/architecture.md)。
 
-- 非机械性研发任务：先加载 [dev-workflow](.agents/skills/dev-workflow/SKILL.md)，按其流程执行。
 - 维护文档遵循 [docs/AGENTS.md](docs/AGENTS.md)。
-- `研发输入/` 只保存原始需求、外部约束和资料，不写已确认的决策。
+- `研发输入/` 只保存原始需求、外部约束和资料，不写已确认的决策；研发任务与 Agent Note 通过引用关联，不建 Issue 系统。
+
+## 任务与授权
+
+- 调查、研究、讨论默认只读。
+- 实施任务在明确范围内自主完成必要修改；不擅自扩大目标、改变重要约束或外部契约，必须改变时先说明原因、影响和方案。
+- 按实际变更触发文档、Note 和专项规则；具体对应关系见下方触发表。
+- 按变更范围选择检查；交付说明实际变更、验证、风险和状态；交付不等于发布。
 
 ## 研发活动触发
 
@@ -19,36 +25,23 @@ agent-dev-template：面向 AI Agent 辅助软件研发的项目模板，以研�
 | 同一正确或错误写法在评审中反复出现 | 提炼为 [核心准则](docs/core-guidelines/README.md) 或防御性模式 |
 | 新增或变更持久化数据结构 | 按 [持久化记录](docs/persistence-changes/README.md) 新建记录 |
 
-## 仓库布局
-
-```text
-项目根目录/
-├── AGENTS.md    # 常驻研发规则与入口导航
-├── README.md    # 项目介绍与使用说明
-├── docs/        # 系统认知与工程知识
-├── .agents/     # Agent Notes 与专项 Skills
-├── .github/     # CI 工作流
-├── scripts/     # 工程检查与自动化脚本
-└── 研发输入/    # 原始需求、外部约束与参考资料
-```
-
 ## 命令
 
 | 用途 | 命令 |
 |---|---|
 | 安装依赖 | `pnpm install` |
+| 变更范围 | `pnpm run change-scope --base <ref>` |
 | 文档门禁 | `pnpm run test:docs` |
 | 门禁失败路径测试 | `pnpm run test:gates` |
+| 工具测试 | `pnpm run test:tools` |
 | Agent Note 门禁 | `pnpm run test:notes` |
 | 变更影响清单 | `pnpm run verify-change-docs` |
 | 文档字数用量 | `pnpm run verify-doc-budgets --list` |
 
-### 环境与沙箱故障
-
-如果必需的构建、测试、版本控制或生成命令因运行沙箱拦截（凭据、网络、IPC、文件监听等）而失败，保留原始报错作为证据，以最小必要权限原样重试。严禁借此绕过测试失败、跳过校验或修改测试掩盖问题。
-
 ## 审查与验证
 
-- 交付前运行 `pnpm run test:gates`、`pnpm run test:docs` 与 `pnpm run test:notes`；CI 在 push 与 pull request 上运行同一组检查。
-- 用 `pnpm run verify-change-docs` 的结果逐项核对文档影响；本地默认提示，CI 的 `--strict` 只执行已建立的 `require` 规则。不把未执行或未通过的检查报告为通过。
-- 交付报告列出：改动内容、同步的文档、变更影响清单结果、实际执行的验证命令与结果、未覆盖事项。
+- 评审变更使用 [code-review](.agents/skills/code-review/SKILL.md)：先建立范围和依据，再用证据报告 blocker/suggestion；不把清单当通过条件。
+- 提交或推送前使用 [pre-push-checks](.agents/skills/pre-push-checks/SKILL.md)：按变更范围选择最小检查，不默认全量；失败停止，不重复已通过的检查。CI 在 push/PR 上运行同一组检查。
+- 初始化或接入项目使用 [project-onboarding](.agents/skills/project-onboarding/SKILL.md)：以代码和实际行为调查，由人确认架构和模块边界。
+- 用 `pnpm run verify-change-docs` 逐项核对文档影响；本地默认提示，CI 的 `--strict` 只执行已建立的 `require` 规则。不把未执行或未通过的检查报告为通过。
+- 交付说明列出实际执行的命令和结果；未覆盖或未验证的事项必须明确说明。
