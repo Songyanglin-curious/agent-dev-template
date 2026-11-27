@@ -60,7 +60,7 @@
 - **变更范围与检查选择**：`change-scope` 报告相对基线的已提交、暂存、未暂存和未跟踪路径；[pre-push-checks](../.agents/skills/pre-push-checks/SKILL.md) 按触及面选择最小证据；[code-review](../.agents/skills/code-review/SKILL.md) 先读要求和归属，再读 diff。
 - **生命周期表达状态**：Agent Note 所在目录、`Status:` 行和正文章节必须一致，由 `verify-agent-note-format` 交叉检查；归档记录冻结并追加 hash。
 - **门禁只检查结构**：脚本负责格式、元数据、链接、锚点、字数、冻结状态和生成区域所有权；语义质量由评审和 Skills 负责。
-- **变更影响清单**：`verify-change-docs` 把“回忆哪些文档受影响”变成按 manifest 生成的逐项清单；`remind` 始终提示，`require` 只在 CI 的 `--strict` 下失败。
+- **变更影响清单**：`verify-change-docs` 把“回忆哪些文档受影响”变成按 manifest 生成的逐项清单；`remind` 始终提示，`require` 只在 CI 的 `--strict` 下失败；当前没有 `require` 规则。
 
 ## 扩展点
 

@@ -479,6 +479,31 @@ for (const fixture of persistenceCases) {
   })
 }
 
+test('documentation gates report empty corpora instead of silently passing', () => {
+  const current = workspace({
+    '.agents/notes/archived/AGENTS.md': '# Archived notes\n',
+    '.agents/notes/archived/manifest.json': '{"version":1,"files":{}}\n',
+  })
+  const cases = [
+    ['verify-module-readmes.ts', /0 module\(s\) and 0 module group\(s\)/u],
+    ['verify-module-groups.ts', /0 module group doc\(s\)/u],
+    ['verify-persistence-records.ts', /0 record\(s\).*0 change/u],
+    ['verify-generated-docs.ts', /0 document\(s\)/u],
+    ['verify-subsystem-pages.ts', /0 unit\(s\)/u],
+    ['verify-archived-agent-notes.ts', /0 frozen artifact/u],
+  ] as const
+  try {
+    initGit(current, true)
+    for (const [script, expected] of cases) {
+      const result = current.run(script)
+      assert.equal(result.status, 0, `${script}: ${result.stderr}`)
+      assert.match(result.stdout, expected)
+    }
+  } finally {
+    cleanup(current)
+  }
+})
+
 test('verify-repository-references rejects a maintained commit reference', () => {
   const current = workspace({
     '.gitignore': 'node_modules/\n',

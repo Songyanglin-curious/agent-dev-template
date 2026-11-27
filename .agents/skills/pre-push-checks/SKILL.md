@@ -42,7 +42,7 @@ pnpm run change-scope --base <verified-base>
 | 依赖、manifest、构建入口 | 相关构建、约束和 smoke 检查 |
 | UI/CLI/模型可见输出 | 对应的实际检查或快照；测试通过不等于界面被看过 |
 
-- 不默认运行全量测试；CI 负责 exhaustive coverage 和平台矩阵。
+- 不默认运行全量测试；CI 负责执行仓库完整检查；多平台矩阵由具体项目按需配置。
 - 不重复已经通过且未被新改动影响的检查。
 - 不因为“马上要 push”就重复跑 pre-push 已经覆盖的检查。
 - 只有用户明确要求、正在诊断 CI、或变更跨到没有更窄可信集合时，才做完整本地 rehearsal。

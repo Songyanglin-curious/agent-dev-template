@@ -63,13 +63,13 @@
 
 ## 变更影响检查
 
-`verify-change-docs` 读取 Git 中相对基线（默认 `HEAD`）的改动，包括工作区与未跟踪文件，按 `scripts/change-doc-rules.json` 匹配规则并打印归属方。`remind` 规则始终只提示；`require` 规则仅在 `--strict` 下要求归属文档也出现在本次改动中，否则退出非零。`--strict` 不会把 `remind` 提升为强制，因此当前没有 `require` 规则时它没有实际强制效果。CI 用 `node scripts/verify-change-docs.ts --base "origin/${{ github.base_ref }}" --strict` 执行已建立的强制规则。
+`verify-change-docs` 读取 Git 中相对基线（默认 `HEAD`）的改动，包括工作区与未跟踪文件，按 `scripts/change-doc-rules.json` 匹配规则并打印归属方。`remind` 规则始终只提示；`require` 规则仅在 `--strict` 下要求归属文档也出现在本次改动中，否则退出非零。`--strict` 不会把 `remind` 提升为强制，因此当前没有 `require` 规则时它没有实际强制效果。CI 用 `node scripts/verify-change-docs.ts --base "origin/${{ github.base_ref }}" --strict` 执行已建立的 `require` 规则；当前没有这类规则，文档语义是否同步仍由评审保证。
 
 规则只声明“哪类改动由哪份文档拥有”，不尝试推断改动语义。代码变化不一定意味着文档描述的事实变化，例如修复脚本内部的异常处理通常不需要修改架构页；因此不为了使用严格模式而人为增加 `require` 规则。一条规则覆盖的变动范围过宽会产生噪音，过窄会漏掉影响；按实际归属调整。
 
 ## 回归测试与 CI
 
-`pnpm run test:gates` 用 `node:test` 在临时工作区运行关键门禁的失败路径：坏链接（含模块 README）、缺失的预算文档、无效基线、Git 缺失时的跳过、错误的 Agent Note 格式、维护文件中的 commit 标识、模块组与独立模块混合时的子系统关联、模块摘要与三类持久化记录的中文标题，以及 `require` 在默认与 `--strict` 下的差异；同时验证 `研发输入/` 中的原始 commit 标识被排除。正向通过不能证明门禁能发现错误，新增或修改门禁时同时补失败用例。
+`pnpm run test:gates` 用 `node:test` 在临时工作区运行关键门禁的失败路径：坏链接（含模块 README）、缺失的预算文档、无效基线、Git 缺失时的跳过、错误的 Agent Note 格式、维护文件中的 commit 标识、模块组与独立模块混合时的子系统关联、模块摘要与三类持久化记录的中文标题、六个门禁的空语料扫描可见性，以及 `require` 在默认与 `--strict` 下的差异；同时验证 `研发输入/` 中的原始 commit 标识被排除。正向通过不能证明门禁能发现错误，新增或修改门禁时同时补失败用例。
 
 `.github/workflows/docs.yml` 在 push 和 pull request 上运行 `test:gates`、`test:tools`、`test:docs`、`test:notes`；pull request 额外以 `--strict` 运行变更影响检查。CI 能发现问题，但只有把该工作流设为仓库的必需检查，才会阻止不合规的合并。
 

@@ -44,5 +44,5 @@ agent-dev-template：面向 AI Agent 辅助软件研发的项目模板，以研�
 - 评审变更使用 [code-review](.agents/skills/code-review/SKILL.md)：先建立范围和依据，再用证据报告 blocker/suggestion；不把清单当通过条件。
 - 提交或推送前使用 [pre-push-checks](.agents/skills/pre-push-checks/SKILL.md)：按变更范围选择最小检查，不默认全量；失败停止，不重复已通过的检查。CI 在 push/PR 上运行同一组检查。
 - 初始化或接入项目使用 [project-onboarding](.agents/skills/project-onboarding/SKILL.md)：以代码和实际行为调查，由人确认架构和模块边界。
-- 用 `pnpm run verify-change-docs` 逐项核对文档影响；本地默认提示，CI 的 `--strict` 只执行已建立的 `require` 规则。不把未执行或未通过的检查报告为通过。
+- 用 `pnpm run verify-change-docs` 逐项核对文档影响；本地默认提示，CI 的 `--strict` 只执行已建立的 `require` 规则（当前无）。不把未执行或未通过的检查报告为通过。
 - 交付说明列出实际执行的命令和结果；未覆盖或未验证的事项必须明确说明。
