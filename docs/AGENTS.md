@@ -31,10 +31,11 @@
 | [持久化记录](persistence-changes/README.md) | 持久化类型变更确认、发布对比和完整的历史格式 schema | 纯行为变更；当前运行时契约（→ subsystems 或模块文档） |
 | [cookbook/](cookbook/README.md) | 带编号验证步骤的分步操作指南 | 设计理由（→ 各指南链接的 Agent Note）、场景判断（→ Skills） |
 | [研发输入](../研发输入/README.md) | 原始需求、外部约束、参考资料和梳理成果 | 已验证的决策（→ Agent Note）、当前系统契约（→ docs 或模块文档） |
+| [对dsh开发体系研究/](对dsh开发体系研究/README.md) | 对参考体系的调查研究：机制、证据、可复用原则和不采纳理由；设计新机制或提取模板前查阅 | 本仓库当前机制与已定决策（→ [体系架构](architecture.md)、[Agent Note](../.agents/notes/README.md)）；原始清单、截图和未经验证的推断 |
 | Skills（`.agents/skills/`） | 可复用工作流和专门的决策标准 | 产品与运行时契约（→ docs 或源码） |
 | 生成的参考 | 从源码重新生成的穷举参考；生成区域的结构与生产者声明由门禁校验 | 手工编辑生成的英文源或生成区域 |
 
-放置：bug → 复盘；理由 → Agent Note；流程 → cookbook；类型定义 → subsystems；模块契约 → 模块文档；模块分组 → 模块组文档；常驻指令 → 根 `AGENTS.md` 并附理由链接；按工件区分的评审规则 → `defensive-patterns/`；写代码的设计规则 → `core-guidelines/`；待验证的原始材料 → `研发输入/`。
+放置：bug → 复盘；理由 → Agent Note；流程 → cookbook；类型定义 → subsystems；模块契约 → 模块文档；模块分组 → 模块组文档；常驻指令 → 根 `AGENTS.md` 并附理由链接；按工件区分的评审规则 → `defensive-patterns/`；写代码的设计规则 → `core-guidelines/`；待验证的原始材料 → `研发输入/`；参考体系研究 → [对dsh开发体系研究](对dsh开发体系研究/README.md)。
 
 接入已有项目时，`docs/handover/` 是临时暂存区，不是归属层：文件不声明 `kind`，内容在正式文档或 Agent Note 承接后删除，目录清空后连同根 `AGENTS.md` 的临时链接一起移除；流程见 [project-onboarding](../.agents/skills/project-onboarding/SKILL.md)。
 

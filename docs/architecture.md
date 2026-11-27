@@ -19,6 +19,8 @@
 
 治理横跨四层：根 `AGENTS.md` 决定何时读写哪一层，[文档标准](AGENTS.md) 决定每层怎么写，`scripts/` 检查能机械判定的结构约束。
 
+[对 DSH 开发体系研究](对dsh开发体系研究/README.md) 是对参考体系的调查研究，不属于上面四层：记录可复用的设计原则、支持证据和 DSH 独有做法的边界。它不是本仓库的规则；采纳其中任何内容，要落到准则、防御模式、cookbook、Skill 或 Agent Note。
+
 ## 系统认知的三层
 
 架构回答“系统由哪些部分组成、依赖方向如何、修改入口在哪里”，它是有序地图而不是实现说明。子系统回答“某项能力的概念、类型、语义、生命周期和契约是什么”，供研究、设计和修改机制时查阅。模块回答“这个软件单元提供什么、何时选用、如何使用、边界在哪里”，随模块代码维护。
@@ -52,6 +54,7 @@
 | `docs/cookbook/` | 已验证的固定操作步骤 | [指南索引](cookbook/README.md) |
 | `docs/postmortem/` | 事故经过与系统性根因 | [复盘规则](postmortem/README.md) |
 | `docs/persistence-changes/` | 持久化格式的历史结构与兼容决策 | [记录规则](persistence-changes/README.md) |
+| `docs/对dsh开发体系研究/` | 对参考体系的机制、证据与可复用原则 | [研究索引](对dsh开发体系研究/README.md) |
 | `.agents/skills/` | 场景工作流与判断标准 | 各 Skill 的 `SKILL.md` |
 | `scripts/` | 可机械判定的结构约束（文档、任务） | [文档门禁](subsystems/documentation-gates.md)、[任务规则](../研发任务/README.md) |
 

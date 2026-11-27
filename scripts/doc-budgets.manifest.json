@@ -1,10 +1,13 @@
 {
     "AGENTS.md": 1050,
-    "docs/AGENTS.md": 3300,
+    "docs/AGENTS.md": 3500,
     ".agents/notes/README.md": 3450,
     ".agents/notes/AGENTS.md": 240,
     ".agents/notes/implemented/AGENTS.md": 270,
-    "docs/architecture.md": 2150,
+    "docs/architecture.md": 2350,
+    "docs/对dsh开发体系研究/README.md": 550,
+    "docs/对dsh开发体系研究/研发活动的组织方式.md": 2800,
+    "docs/对dsh开发体系研究/文档与知识体系的设计原则.md": 3150,
     "docs/subsystems/README.md": 500,
     "docs/subsystems/documentation-gates.md": 2400,
     "scripts/README.md": 2050

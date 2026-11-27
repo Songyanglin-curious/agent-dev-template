@@ -23,6 +23,8 @@
 | 工程知识 | `docs/core-guidelines/`、`docs/defensive-patterns/`、`docs/cookbook/`、`docs/postmortem/`、`.agents/skills/` | 怎样正确地设计和操作 |
 | 治理 | 根 `AGENTS.md`、`docs/AGENTS.md`、`scripts/` | 何时做、做没做、格式是否正确 |
 
+对参考体系（DSH）的研究结论见 [对 DSH 开发体系研究](docs/对dsh开发体系研究/README.md)；它记录可复用的设计原则和不采纳的理由，不是本仓库的规则。
+
 职责边界与信息流见 [体系架构](docs/architecture.md)；任务边界见根 [AGENTS.md](AGENTS.md)；任务记录见 [研发任务规则](研发任务/README.md)；文档与决策规则见 [文档标准](docs/AGENTS.md) 与 [Agent Note 规则](.agents/notes/README.md)，专项操作见各 [Skill](.agents/skills/)。
 
 ## 命令
