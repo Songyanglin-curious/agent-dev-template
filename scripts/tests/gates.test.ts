@@ -1,9 +1,9 @@
 /**
- * Failure-path tests for the documentation gates. A passing gate on healthy
- * input does not prove that it can detect violations, so each case builds a
- * small temporary workspace, copies the gate scripts, links the repository's
- * installed dependencies, and asserts that invalid input is rejected with a
- * locatable diagnostic.
+ * 文档门禁的失败路径测试。门禁在健康输入上通过，
+ * 并不能证明它能发现违规，因此每个用例都会构建一个
+ * 小型临时工作区，复制门禁脚本，链接仓库已安装的
+ * 依赖，并断言无效输入会被拒绝，且给出可定位的
+ * 诊断。
  */
 
 import { spawnSync } from 'node:child_process'
@@ -15,20 +15,20 @@ import assert from 'node:assert/strict'
 
 const REPO_ROOT = resolve(import.meta.dirname, '../..')
 
-/** One isolated repository snapshot with a runner for a gate script. */
+/** 一个隔离的仓库快照，附带运行门禁脚本的入口。 */
 interface Workspace {
-  /** Absolute temporary workspace root. */
+  /** 临时工作区的绝对根路径。 */
   dir: string
-  /** Run one gate script from the workspace and capture its output. */
+  /** 从工作区运行一个门禁脚本并捕获其输出。 */
   run: (script: string, args?: readonly string[]) => { status: number | null; stdout: string; stderr: string }
 }
 
 /**
- * Create a temporary workspace containing every top-level gate script, a
- * minimal module package.json, the given fixture files, and a link to the
- * repository's installed dependencies.
- * @param files - repository-relative fixture paths and their contents.
- * @returns the workspace handle.
+ * 创建一个临时工作区，包含所有顶层门禁脚本、最小模块
+ * package.json、给定的夹具文件，以及指向仓库已安装
+ * 依赖的链接。
+ * @param files - 仓库相对的夹具路径及其内容。
+ * @returns 工作区句柄。
  */
 function workspace(files: Readonly<Record<string, string>>): Workspace {
   const dir = mkdtempSync(join(tmpdir(), 'adt-gate-'))
@@ -62,7 +62,7 @@ function workspace(files: Readonly<Record<string, string>>): Workspace {
   }
 }
 
-/** Initialize Git in a workspace so change-scoped gates have a baseline. */
+/** 在工作区中初始化 Git，使按变更范围运行的门禁有基线。 */
 function initGit(current: Workspace, commit = false): void {
   const run = (args: readonly string[]): void => {
     const result = spawnSync('git', args, { cwd: current.dir, encoding: 'utf8' })
@@ -77,14 +77,14 @@ function initGit(current: Workspace, commit = false): void {
   }
 }
 
-/** Return the current commit hash of a test workspace. */
+/** 返回测试工作区的当前提交哈希。 */
 function headCommit(current: Workspace): string {
   const result = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: current.dir, encoding: 'utf8' })
   if (result.status !== 0) throw new Error(`git rev-parse HEAD failed: ${result.stderr ?? ''}`)
   return (result.stdout ?? '').trim()
 }
 
-/** Remove a workspace, including its dependency junction, without following it. */
+/** 删除工作区（含其依赖 junction），且不跟随该链接。 */
 function cleanup(current: Workspace): void {
   rmSync(current.dir, { recursive: true, force: true })
 }

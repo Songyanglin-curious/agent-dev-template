@@ -1,45 +1,45 @@
-/** Shared repository file discovery and line-oriented reference scanning. */
+/** 共用的仓库文件发现与按行引用扫描。 */
 
 import { readdirSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import type { Dirent } from 'node:fs'
 import { join, relative, resolve, sep } from 'node:path'
 
-/** One authored path plus its canonical target for symlink deduplication. */
+/** 一个原始路径及其用于符号链接去重的规范目标。 */
 export interface RepoFile {
-  /** Absolute path matched by the caller's glob. */
+  /** 被调用方 glob 匹配到的绝对路径。 */
   abs: string
-  /** Absolute canonical path used only for deduplication. */
+  /** 仅用于去重的绝对规范路径。 */
   real: string
 }
 
-/** One walker match before canonicalization. */
+/** 规范化之前的一次遍历匹配。 */
 interface GlobMatch {
-  /** Repository-relative slash path. */
+  /** 仓库相对的正斜杠路径。 */
   path: string
-  /** False only for a regular file reached through real directories alone. */
+  /** 仅当匹配项是完全经由真实目录到达的普通文件时才为 false。 */
   viaSymlink: boolean
 }
 
-/** A rejected line-oriented repository reference. */
+/** 一条被拒绝的按行仓库引用。 */
 export interface ReferenceViolation {
-  /** Repo-relative file containing the reference. */
+  /** 包含该引用的仓库相对文件。 */
   file: string
-  /** 1-based line containing the reference. */
+  /** 包含该引用的行号，从 1 开始。 */
   line: number
-  /** Normalized reference text. */
+  /** 规范化后的引用文本。 */
   ref: string
 }
 
-/** Whether a repository path is frozen Agent Note history, not evolving source prose. */
+/** 判断仓库路径是否是已冻结的 Agent Note 历史，而非仍在演进的源码散文。 */
 export function isArchivedAgentNotePath(path: string): boolean {
   return path.replaceAll('\\', '/').startsWith('.agents/notes/archived/')
 }
 
 /**
- * Whether a pattern segment matches a directory or file name. Supports `*` and
- * `?` inside a segment and mirrors node's glob `dot: false`: a segment whose
- * first character is a wildcard does not match dot names. `**` is handled as a
- * whole segment by the walker, never here.
+ * 判断模式中的一个片段是否匹配目录名或文件名。片段内支持 `*` 和
+ * `?`，并沿用 node glob 的 `dot: false` 语义：首字符为通配符的片段
+ * 不匹配点开头的名字。`**` 由遍历器按整个片段处理，
+ * 不会进入这里。
  */
 function segmentMatches(pattern: string, name: string): boolean {
   if (name.startsWith('.') && (pattern.startsWith('*') || pattern.startsWith('?'))) return false
@@ -53,12 +53,12 @@ function segmentMatches(pattern: string, name: string): boolean {
 }
 
 /**
- * Reject glob syntax the walker does not model. Node's `fs.glob` understands
- * character classes, brace alternation, and extglobs; expanding those
- * silently as literals would match nothing and quietly shrink a gate's
- * corpus, so a pattern segment using them fails loudly instead. Pure literal
- * segments must therefore contain none of the rejected metacharacters
- * either, even where node glob would read them literally.
+ * 拒绝遍历器未建模的 glob 语法。Node 的 `fs.glob` 支持
+ * 字符类、花括号交替和扩展 glob；把它们当作字面量静默展开
+ * 会匹配不到任何内容，从而悄悄缩小门禁的语料，
+ * 因此使用这些语法的模式片段会显式失败。纯字面量
+ * 片段同样不得包含被拒绝的元字符，
+ * 即使 node glob 会把它们读作字面量。
  */
 const UNSUPPORTED_GLOB = /[[\]{}()!+@\\]/
 
@@ -69,40 +69,40 @@ function assertSupportedSegment(segment: string): void {
 }
 
 /**
- * Walk `root` matching one repository-relative glob without node's `fs.glob`.
- * The repository's own walker exists because node's internal glob, from some
- * 24.x releases, lstat-probes `<matched>/<next segment>` for symlinked files
- * while expanding `**` and throws ENOTDIR instead of skipping (observed on
- * node 24.13.0 while expanding `**` across a symlinked Markdown file). The
- * walker decides directoryhood from dirent types and stat results, never by
- * probing a path under a file, so the same tree enumerates identically on
- * every node version.
+ * 遍历 `root` 匹配一个仓库相对 glob，不使用 node 的 `fs.glob`。
+ * 仓库自带遍历器，是因为 node 内部 glob 从某些
+ * 24.x 版本起，在展开 `**` 时会 lstat 探测 `<matched>/<next segment>`，
+ * 对符号链接文件抛出 ENOTDIR 而不是跳过（在
+ * node 24.13.0 上展开 `**` 跨过一个符号链接 Markdown 文件时观察到）。遍历器
+ * 依据 dirent 类型和 stat 结果判断是否目录，从不在
+ * 文件之下的路径上做探测，因此同一棵树在每个 node
+ * 版本上枚举结果一致。
  *
- * Segment semantics: literal segments resolve through `stat`, so a literal
- * naming a symlinked directory enters that directory exactly as node glob
- * does — including a literal repeated across segments, which node glob
- * resolves each time; wildcard segments and `**` resolve through dirent
- * types, so they never enter symlinked directories and never match dot
- * names. Node documents `follow: false` only for `**` expansion, so the
- * wildcard-side behavior is this walker's own contract rather than a
- * cross-version node guarantee; the consuming gates' current patterns contain
- * no wildcard segment over a symlinked directory, so the corpus is unchanged. `**` spans zero or more
- * directories. The final segment matches files and symlinks; a broken or
- * cyclic symlink then fails loudly in the caller's realpathSync rather than
- * shrinking the scanned corpus, while a broken symlink under a literal
- * non-final segment matches nothing, again as node glob does. Traversal
- * terminates without a visited set: each literal segment consumes one pattern
- * segment per recursion, and `**` recurses only into real directories, which
- * form a finite tree because symlinked directories are never expanded by it.
- * Pattern segments support `*`, `?`, and literals that contain none of
- * `[]{}()!+@\`; other node-glob syntax, including a trailing `**`, `..`, and
- * empty segments, is rejected loudly up front, while a `.` segment is folded
- * away exactly as node glob normalizes it. Directory listings come from
- * `listDirectory`, which callers share across patterns so each directory is
- * read once. A directory for which `skipDirectory` returns true is never
- * entered. Returns repository-relative slash paths, sorted, each marked
- * `viaSymlink` unless it names a regular file reached only through real
- * directories.
+ * 片段语义：字面量片段通过 `stat` 解析，因此指向符号链接目录的
+ * 字面量会像 node glob 那样进入该目录，
+ * 包括在多个片段中重复出现的字面量——node glob 每次都会
+ * 解析它；通配符片段和 `**` 通过 dirent
+ * 类型解析，因此从不进入符号链接目录，也从不匹配点开头的
+ * 名字。node 仅为 `**` 展开记录 `follow: false`，所以
+ * 通配符一侧的行为是遍历器自身的约定，而不是
+ * 跨 node 版本的保证；使用方门禁的当前模式中
+ * 没有覆盖符号链接目录的通配符片段，因此语料不变。`**` 跨越零个或多个
+ * 目录。最后一段匹配文件和符号链接；损坏或
+ * 成环的符号链接随后会在调用方的 realpathSync 中显式失败，而不是
+ * 缩小扫描语料；而字面量非末段之下的损坏符号链接
+ * 匹配不到任何内容，同样与 node glob 一致。遍历
+ * 在没有已访问集合的情况下终止：每个字面量片段每次递归消耗一个模式
+ * 片段，`**` 只递归进入真实目录，这些目录
+ * 构成有限树，因为它从不展开符号链接目录。
+ * 模式片段支持 `*`、`?`，以及不包含
+ * `[]{}()!+@\` 中任何字符的字面量；其他 node-glob 语法，包括结尾的 `**`、`..` 和
+ * 空片段，都会在最前面显式拒绝，而 `.` 片段会
+ * 像 node glob 规范化时那样被折叠掉。目录列表来自
+ * `listDirectory`，调用方在各模式间共享它，使每个目录
+ * 只读取一次。`skipDirectory` 返回 true 的目录永不
+ * 进入。返回仓库相对的正斜杠路径，已排序，每项都标记
+ * `viaSymlink`，除非它指向仅通过真实目录到达的普通
+ * 文件。
  */
 function expandGlob(
   root: string,
@@ -113,21 +113,21 @@ function expandGlob(
   const segments: string[] = []
   for (const segment of pattern.split('/')) {
     if (segment === '.') {
-      // Node glob normalizes a `.` segment away; dropping it here keeps
-      // `./README.md` and `a/./b` matching exactly as node glob does instead
-      // of silently matching nothing.
+      // node glob 会把 `.` 片段规范化掉；这里丢弃它，
+      // 让 `./README.md` 和 `a/./b` 的匹配结果与 node glob 完全一致，
+      // 而不是静默地匹配不到任何内容。
       continue
     }
     if (segment === '..') {
-      // A `..` segment escapes the scanned root and interacts with `**` in
-      // ways node glob special-cases; no gate pattern uses one, so the walker
-      // rejects the form loudly instead of silently matching nothing.
+      // `..` 片段会逸出扫描根目录，并与 `**` 产生
+      // node glob 特殊处理过的交互；没有门禁模式使用它，因此遍历器
+      // 显式拒绝这种形式，而不是静默地匹配不到任何内容。
       throw new TypeError(`repo-files walker does not model .. segments in pattern: ${pattern}`)
     }
     if (segment === '') {
-      // A leading, doubled, or trailing slash yields an empty segment that
-      // can never match an entry; node glob would tolerate the form, so the
-      // walker must reject it loudly instead of silently returning nothing.
+      // 开头、连续或结尾的斜杠会产生空片段，
+      // 它永远匹配不到任何条目；node glob 会容忍这种形式，因此
+      // 遍历器必须显式拒绝，而不是静默返回空结果。
       throw new TypeError(`repo-files walker does not model empty segments in pattern: ${pattern}`)
     }
     segments.push(segment)
@@ -138,9 +138,9 @@ function expandGlob(
   for (const segment of segments) {
     if (segment !== '**') assertSupportedSegment(segment)
   }
-  // A trailing `**` would match files, directories, and symlinks below the
-  // prefix; the walker models `**` only as a directory-spanning segment, so
-  // it must reject the form loudly instead of silently returning nothing.
+  // 结尾的 `**` 会匹配前缀之下的文件、目录和符号链接；
+  // 遍历器只把 `**` 建模为跨越目录的片段，因此
+  // 必须显式拒绝这种形式，而不是静默返回空结果。
   if (segments[segments.length - 1] === '**') {
     throw new TypeError(`repo-files walker does not model a trailing ** segment in pattern: ${pattern}`)
   }
@@ -152,7 +152,7 @@ function expandGlob(
       visitSegment(dirAbs, dirRel, index, viaSymlink)
       return
     }
-    // `**` consumes zero directories here and one directory per recursion.
+    // 这里的 `**` 消耗零个目录，并在每次递归中消耗一个目录。
     visitSegment(dirAbs, dirRel, index + 1, viaSymlink)
     for (const entry of listDirectory(dirAbs)) {
       if (entry.name.startsWith('.') || !entry.isDirectory()) continue
@@ -176,9 +176,9 @@ function expandGlob(
       const childAbs = join(dirAbs, entry.name)
       const childRel = dirRel === '.' ? entry.name : `${dirRel}/${entry.name}`
       if (last) {
-        // Files and symlinks match; a broken or cyclic symlink then fails
-        // loudly in the caller's realpathSync exactly as node glob did,
-        // rather than silently shrinking the scanned corpus.
+        // 文件和符号链接都会匹配；损坏或成环的符号链接随后
+        // 会像 node glob 那样在调用方的 realpathSync 中显式失败，
+        // 而不是悄悄缩小扫描语料。
         if (entry.isFile() || entry.isSymbolicLink()) {
           out.push({ path: childRel, viaSymlink: viaSymlink || !entry.isFile() })
         }
@@ -188,16 +188,16 @@ function expandGlob(
         if (!skipDirectory(childRel)) visitSegment(childAbs, childRel, index + 1, viaSymlink)
         continue
       }
-      // A literal non-final segment resolves through stat like node glob's,
-      // so it enters a symlinked directory; wildcard segments never reach
-      // this branch because they are matched from dirent types above.
+      // 字面量非末段像 node glob 一样通过 stat 解析，
+      // 因此会进入符号链接目录；通配符片段从不进入
+      // 这个分支，因为它们在上面的逻辑中按 dirent 类型匹配。
       if (!entry.isSymbolicLink() || hasWildcard(segment)) continue
       let target: ReturnType<typeof statSync>
       try {
         target = statSync(childAbs)
       } catch {
-        // A broken symlink matches nothing under a literal segment, as node
-        // glob silently returns no match for it.
+        // 字面量片段之下的损坏符号链接匹配不到任何内容，
+        // 与 node glob 对它静默返回无匹配一致。
         continue
       }
       if (!target.isDirectory() || skipDirectory(childRel)) continue
@@ -209,23 +209,23 @@ function expandGlob(
   return out.sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0)
 }
 
-/** Whether a pattern segment contains `*` or `?` and is therefore wildcard. */
+/** 判断模式片段是否包含 `*` 或 `?`，从而属于通配符片段。 */
 function hasWildcard(segment: string): boolean {
   return segment.includes('*') || segment.includes('?')
 }
 
 /**
- * Expand repository-relative globs and deduplicate symlinked files.
- * Each directory is listed at most once per call, shared across patterns.
- * A regular file reached only through real directories canonicalizes to
- * `realpathSync(root)` joined with its relative path; every other match goes
- * through `realpathSync`, so a broken or cyclic symlink still throws.
- * @param root - absolute repository root.
- * @param patterns - repository-relative glob patterns, processed in order.
- * @param isExcluded - optional predicate over each matched relative path.
- * @param skipDirectory - optional predicate over each repository-relative directory before the walker
- *   lists it; return true only when `isExcluded` holds for every path below that directory.
- * @returns matched files in stable first-seen order.
+ * 展开仓库相对的 glob 并对符号链接文件去重。
+ * 每次调用中每个目录最多列出一次，并在各模式间共享。
+ * 仅通过真实目录到达的普通文件会规范化为
+ * `realpathSync(root)` 与其相对路径的拼接；其他每个匹配项都走
+ * `realpathSync`，因此损坏或成环的符号链接仍会抛出。
+ * @param root - 仓库根目录的绝对路径。
+ * @param patterns - 仓库相对的 glob 模式，按顺序处理。
+ * @param isExcluded - 可选，对每个匹配到的相对路径求值的排除谓词。
+ * @param skipDirectory - 可选，在遍历器列出每个仓库相对目录之前对其求值的谓词；
+ *   仅当该目录之下的每个路径都满足 `isExcluded` 时才返回 true。
+ * @returns 按稳定首见顺序排列的匹配文件。
  */
 export function uniqueRepoFiles(
   root: string,
@@ -259,15 +259,15 @@ export function uniqueRepoFiles(
 }
 
 /**
- * Scan regex matches line by line and return the normalized matches rejected by
- * a caller predicate.
- * @param root - absolute repository root used for violation paths.
- * @param absPath - absolute text-file path to scan.
- * @param pattern - global regex matched independently against each line.
- * @param normalize - maps raw regex text to the reference the gate evaluates.
- * @param isViolation - returns true when the normalized reference is invalid.
- * @param excludedRange - optional selector of a zero-based, end-exclusive line range to leave unscanned.
- * @returns every rejected reference in source order.
+ * 逐行扫描正则匹配，返回被调用方谓词判定为拒绝的
+ * 规范化匹配项。
+ * @param root - 用于生成违规路径的仓库根目录绝对路径。
+ * @param absPath - 待扫描文本文件的绝对路径。
+ * @param pattern - 对每一行独立匹配的全局正则。
+ * @param normalize - 把原始正则文本映射为门禁评估的引用。
+ * @param isViolation - 规范化后的引用无效时返回 true。
+ * @param excludedRange - 可选，选取一个从 0 开始、右端不含的行区间不做扫描。
+ * @returns 按源顺序排列的每条被拒绝引用。
  */
 export function findReferenceViolations(
   root: string,

@@ -1,9 +1,9 @@
 /**
- * Verify that each documentation unit links the subsystem page that owns its
- * cross-module capability. Units are all module-group docs plus module docs not
- * listed by any group; a unit without such a link needs a justified entry in
- * `scripts/subsystem-page-exemptions.json`. Stale exemptions, exempt units that
- * do link a page, and links to missing pages all fail.
+ * 校验每个文档单元都链接到拥有其跨模块能力的子系统页面。
+ * 文档单元包括所有模块组文档，以及未被任何组列出的模块文档；
+ * 缺少该链接的单元需要在 `scripts/subsystem-page-exemptions.json`
+ * 中有理由充分的条目。过期的豁免、实际已链接页面的豁免单元，
+ * 以及指向缺失页面的链接，都会失败。
  */
 
 import { existsSync, readFileSync } from 'node:fs'
@@ -21,7 +21,7 @@ import {
 const EXEMPTIONS_PATH = 'scripts/subsystem-page-exemptions.json'
 const SUBSYSTEM_PAGE = /^docs\/subsystems\/[^/]+\.md$/u
 
-/** Units intentionally without a subsystem page. */
+/** 有意不提供子系统页面的文档单元。 */
 function readExemptions(): Record<string, string> {
   const absolute = resolve(REPO_ROOT, EXEMPTIONS_PATH)
   if (!existsSync(absolute)) return {}

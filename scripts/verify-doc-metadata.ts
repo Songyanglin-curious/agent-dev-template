@@ -1,10 +1,10 @@
 /**
- * Verify `description` / `kind` frontmatter on READMEs that belong to the
- * doc-writing type system. The kind must map to exactly one template under
- * `.agents/skills/doc-writing/templates/`; the description must let a reader
- * decide whether to open the page; and fields already owned by the title, the
- * manifest, or the gate system are rejected. READMEs without a `kind` are
- * ordinary project or index pages and are not checked here.
+ * 校验属于 doc-writing 类型体系的 README 上的 `description` / `kind`
+ * frontmatter。kind 必须唯一映射到 `.agents/skills/doc-writing/templates/`
+ * 下的一个模板；description 必须能让读者决定是否打开该页；
+ * 由标题、清单或门禁体系已经拥有的字段一律拒绝。
+ * 没有 `kind` 的 README 属于普通项目页或索引页，
+ * 不在此处检查。
  */
 
 import { existsSync } from 'node:fs'
@@ -19,7 +19,7 @@ import {
 
 const TEMPLATE_DIRECTORY = resolve(REPO_ROOT, '.agents/skills/doc-writing/templates')
 
-/** Document kinds that map to a template. */
+/** 映射到模板的文档 kind。 */
 const KINDS = new Set([
   'module',
   'module-group',
@@ -28,14 +28,14 @@ const KINDS = new Set([
   'persistence-format',
 ])
 
-/** Fields owned elsewhere or intentionally not supported. */
+/** 由别处拥有或有意不支持的字段。 */
 const FORBIDDEN_FIELDS = ['name', 'audience', 'tags', 'i18n'] as const
 
-/** Minimum and maximum description length in characters. */
+/** description 的最小与最大字符长度。 */
 const MIN_DESCRIPTION = 10
 const MAX_DESCRIPTION = 300
 
-/** Advertising language the description must not use. */
+/** description 不得使用的广告式用语。 */
 const ADVERTISING = /最先进|最强大|世界级|the best|world-class|best-in-class/iu
 
 const failures: string[] = []

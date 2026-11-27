@@ -1,14 +1,14 @@
-/** Counting rules shared by documentation gates. */
+/** 文档门禁共用的计数规则。 */
 
-/** CJK characters counted individually: Han, hiragana, katakana, and hangul. */
+/** 按单字计数的 CJK 字符：汉字、平假名、片假名和谚文。 */
 const CJK_CHARACTER = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu
 
 /**
- * Count documentation units under the hybrid CJK/whitespace rule.
- * Each CJK character counts as one unit; all other text counts one unit per
- * whitespace-delimited token, with each CJK character acting as a separator.
- * @param text - Document text to measure.
- * @returns CJK character count plus whitespace-delimited non-CJK token count.
+ * 按 CJK 字符与空白混合的规则统计文档单位数。
+ * 每个 CJK 字符计为一个单位；其余文本按空白分隔的片段计数，
+ * 每个 CJK 字符同时充当分隔符。
+ * @param text - 待度量的文档文本。
+ * @returns CJK 字符数加上空白分隔的非 CJK 片段数。
  */
 export function countDocumentUnits(text: string): number {
   let cjk = 0
@@ -20,12 +20,12 @@ export function countDocumentUnits(text: string): number {
 }
 
 /**
- * Count word equivalents for the module Summary limit.
- * English text counts one unit per whitespace-delimited token; CJK text counts
- * one unit per two characters, so a three-to-five sentence Chinese Summary is
- * measured on the same scale as 100 English words.
- * @param text - Summary body to measure.
- * @returns Whitespace tokens plus half the CJK character count, rounded up.
+ * 按词当量统计模块 Summary 的字数上限。
+ * 英文文本按空白分隔的片段每个计一个单位；CJK 文本每两个字符计一个单位，
+ * 从而三到五句的中文 Summary 与 100 个英文单词
+ * 使用同一尺度度量。
+ * @param text - 待度量的 Summary 正文。
+ * @returns 空白分隔片段数加上 CJK 字符数的一半，向上取整。
  */
 export function countWordEquivalents(text: string): number {
   let cjk = 0

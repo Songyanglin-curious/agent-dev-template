@@ -1,7 +1,7 @@
 /**
- * Enforce Agent Note lifecycle/class paths and dated filenames. Structural rules
- * are shared with `agent-note-tree.ts`; the closed classification rules live
- * in `.agents/notes/README.md`.
+ * 强制 Agent Note 的生命周期/类别路径与带日期文件名。结构规则与
+ * `agent-note-tree.ts` 共用；封闭的分类规则位于
+ * `.agents/notes/README.md`。
  */
 
 import { walkAgentNoteTree } from './agent-note-tree.ts'

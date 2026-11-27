@@ -1,4 +1,4 @@
-/** Verify and append-seal the frozen Agent Note archive. */
+/** 校验冻结的 Agent Note 归档，并以追加方式写入封印。 */
 
 import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
@@ -81,7 +81,7 @@ if (existsSync(manifestPath)) {
   errors.push('archived/manifest.json is required; seal new artifacts with `pnpm run verify-archived-agent-notes --write`')
 }
 
-// CI supplies its trusted pre-change commit; local writes compare with committed HEAD.
+// CI 提供可信的变更前提交；本地写入时与已提交的 HEAD 比较。
 const baselineRef = process.env.AGENT_NOTE_ARCHIVE_BASE_REF ?? 'HEAD'
 try {
   const baseline = readBaselineManifest(baselineRef)

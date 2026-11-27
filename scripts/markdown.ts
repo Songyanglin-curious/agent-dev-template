@@ -1,53 +1,53 @@
-/** Shared Markdown parsing and depth-first traversal for documentation gates. */
+/** 文档门禁共用的 Markdown 解析与深度优先遍历。 */
 
 import { fromMarkdown } from 'mdast-util-from-markdown'
 import { gfmFromMarkdown } from 'mdast-util-gfm'
 import { gfm } from 'micromark-extension-gfm'
 import type { Nodes } from 'mdast'
 
-/** One authored Markdown line outside fenced code and rendered-away HTML comments. */
+/** 围栏代码块和渲染时被丢弃的 HTML 注释之外的一行原生 Markdown。 */
 export interface MarkdownProseLine {
-  /** 1-based source line number. */
+  /** 源行号，从 1 开始。 */
   index: number
-  /** Source text without normalization. */
+  /** 未做规范化的源文本。 */
   raw: string
 }
 
-/** One parsed Markdown heading, retaining its authored first line and rendered text. */
+/** 解析出的一个 Markdown 标题，保留其首行原文与渲染文本。 */
 export interface MarkdownHeadingLine extends MarkdownProseLine {
-  /** Parsed ATX or Setext heading depth. */
+  /** 解析出的 ATX 或 Setext 标题层级。 */
   depth: 1 | 2 | 3 | 4 | 5 | 6
-  /** Rendered heading text, excluding raw HTML such as comments. */
+  /** 渲染后的标题文本，不含注释等原始 HTML。 */
   text: string
 }
 
-/** One code block from a parsed Markdown source. */
+/** 解析后的 Markdown 源中的一个代码块。 */
 export interface MarkdownFence {
-  /** 1-based source line of the opening fence. */
+  /** 起始围栏所在的源行号，从 1 开始。 */
   line: number
-  /** Info-string language (its first word), null on a bare or indented block. */
+  /** 信息串中的语言（其首个单词），裸围栏或缩进代码块为 null。 */
   lang: string | null
-  /** Full info string (e.g. `ts ignore-check`), '' on a bare or indented block. */
+  /** 完整信息串（如 `ts ignore-check`），裸围栏或缩进代码块为 ''。 */
   info: string
-  /** Block body without the fence delimiters. */
+  /** 不含围栏分隔符的代码块正文。 */
   code: string
   /**
-   * Whether a closing fence delimiter terminates the block — mdast silently
-   * closes an unterminated fence at end of file. False on indented
-   * (non-fenced) blocks, whose end line is code.
+   * 代码块是否由闭合围栏分隔符终止——mdast 会在文件末尾
+   * 静默闭合未终止的围栏。缩进（非围栏）代码块为 false，
+   * 其结束行属于代码本身。
    */
   closed: boolean
 }
 
-/** Parse GitHub-flavored Markdown with the repository's standard extensions. */
+/** 按仓库的标准扩展解析 GitHub 风格 Markdown。 */
 export function parseMarkdown(source: string): Nodes {
   return fromMarkdown(source, { extensions: [gfm()], mdastExtensions: [gfmFromMarkdown()] })
 }
 
 /**
- * Visit a Markdown tree depth-first; returning false prunes a node's children.
- * @param node - current tree node.
- * @param visitor - callback invoked before each node's children.
+ * 深度优先访问 Markdown 树；返回 false 会剪掉该节点的子节点。
+ * @param node - 当前树节点。
+ * @param visitor - 在每个节点的子节点之前调用的回调。
  */
 export function visitMarkdown(node: Nodes, visitor: (node: Nodes) => boolean | void): void {
   if (visitor(node) === false) return
@@ -56,17 +56,17 @@ export function visitMarkdown(node: Nodes, visitor: (node: Nodes) => boolean | v
   }
 }
 
-/** Markdown nodes whose authored destination occupies a replaceable source range. */
+/** 其原始目标地址占据可替换源区间的 Markdown 节点。 */
 export type MarkdownDestinationNode = Extract<Nodes, { type: 'link' | 'image' | 'definition' }>
 
-/** One authored Markdown destination and its absolute source offsets. */
+/** 一个原始 Markdown 目标地址及其绝对源偏移。 */
 export interface MarkdownDestination {
   start: number
   end: number
   url: string
 }
 
-/** Whether a Markdown URL is external, repository-root absolute, or purely in-page. */
+/** 判断 Markdown URL 是外部地址、仓库根绝对路径还是纯页内锚点。 */
 export function isExternalOrAbsoluteMarkdownUrl(url: string): boolean {
   return url.startsWith('#')
     || url.startsWith('//')
@@ -74,7 +74,7 @@ export function isExternalOrAbsoluteMarkdownUrl(url: string): boolean {
     || /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)
 }
 
-/** Split one Markdown URL without normalizing its query or fragment suffix. */
+/** 拆分一个 Markdown URL，不对其查询串或片段后缀做规范化。 */
 export function splitMarkdownUrlTarget(url: string): { path: string; suffix: string } {
   const boundary = url.search(/[?#]/)
   if (boundary === -1) return { path: url, suffix: '' }
@@ -139,7 +139,7 @@ function destinationRange(rawNode: string, type: MarkdownDestinationNode['type']
   return { start, end: rawNode.length }
 }
 
-/** Locate one parsed destination in the original Markdown without reserializing it. */
+/** 在原始 Markdown 中定位一个已解析的目标地址，不重新序列化。 */
 export function markdownDestination(source: string, node: MarkdownDestinationNode): MarkdownDestination {
   const start = node.position?.start.offset
   const end = node.position?.end.offset
@@ -152,9 +152,9 @@ export function markdownDestination(source: string, node: MarkdownDestinationNod
 }
 
 /**
- * Extract every parsed code block with its info string, in document order.
- * @param source - Markdown source to scan.
- * @returns each block's opening line, language, info string, and body.
+ * 按文档顺序提取每个已解析的代码块及其信息串。
+ * @param source - 待扫描的 Markdown 源。
+ * @returns 每个代码块的起始行、语言、信息串和正文。
  */
 export function markdownFences(source: string): MarkdownFence[] {
   const lines = source.split('\n')
@@ -171,7 +171,7 @@ export function markdownFences(source: string): MarkdownFence[] {
   return fences
 }
 
-/** Text a reader sees from one Markdown node; raw HTML itself contributes none. */
+/** 读者从一个 Markdown 节点看到的文本；原始 HTML 本身不贡献文本。 */
 function renderedText(node: Nodes): string {
   if (node.type === 'text' || node.type === 'inlineCode') return node.value
   if (node.type === 'image' || node.type === 'imageReference') return node.alt ?? ''
@@ -181,10 +181,10 @@ function renderedText(node: Nodes): string {
 }
 
 /**
- * Return every parsed Markdown heading with its rendered text and source line.
- * @param source - Markdown source whose headings are returned.
- * @param tree - the {@link parseMarkdown} result for exactly `source`, when the caller already has it.
- * @returns headings in document order.
+ * 返回每个已解析的 Markdown 标题及其渲染文本与源行号。
+ * @param source - 要返回其标题的 Markdown 源。
+ * @param tree - 恰好对应 `source` 的 {@link parseMarkdown} 结果，供已持有它的调用方传入。
+ * @returns 按文档顺序排列的标题。
  */
 export function markdownHeadingLines(source: string, tree: Nodes = parseMarkdown(source)): MarkdownHeadingLine[] {
   const rawLines = source.split('\n')
@@ -204,7 +204,7 @@ export function markdownHeadingLines(source: string, tree: Nodes = parseMarkdown
 type ColumnRange = readonly [start: number, end: number]
 type OffsetRange = readonly [start: number, end: number]
 
-/** Source-column ranges occupied by parsed HTML comments, keyed by source line. */
+/** 已解析 HTML 注释占用的源列区间，以源行号为键。 */
 function htmlCommentRanges(tree: Nodes, rawLines: readonly string[]): Map<number, ColumnRange[]> {
   const comments: OffsetRange[] = []
   visitMarkdown(tree, (node) => {
@@ -239,7 +239,7 @@ function htmlCommentRanges(tree: Nodes, rawLines: readonly string[]): Map<number
   return ranges
 }
 
-/** Whether a source line retains non-whitespace text after HTML comments disappear. */
+/** 判断源行在去掉 HTML 注释后是否仍留有非空白文本。 */
 function hasRenderedTextOutsideComments(raw: string, ranges: readonly ColumnRange[] | undefined): boolean {
   if (ranges === undefined) return true
   let cursor = 0
@@ -253,10 +253,10 @@ function hasRenderedTextOutsideComments(raw: string, ranges: readonly ColumnRang
 }
 
 /**
- * Return source lines outside code blocks and HTML comments.
- * @param source - Markdown source whose prose should be retained verbatim.
- * @param tree - the {@link parseMarkdown} result for exactly `source`, when the caller already has it.
- * @returns unfenced lines with their original 1-based locations.
+ * 返回代码块和 HTML 注释之外的源行。
+ * @param source - 需要原样保留其散文的 Markdown 源。
+ * @param tree - 恰好对应 `source` 的 {@link parseMarkdown} 结果，供已持有它的调用方传入。
+ * @returns 围栏之外的行及其原始的从 1 开始的位置。
  */
 export function markdownProseLines(source: string, tree: Nodes = parseMarkdown(source)): MarkdownProseLine[] {
   const rawLines = source.split('\n')

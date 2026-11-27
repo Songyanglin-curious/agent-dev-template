@@ -1,7 +1,7 @@
 /**
- * Report the explicit committed and worktree scope of a repository change.
- * The report is the common input for review and pre-push check selection; it
- * names paths only and does not decide which checks or documents are required.
+ * 报告仓库变更中已提交范围与工作区范围的明确清单。
+ * 该报告是评审与 pre-push 检查选择的共同输入；它只列出路径，
+ * 不决定需要哪些检查或文档。
  */
 
 import { spawnSync } from 'node:child_process'
@@ -30,7 +30,7 @@ interface ChangeScopeReport {
   }
 }
 
-/** Run Git and return UTF-8 stdout, or throw a short diagnostic. */
+/** 运行 Git 并返回 UTF-8 标准输出，失败时抛出简短诊断。 */
 function git(args: readonly string[]): string {
   const result = spawnSync('git', ['-C', REPO_ROOT, ...args], {
     encoding: 'utf8',
@@ -45,7 +45,7 @@ function git(args: readonly string[]): string {
   return result.stdout
 }
 
-/** Resolve a ref to a full commit id. */
+/** 把 ref 解析为完整的提交 ID。 */
 function resolveCommit(ref: string, label: string): string {
   const result = spawnSync('git', ['-C', REPO_ROOT, 'rev-parse', '--verify', `${ref}^{commit}`], {
     encoding: 'utf8',
@@ -56,17 +56,17 @@ function resolveCommit(ref: string, label: string): string {
   return result.stdout.trim()
 }
 
-/** Split NUL-separated Git path output, preserving only non-empty paths. */
+/** 拆分以 NUL 分隔的 Git 路径输出，只保留非空路径。 */
 function splitPaths(output: string): string[] {
   return output.split('\0').filter(path => path !== '')
 }
 
-/** Sort and deduplicate path lists. */
+/** 对路径列表排序并去重。 */
 function normalize(paths: readonly string[]): string[] {
   return [...new Set(paths)].sort()
 }
 
-/** Build the change-scope report for the requested base and head. */
+/** 为请求的 base 与 head 构建变更范围报告。 */
 function report(base: string, head: string): ChangeScopeReport {
   const baseSha = resolveCommit(base, 'base')
   const headSha = resolveCommit(head, 'head')

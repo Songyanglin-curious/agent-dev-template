@@ -12,14 +12,14 @@ interface Workspace {
   run: (args?: readonly string[]) => { status: number | null; stdout: string; stderr: string }
 }
 
-/** Run Git in a test workspace and fail the test if the command fails. */
+/** 在测试工作区中运行 Git，命令失败时使测试失败。 */
 function git(dir: string, args: readonly string[]): string {
   const result = spawnSync('git', args, { cwd: dir, encoding: 'utf8' })
   if (result.status !== 0) throw new Error(`git ${args.join(' ')} failed: ${result.stderr ?? ''}`)
   return result.stdout
 }
 
-/** Create a temporary checkout containing the change-scope script. */
+/** 创建一个包含 change-scope 脚本的临时检出。 */
 function workspace(): Workspace {
   const dir = mkdtempSync(join(tmpdir(), 'adt-change-scope-'))
   const scripts = join(dir, 'scripts')
@@ -37,14 +37,14 @@ function workspace(): Workspace {
   }
 }
 
-/** Initialize Git with the minimum identity needed for fixture commits. */
+/** 初始化 Git，并配置夹具提交所需的最小身份信息。 */
 function initGit(dir: string): void {
   git(dir, ['init'])
   git(dir, ['config', 'user.email', 'change-scope-test@example.com'])
   git(dir, ['config', 'user.name', 'Change Scope Test'])
 }
 
-/** Remove a workspace recursively. */
+/** 递归删除工作区。 */
 function cleanup(dir: string): void {
   rmSync(dir, { recursive: true, force: true })
 }

@@ -1,13 +1,13 @@
 /**
- * Reject maintained references to real repository commits. History should be
- * cited by release tag or PR number instead of a commit identifier, because
- * tags and PR numbers stay meaningful after history rewrites. A hexadecimal
- * token only counts as a commit reference when the local Git object database
- * resolves it to exactly one object of type `commit`, so digests, sizes, and
- * decimal-only tokens never trigger the gate. Frozen history under
- * `.agents/notes/archived/`, third-party sources under `vendor/`, and raw
- * research inputs under `研发输入/` are excluded: original materials keep
- * their external identifiers instead of being rewritten for a maintenance gate.
+ * 拒绝维护内容中对真实仓库提交的引用。历史应通过发布标签或
+ * PR 编号引用，而不是提交标识符，因为标签和 PR 编号在
+ * 历史重写后仍然有意义。十六进制串仅当本地 Git 对象
+ * 数据库将其解析为恰好一个类型为 `commit` 的对象时，
+ * 才计为提交引用，因此摘要、大小和纯十进制串从不触发
+ * 该门禁。冻结历史 `.agents/notes/archived/`、
+ * 第三方来源 `vendor/` 以及原始研究输入 `研发输入/` 被排除：
+ * 原始材料保留其外部标识符，
+ * 而不是为维护门禁而改写。
  */
 
 import { execFileSync } from 'node:child_process'
@@ -16,36 +16,36 @@ import { resolve } from 'node:path'
 
 const root = resolve(import.meta.dirname, '..')
 
-// A hexadecimal run with at least one hex letter; decimal-only tokens collide
-// with sizes, counts, and version components.
+// 至少包含一个十六进制字母的十六进制串；纯十进制串会与
+// 大小、计数和版本组成部分冲突。
 const commitCandidate = /(?<![a-z0-9])(?=[\da-f]{0,39}[a-f])[\da-f]{7,40}(?![a-z0-9])/gi
 const excludedPrefixes = ['vendor/', '.agents/notes/archived/', '研发输入/']
 const gitOutputLimit = 64 * 1024 * 1024
-// One 41-byte line per object; 1.2 million objects produce about 49 MiB.
+// 每个对象一行 41 字节；120 万个对象约产生 49 MiB。
 const objectListingLimit = 1024 * 1024 * 1024
 
-/** One prohibited commit reference in a maintained source file. */
+/** 维护源文件中一处被禁止的提交引用。 */
 export interface RepositoryReference {
-  /** Repository-relative path, with forward slashes. */
+  /** 仓库相对路径，使用正斜杠。 */
   file: string
-  /** One-based source line containing the reference. */
+  /** 包含该引用的 1 基源文件行号。 */
   line: number
-  /** The matched hexadecimal identifier, lowercased. */
+  /** 匹配到的十六进制标识符，已转小写。 */
   ref: string
 }
 
-/** Whether a path is maintained prose rather than vendored or frozen history. */
+/** 路径是维护中的文本，而不是第三方或冻结历史。 */
 function isMaintained(file: string): boolean {
   const path = file.replaceAll('\\', '/')
   return !excludedPrefixes.some(prefix => path.startsWith(prefix))
 }
 
 /**
- * Inspect a maintained source file against known commit identifiers.
- * @param file - Repository-relative path used in diagnostics and exclusions.
- * @param source - File text or a symlink's stored target.
- * @param commits - Lowercase, unambiguous identifiers that name commit objects.
- * @returns One finding per offending identifier and line, in source order.
+ * 依据已知提交标识符检查一个维护源文件。
+ * @param file - 用于诊断和排除的仓库相对路径。
+ * @param source - 文件文本或符号链接存储的目标。
+ * @param commits - 命名提交对象的小写、无歧义标识符。
+ * @returns 每个违规标识符和行号对应一条发现，按源文件顺序。
  */
 export function findRepositoryReferences(
   file: string,
@@ -66,7 +66,7 @@ export function findRepositoryReferences(
   return references
 }
 
-/** Read tracked and nonignored new maintained files, following symlinks to their stored target. */
+/** 读取已跟踪和未被忽略的新增维护文件，跟随符号链接到其存储目标。 */
 function readMaintainedFiles(repoRoot: string): Map<string, string> {
   const files = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], {
     cwd: repoRoot,
@@ -83,7 +83,7 @@ function readMaintainedFiles(repoRoot: string): Map<string, string> {
   return sources
 }
 
-/** Run one Git command that reports newline-separated names. */
+/** 运行一条 Git 命令，返回以换行分隔的名称。 */
 function gitLines(repoRoot: string, args: readonly string[], maxBuffer: number, input?: string): string[] {
   const output = execFileSync('git', args, {
     cwd: repoRoot,
@@ -97,10 +97,10 @@ function gitLines(repoRoot: string, args: readonly string[], maxBuffer: number, 
 }
 
 /**
- * Find the one object whose name starts with a prefix.
- * @param objects - Every object name in the local object database, sorted.
- * @param prefix - Lowercase hexadecimal prefix.
- * @returns The matching object name, or `undefined` when none or several match.
+ * 找出名称以某前缀开头的唯一对象。
+ * @param objects - 本地对象数据库中的全部对象名称，已排序。
+ * @param prefix - 小写十六进制前缀。
+ * @returns 匹配的对象名称；没有或多个匹配时为 `undefined`。
  */
 export function uniquePrefixMatch(objects: readonly string[], prefix: string): string | undefined {
   let low = 0
@@ -116,18 +116,18 @@ export function uniquePrefixMatch(objects: readonly string[], prefix: string): s
 }
 
 /**
- * Resolve commit-identifier candidates in maintained sources against the local object database.
- * @param repoRoot - Working tree whose Git objects are inspected.
- * @param sources - File texts or symlink targets to extract candidates from.
- * @returns Lowercase candidates that name exactly one available object of type commit.
+ * 用本地对象数据库解析维护源文件中的提交标识符候选。
+ * @param repoRoot - 检查其 Git 对象的工作树。
+ * @param sources - 用于提取候选的文件文本或符号链接目标。
+ * @returns 恰好命名一个可用 commit 类型对象的小写候选。
  */
 export function repositoryCommits(repoRoot: string, sources: Iterable<string>): Set<string> {
   const candidates = [...new Set([...sources].flatMap(source =>
     [...source.matchAll(commitCandidate)].map(match => match[0].toLowerCase())))]
   if (candidates.length === 0) return new Set()
-  // Git resolves prefixes across all available objects, including unreachable and alternate ones;
-  // one listing of those objects replaces one Git prefix lookup per candidate.
-  // Ambiguous prefixes do not identify one object and cannot establish a commit reference.
+  // Git 会在所有可用对象（包括不可达和备用对象）中解析前缀；
+  // 一次列出这些对象即可替代为每个候选执行一次 Git 前缀查找。
+  // 有歧义的前缀无法确定一个对象，也不能构成提交引用。
   const objects = gitLines(repoRoot, ['cat-file', '--batch-all-objects', '--batch-check=%(objectname)'], objectListingLimit).sort()
   const matches = new Map<string, string>()
   for (const candidate of candidates) {
@@ -144,9 +144,9 @@ export function repositoryCommits(repoRoot: string, sources: Iterable<string>): 
 }
 
 /**
- * Scan tracked and nonignored new files using only the local Git object database.
- * @param repoRoot - Working tree whose files and Git objects are inspected.
- * @returns Prohibited references outside vendor and frozen Agent Notes; absent shallow-history objects cannot match.
+ * 仅使用本地 Git 对象数据库扫描已跟踪和未被忽略的新增文件。
+ * @param repoRoot - 检查其文件和 Git 对象的工作树。
+ * @returns 排除 vendor 和冻结 Agent Notes 后的禁止引用；缺失的浅历史对象无法匹配。
  */
 export function scanRepositoryReferences(repoRoot: string): RepositoryReference[] {
   const sources = readMaintainedFiles(repoRoot)

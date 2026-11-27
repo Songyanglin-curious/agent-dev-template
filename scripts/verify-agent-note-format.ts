@@ -1,38 +1,38 @@
 /**
- * Enforce Agent Note headers, lifecycle-specific sections, alternatives, and retired
- * marker rules. Classification and filenames belong to the sibling tree gate;
- * archived records add the archive date line checked by the archive gate. Exact
- * format and grandfathering rules live in `.agents/notes/README.md`.
+ * 强制 Agent Note 的头部、各生命周期专属章节、备选方案以及已废弃标记规则。
+ * 分类与文件名由同级的目录树门禁负责；归档记录还需附加归档日期行，
+ * 由归档门禁校验。确切的格式与祖父条款规则位于
+ * `.agents/notes/README.md`。
  */
 
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { agentNoteRoot, walkAgentNoteTree } from './agent-note-tree.ts'
 
-/** The date these format rules took effect; the grandfather comment is valid only before it. */
+/** 这些格式规则的生效日期；祖父注释仅在该日期之前有效。 */
 const FORMAT_ADOPTED = '2026-07-05'
 
-/** The exact comment a pre-format Agent Note carries in place of `## Alternatives considered`. */
+/** 格式生效前的 Agent Note 用它替代 `## Alternatives considered` 的确切注释。 */
 const GRANDFATHER = '<!-- agent-note-format: alternatives-not-recorded (pre-format Agent Note) -->'
 
-/** The retired debt marker that flagged pre-format bodies; banned so it cannot creep back. */
+/** 曾用于标记格式前正文的已废弃债务标记；现已禁用，防止它重新出现。 */
 const LEGACY_MARKERS = ['XXX: legacy ADR/RFC body format', 'XXX: legacy ADR/Agent Note body format']
 
-/** Status-line grammar per lifecycle folder. */
+/** 各生命周期目录对应的 Status 行文法。 */
 const STATUS: Record<string, RegExp> = {
   proposed: /^Status: proposed$/,
   implemented: /^Status: implemented$/,
   rejected: /^Status: rejected — .+$/,
 }
 
-/** Required `##` headings per lifecycle, beyond the universal `## Problem` opener. */
+/** 各生命周期除通用 `## Problem` 开头外必需的 `##` 标题。 */
 const REQUIRED: Record<string, string[]> = {
   proposed: ['## Proposal', '## Acceptance criteria', '## Risks'],
   implemented: ['## Decision', '## Consequences'],
   rejected: ['## Proposal'],
 }
 
-/** Headings banned in `implemented/` — proposal-era spec-speak per the slop checklist. */
+/** 在 `implemented/` 中禁止的标题——按废话清单属于提案期的规格腔。 */
 const BANNED_IMPLEMENTED = /^## (?:Proposal\b|Plan\b|Migration plan\b|Acceptance criteria\b)/i
 
 const { notes, errors } = walkAgentNoteTree()
@@ -45,7 +45,7 @@ for (const note of notes) {
     .replace(/^\uFEFF/, '')
     .replace(/\r\n/g, '\n')
   const lines = text.split('\n')
-  // Format tokens inside fenced examples are not document structure.
+  // 围栏示例内部的格式标记不属于文档结构。
   let inFence = false
   const prose = lines.filter((l) => {
     if (l.startsWith('```')) {

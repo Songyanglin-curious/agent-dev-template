@@ -1,10 +1,10 @@
 /**
- * Verify module and module-group READMEs: the Summary stays within the
- * 100-word-equivalent limit, module docs carry the canonical limitations
- * section (or a justified allowlist entry), and module-group docs omit the
- * sections that belong to their modules. Discovery uses the declared
- * frontmatter `kind`, never a directory name, so module boundaries stay a
- * project decision.
+ * 校验模块与模块组 README：Summary 保持在
+ * 100 词当量的限制内，模块文档带有标准的限制
+ * 章节（或理由充分的允许清单条目），而模块组文档
+ * 省略归其模块所有的章节。识别依据是声明的
+ * frontmatter `kind`，绝不使用目录名，因此模块
+ * 边界始终是项目自己的决定。
  */
 
 import { existsSync, readFileSync } from 'node:fs'
@@ -23,7 +23,7 @@ const CANONICAL_LIMITATIONS = '已知限制与暂缓工作'
 const SUMMARY_LIMIT = 100
 const ALLOWLIST_PATH = 'scripts/module-readme-limitations.allowlist.json'
 
-/** Module docs that intentionally carry no limitations section. */
+/** 有意不带限制章节的模块文档。 */
 function readAllowlist(): Record<string, string> {
   const absolute = resolve(REPO_ROOT, ALLOWLIST_PATH)
   if (!existsSync(absolute)) return {}

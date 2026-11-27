@@ -1,11 +1,11 @@
 /**
- * Verify persistence-change, persistence-release, and persistence-format
- * records without assuming a persistence technology. The gate checks the
- * record contract shared by every project: location, frontmatter, required
- * sections, exactly one machine declaration block, declaration shape, digest
- * syntax, predecessor references, and the generated-schema region. Extraction
- * and refresh tooling stays project-specific; this gate validates whatever a
- * project has committed.
+ * 校验 persistence-change、persistence-release 和
+ * persistence-format 记录，且不假设任何持久化技术。
+ * 该门禁检查每个项目共用的记录契约：位置、frontmatter、
+ * 必需章节、恰好一个机器可读声明块、声明结构、摘要语法、
+ * 前驱引用，以及生成的 schema 区域。抽取与刷新
+ * 工具由各项目自行维护；本门禁只校验项目
+ * 已提交的内容。
  */
 
 import { existsSync } from 'node:fs'
@@ -26,22 +26,22 @@ const REQUIRED_SECTIONS: Record<string, readonly string[]> = {
   'persistence-format': ['Summary', 'Table of Contents', '源码证据', '格式特征', 'Declaration', '完整 schema', '验证与限制', 'Dev Note'],
 }
 
-/** Whether a value is a plain mapping. */
+/** 判断某个值是否为普通映射。 */
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-/** Whether a value is a 64-character lowercase SHA-256 digest. */
+/** 判断某个值是否为 64 位小写 SHA-256 摘要。 */
 function isDigest(value: unknown): boolean {
   return typeof value === 'string' && /^[0-9a-f]{64}$/u.test(value)
 }
 
-/** Whether a value is null or a digest. */
+/** 判断某个值是否为 null 或摘要。 */
 function isDigestOrNull(value: unknown): boolean {
   return value === null || isDigest(value)
 }
 
-/** Classify a record path, or return undefined when the location is unknown. */
+/** 对记录路径分类；位置未知时返回 undefined。 */
 function kindOf(file: string): string | undefined {
   if (file.startsWith(`${CHANGES_ROOT}/releases/`) && basename(file) !== 'README.md') return 'persistence-release'
   if (file.startsWith(`${CHANGES_ROOT}/historical-formats/`) && basename(file) !== 'README.md') return 'persistence-format'
@@ -49,7 +49,7 @@ function kindOf(file: string): string | undefined {
   return undefined
 }
 
-/** Validate one declaration block for its record kind. */
+/** 按记录类别校验单个声明块。 */
 function validateDeclaration(kind: string, file: string, value: unknown, stem: string, failures: string[]): void {
   if (!isRecord(value)) {
     failures.push(`${file}: declaration block must be a YAML mapping`)

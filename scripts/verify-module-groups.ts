@@ -1,9 +1,9 @@
 /**
- * Verify module-group READMEs. Every module-group doc must carry a
- * `## 模块与职责` table whose rows link to existing `module` or nested
- * `module-group` documents; module-group docs must not carry the usage,
- * contract, configuration, limitations, or internal-design sections owned by
- * their modules.
+ * 校验模块组 README。每个模块组文档都必须带有一个
+ * `## 模块与职责` 表格，其每一行链接到已存在的 `module`
+ * 或嵌套的 `module-group` 文档；模块组文档不得包含
+ * 归其模块所有的使用方式、行为契约、配置、已知限制
+ * 与暂缓工作或内部设计等章节。
  */
 
 import { existsSync } from 'node:fs'

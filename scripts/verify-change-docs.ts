@@ -1,13 +1,13 @@
 /**
- * List the documentation owners touched by the current change set. Rules come
- * from `scripts/change-doc-rules.json`; each maps changed paths to the
- * documents that own their facts.
+ * 列出当前变更集触及的文档所有者。规则来自
+ * `scripts/change-doc-rules.json`，每条规则把变更路径映射到
+ * 拥有这些事实的文档。
  *
- * Rules are advisory by default. `remind` rules always print, and `require`
- * rules fail only under `--strict`, which runs the established mandatory
- * checks. `--strict` never promotes `remind` rules, so it cannot force
- * meaningless document edits. Missing Git or an unreadable baseline is
- * reported as a short message instead of a Node stack trace.
+ * 规则默认是提示性的。`remind` 规则始终输出，`require` 规则
+ * 仅在 `--strict` 下失败，该模式运行已建立的强制检查。
+ * `--strict` 从不把 `remind` 规则升级为强制，因此无法强制
+ * 做出无意义的文档修改。缺少 Git 或基线不可读时，以简短
+ * 消息报告，而不是 Node 堆栈跟踪。
  */
 
 import { execFileSync } from 'node:child_process'
@@ -17,25 +17,25 @@ import { resolve } from 'node:path'
 const REPO_ROOT = resolve(import.meta.dirname, '..')
 const RULES_PATH = 'scripts/change-doc-rules.json'
 
-/** One configured ownership rule after validation. */
+/** 校验后的一条已配置所有权规则。 */
 interface ChangeDocRule {
-  /** Glob patterns matched against repository-relative changed paths. */
+  /** 与仓库相对变更路径匹配的 glob 模式。 */
   when: string[]
-  /** Repository-relative documents that own the affected facts. */
+  /** 拥有受影响事实的仓库相对文档。 */
   owners: string[]
-  /** Why these documents own the changed paths. */
+  /** 这些文档为何拥有变更路径。 */
   reason: string
-  /** Whether a missing owner fails under `--strict`. */
+  /** 缺少所有者时是否在 `--strict` 下失败。 */
   level: 'remind' | 'require'
-  /** Compiled path patterns. */
+  /** 编译后的路径模式。 */
   patterns: RegExp[]
 }
 
-/** A Git invocation that failed, with the parts needed for a clean message. */
+/** 一次失败的 Git 调用，带有生成简洁消息所需的部分。 */
 class GitFailure extends Error {
-  /** Captured stderr, empty when Git wrote nothing. */
+  /** 捕获的 stderr，Git 无输出时为空。 */
   readonly stderr: string
-  /** Exit status or `ENOENT` when the executable is absent. */
+  /** 退出状态；可执行文件缺失时为 `ENOENT`。 */
   readonly exitCode: number | string | undefined
 
   constructor(cause: unknown) {
@@ -46,12 +46,12 @@ class GitFailure extends Error {
   }
 }
 
-/** A plain JSON object. */
+/** 一个普通 JSON 对象。 */
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-/** Reject unsupported command-line arguments instead of silently ignoring them. */
+/** 拒绝不支持的命令行参数，而不是静默忽略。 */
 function parseArguments(argv: readonly string[]): { base: string; strict: boolean } {
   let base = 'HEAD'
   let strict = false
@@ -80,12 +80,12 @@ function parseArguments(argv: readonly string[]): { base: string; strict: boolea
 }
 
 /**
- * Convert a repository-relative glob into a path regex. `**` spans zero or more
- * directories, `*` stays within one segment, and `?` matches one non-slash
- * character; every other character is literal. Unsupported brace, class, and
- * extglob syntax is rejected loudly instead of matching nothing.
- * @param glob - pattern using `/` separators.
- * @returns an anchored expression over forward-slash paths.
+ * 把仓库相对 glob 转换为路径正则。`**` 跨越零个或多个
+ * 目录，`*` 限定在一个路径段内，`?` 匹配一个非斜杠字符；
+ * 其他每个字符都按字面处理。不支持的括号、字符类和
+ * extglob 语法会被显式拒绝，而不是静默匹配不到内容。
+ * @param glob - 使用 `/` 分隔符的模式。
+ * @returns 作用于正斜杠路径的锚定表达式。
  */
 function globToRegExp(glob: string): RegExp {
   if (/[[\]{}()!+@\\]/u.test(glob)) throw new Error(`unsupported glob syntax: ${glob}`)
@@ -115,7 +115,7 @@ function globToRegExp(glob: string): RegExp {
   return new RegExp(`^${expression}$`, 'u')
 }
 
-/** Read and validate the ownership manifest. */
+/** 读取并校验所有权清单。 */
 function readRules(): ChangeDocRule[] {
   const absolute = resolve(REPO_ROOT, RULES_PATH)
   if (!existsSync(absolute)) throw new Error(`${RULES_PATH} does not exist`)
@@ -151,7 +151,7 @@ function readRules(): ChangeDocRule[] {
   })
 }
 
-/** Run one Git command and return its newline-separated output. */
+/** 运行一条 Git 命令，返回按换行分隔的输出。 */
 function gitLines(args: readonly string[]): string[] {
   try {
     const output = execFileSync('git', args, {
@@ -166,8 +166,8 @@ function gitLines(args: readonly string[]): string[] {
 }
 
 /**
- * Collect changed paths relative to the baseline, including untracked files.
- * @returns changed paths, or undefined when Git itself is unavailable.
+ * 收集相对于基线的变更路径，包括未跟踪文件。
+ * @returns 变更路径；Git 本身不可用时为 undefined。
  */
 function changedFiles(base: string): string[] | undefined {
   try {
@@ -185,7 +185,7 @@ function changedFiles(base: string): string[] | undefined {
   }
 }
 
-/** Run the ownership check and return the process exit code. */
+/** 运行所有权检查并返回进程退出码。 */
 function main(): number {
   const { base, strict } = parseArguments(process.argv.slice(2))
   const rules = readRules()

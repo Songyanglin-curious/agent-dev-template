@@ -1,12 +1,12 @@
 /**
- * Enforce documentation ceilings from `scripts/doc-budgets.manifest.json`.
- * Missing files and invalid ceilings fail; `--list` reports current usage.
- * Counting rule: every CJK Han, kana, or hangul character counts as one unit;
- * all other text counts one unit per whitespace-delimited token, with each CJK
- * character acting as a separator between adjacent non-CJK tokens. This keeps
- * dense CJK prose comparable to `wc -w` on Latin prose instead of counting a
- * whole paragraph as one word. Only listed standing docs are budgeted;
- * ceilings keep headroom over the current count.
+ * 依据 `scripts/doc-budgets.manifest.json` 强制执行文档上限。
+ * 文件缺失或上限非法都会失败；`--list` 报告当前用量。
+ * 计数规则：每个 CJK 汉字、假名或谚文字符计为一个单位；
+ * 其他文本按空白分隔的 token 每个计一个单位，其中每个 CJK
+ * 字符充当相邻非 CJK token 之间的分隔符。这样密集的中文
+ * 正文与拉丁文正文的 `wc -w` 计数可比，而不是把整段
+ * 文字当作一个词。只有清单中列出的常设文档纳入预算；
+ * 上限相对当前计数保留余量。
  */
 
 import { existsSync, readFileSync } from 'node:fs'

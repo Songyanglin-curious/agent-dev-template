@@ -1,22 +1,22 @@
-/** Pure archive-format and immutable-manifest helpers for single-file Agent Notes. */
+/** 用于单文件 Agent Note 的纯归档格式与不可变清单辅助函数。 */
 
 import { createHash } from 'node:crypto'
 import { basename } from 'node:path'
 import { AGENT_NOTE_CLASSES } from './agent-note-tree.ts'
 
-/** Versioned fields in the frozen-content manifest. */
+/** 冻结内容清单中的带版本字段。 */
 export interface ArchiveManifest {
   version: 1
   files: Readonly<Record<string, string>>
 }
 
-/** Normalize CRLF to LF so seals survive checkouts on any platform. */
+/** 将 CRLF 归一化为 LF，使封印在任何平台检出后依然有效。 */
 function canonicalText(content: Buffer): Buffer {
   const text = content.toString('utf8')
   return text.includes('\r\n') ? Buffer.from(text.replace(/\r\n/g, '\n'), 'utf8') : content
 }
 
-/** Hash one archived artifact's canonical LF text independently of the repository's Git object format. */
+/** 基于规范化 LF 文本计算单个归档产物的哈希，不受仓库 Git 对象格式影响。 */
 function archiveContentHash(content: Buffer): string {
   return `sha256:${createHash('sha256').update(canonicalText(content)).digest('hex')}`
 }
@@ -25,7 +25,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-/** Parse the archive manifest and reject fields or hashes outside its closed schema. */
+/** 解析归档清单，并拒绝其封闭模式之外的字段或哈希。 */
 export function parseArchiveManifest(content: string): ArchiveManifest {
   const value: unknown = JSON.parse(content.replace(/^\uFEFF/, ''))
   if (!isRecord(value)) throw new Error('expected a JSON object')
@@ -43,7 +43,7 @@ export function parseArchiveManifest(content: string): ArchiveManifest {
   return { version: 1, files }
 }
 
-/** Render the archive manifest with deterministic path ordering. */
+/** 以确定的路径顺序渲染归档清单。 */
 export function renderArchiveManifest(files: Readonly<Record<string, string>>): string {
   return `${JSON.stringify({
     version: 1,
@@ -51,7 +51,7 @@ export function renderArchiveManifest(files: Readonly<Record<string, string>>): 
   }, null, 2)}\n`
 }
 
-/** Reject any change to a sealed content hash, including a removed seal. */
+/** 拒绝任何对已封印内容哈希的改动，包括删除封印。 */
 export function validateArchiveManifestExtension(
   baseline: ArchiveManifest,
   current: ArchiveManifest,
@@ -92,7 +92,7 @@ function validateMetadata(path: string, content: Buffer, sourceBase: string): st
   return errors
 }
 
-/** Validate the closed kind tree and implemented/archive metadata for single-file records. */
+/** 校验单文件记录的封闭类别目录树以及 implemented/归档元数据。 */
 export function validateArchiveArtifacts(artifacts: ReadonlyMap<string, Buffer>): string[] {
   const errors: string[] = []
   const notes = new Map<string, Buffer>()
@@ -119,7 +119,7 @@ export function validateArchiveArtifacts(artifacts: ReadonlyMap<string, Buffer>)
   return errors
 }
 
-/** Preserve every sealed path/hash and append hashes for newly archived artifacts. */
+/** 保留每个已封印的路径与哈希，并为新归档的产物追加哈希。 */
 export function extendArchiveManifest(
   existing: ArchiveManifest,
   artifacts: ReadonlyMap<string, Buffer>,

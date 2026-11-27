@@ -1,28 +1,28 @@
-/** Shared parsing helpers for documentation-structure gates. */
+/** 文档结构门禁共用的解析辅助函数。 */
 
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { JSON_SCHEMA, load } from 'js-yaml'
 import { isArchivedAgentNotePath, uniqueRepoFiles } from './repo-files.ts'
 
-/** Repository root for every gate that imports this module. */
+/** 所有引入本模块的门禁所使用的仓库根目录。 */
 export const REPO_ROOT = resolve(import.meta.dirname, '..')
 
-/** Parsed YAML frontmatter plus the Markdown body that follows it. */
+/** 解析后的 YAML frontmatter 及其后面的 Markdown 正文。 */
 export interface DocumentFrontmatter {
-  /** YAML mapping values. */
+  /** YAML 映射中的值。 */
   data: Record<string, unknown>
-  /** Source after the closing delimiter. */
+  /** 结束分隔符之后的源文本。 */
   body: string
-  /** 1-based line of the closing delimiter. */
+  /** 结束分隔符所在行，行号从 1 开始。 */
   endLine: number
 }
 
 /**
- * Parse YAML frontmatter from a Markdown source.
- * @param source - Markdown text to parse.
- * @returns the frontmatter mapping and body, or undefined when no frontmatter exists.
- * @throws when a delimiter is opened but not closed, or the value is not a mapping.
+ * 从 Markdown 源文本中解析 YAML frontmatter。
+ * @param source - 待解析的 Markdown 文本。
+ * @returns frontmatter 映射与正文；不存在 frontmatter 时返回 undefined。
+ * @throws 当分隔符已打开却未闭合，或取到的值不是映射时抛出。
  */
 export function parseDocumentFrontmatter(source: string): DocumentFrontmatter | undefined {
   const lines = source.split('\n')
@@ -36,26 +36,26 @@ export function parseDocumentFrontmatter(source: string): DocumentFrontmatter | 
   return { data: value as Record<string, unknown>, body: lines.slice(end + 1).join('\n'), endLine: end + 1 }
 }
 
-/** One Markdown heading outside fenced code. */
+/** 围栏代码块之外的一个 Markdown 标题。 */
 export interface DocumentHeading {
-  /** Heading depth, 1 through 6. */
+  /** 标题层级，取值为 1 到 6。 */
   depth: number
-  /** Rendered heading text without the leading hashes. */
+  /** 渲染后的标题文本，不含开头的井号。 */
   text: string
-  /** 1-based source line. */
+  /** 源行号，从 1 开始。 */
   line: number
 }
 
-/** Whether a line opens or closes a fenced code block. */
+/** 返回一行中用于打开或关闭围栏代码块的标记。 */
 function fenceDelimiter(line: string): string | undefined {
   const match = /^\s*(`{3,}|~{3,})/.exec(line)
   return match?.[1]
 }
 
 /**
- * Return each source line with its fenced-code status.
- * @param source - Markdown text to scan.
- * @returns line text, 1-based line number, and whether the line is inside a fence.
+ * 返回每一行源文本及其围栏代码块状态。
+ * @param source - 待扫描的 Markdown 文本。
+ * @returns 行文本、从 1 开始的行号，以及该行是否位于围栏内。
  */
 export function proseLines(source: string): { text: string; line: number }[] {
   const out: { text: string; line: number }[] = []
@@ -80,9 +80,9 @@ export function proseLines(source: string): { text: string; line: number }[] {
 }
 
 /**
- * Return every ATX heading outside fenced code.
- * @param source - Markdown text to scan.
- * @returns headings in document order.
+ * 返回围栏代码块之外的每个 ATX 标题。
+ * @param source - 待扫描的 Markdown 文本。
+ * @returns 按文档顺序排列的标题。
  */
 export function documentHeadings(source: string): DocumentHeading[] {
   const headings: DocumentHeading[] = []
@@ -95,10 +95,10 @@ export function documentHeadings(source: string): DocumentHeading[] {
 }
 
 /**
- * Return one H2 section body, excluding its heading and the next H2.
- * @param source - Markdown text to inspect.
- * @param heading - exact heading text to find, without leading hashes.
- * @returns the section body, or undefined when no matching H2 exists.
+ * 返回某个二级标题的小节正文，不含该标题本身及下一个二级标题。
+ * @param source - 待检查的 Markdown 文本。
+ * @param heading - 要查找的标题精确文本，不含开头的井号。
+ * @returns 小节正文；不存在匹配的二级标题时返回 undefined。
  */
 export function h2Section(source: string, heading: string): string | undefined {
   const lines = source.split('\n')
@@ -111,21 +111,21 @@ export function h2Section(source: string, heading: string): string | undefined {
   return lines.slice(startLine, endLine).join('\n')
 }
 
-/** One Markdown link outside fenced code. */
+/** 围栏代码块之外的一个 Markdown 链接。 */
 export interface DocumentLink {
-  /** Link label text. */
+  /** 链接标签文本。 */
   text: string
-  /** Destination as authored, without surrounding angle brackets. */
+  /** 按原样书写的目标地址，不含两侧的尖括号。 */
   url: string
-  /** 1-based source line. */
+  /** 源行号，从 1 开始。 */
   line: number
 }
 
 /**
- * Return every Markdown link outside fenced code.
- * Images are included; callers filter by destination.
- * @param source - Markdown text to scan.
- * @returns links in document order.
+ * 返回围栏代码块之外的每个 Markdown 链接。
+ * 图片链接也在其中；调用方按目标地址过滤。
+ * @param source - 待扫描的 Markdown 文本。
+ * @returns 按文档顺序排列的链接。
  */
 export function documentLinks(source: string): DocumentLink[] {
   const links: DocumentLink[] = []
@@ -137,19 +137,19 @@ export function documentLinks(source: string): DocumentLink[] {
   return links
 }
 
-/** One Markdown table row. */
+/** Markdown 表格中的一行。 */
 export interface TableRow {
-  /** 1-based source line. */
+  /** 源行号，从 1 开始。 */
   line: number
-  /** Cell text without surrounding pipes or padding. */
+  /** 单元格文本，不含两侧的竖线或填充空白。 */
   cells: string[]
 }
 
 /**
- * Parse table rows from a Markdown fragment, skipping the header separator.
- * @param source - Markdown fragment containing a table.
- * @param firstLine - 1-based line number of `source` in its document.
- * @returns data rows; header and separator rows are excluded.
+ * 从 Markdown 片段中解析表格行，跳过表头分隔行。
+ * @param source - 包含表格的 Markdown 片段。
+ * @param firstLine - `source` 在其文档中的行号，从 1 开始。
+ * @returns 数据行；表头行与分隔行不在其中。
  */
 export function tableRows(source: string, firstLine = 1): TableRow[] {
   const rows: TableRow[] = []
@@ -169,19 +169,19 @@ export function tableRows(source: string, firstLine = 1): TableRow[] {
   return rows
 }
 
-/** Options for repository Markdown discovery. */
+/** 仓库 Markdown 发现的选项。 */
 export interface MarkdownScanOptions {
-  /** Skip the template deliverable tree. */
+  /** 跳过模板交付物目录树。 */
   excludeTemplate?: boolean
-  /** Include frozen Agent Notes. */
+  /** 是否包含已冻结的 Agent Note。 */
   includeArchived?: boolean
 }
 
 /**
- * Maintained Markdown sources checked by the structure gates. `**` patterns do
- * not descend into dot directories, so the explicit `.agents` patterns cover
- * Notes and Skills; `**\/README.md` brings module docs that live next to code
- * into the same link, wrap, and generated-region checks.
+ * 结构门禁检查的受维护 Markdown 源。`**` 模式不会进入点目录，
+ * 因此用显式的 `.agents` 模式覆盖 Note 与 Skill；
+ * `**\/README.md` 把与代码相邻的模块文档
+ * 也纳入同一组链接、换行和生成区域检查。
  */
 const MAINTAINED_MARKDOWN_PATTERNS = [
   'README.md',
@@ -192,7 +192,7 @@ const MAINTAINED_MARKDOWN_PATTERNS = [
   '**/README.md',
 ]
 
-/** Directories whose content is not maintained prose for Markdown gates. */
+/** 其内容不算 Markdown 门禁受维护散文的目录。 */
 function skipUnauthoredDirectory(relativeDirectory: string): boolean {
   const path = relativeDirectory.replaceAll('\\', '/')
   return path === 'node_modules'
@@ -204,10 +204,10 @@ function skipUnauthoredDirectory(relativeDirectory: string): boolean {
 }
 
 /**
- * Discover repository-relative Markdown sources for the structure gates.
- * Frozen Agent Notes, `node_modules/`, the template deliverable, and research
- * inputs are excluded as sources; active documents may still link to them.
- * @returns forward-slash paths relative to the repository root, sorted.
+ * 发现结构门禁使用的仓库相对 Markdown 源。
+ * 已冻结的 Agent Note、`node_modules/`、模板交付物和研发输入
+ * 不作为源；活动文档仍可以链接到它们。
+ * @returns 相对于仓库根目录的正斜杠路径，已排序。
  */
 export function markdownSourcePaths(): string[] {
   return uniqueRepoFiles(
@@ -219,10 +219,10 @@ export function markdownSourcePaths(): string[] {
 }
 
 /**
- * Discover repository Markdown files matching the given glob patterns.
- * @param patterns - repository-relative glob patterns.
- * @param options - exclusion switches.
- * @returns repository-relative slash paths.
+ * 发现匹配给定 glob 模式的仓库 Markdown 文件。
+ * @param patterns - 仓库相对的 glob 模式。
+ * @param options - 排除开关。
+ * @returns 仓库相对的正斜杠路径。
  */
 export function repositoryMarkdownFiles(
   patterns: readonly string[],
@@ -246,12 +246,12 @@ export function repositoryMarkdownFiles(
     .map(file => repositoryRelative(file.abs))
 }
 
-/** Read one repository-relative file as UTF-8. */
+/** 以 UTF-8 读取一个仓库相对文件。 */
 export function readRepositoryFile(relativePath: string): string {
   return readFileSync(resolve(REPO_ROOT, relativePath), 'utf8')
 }
 
-/** Normalize a path to repository-relative slash form. */
+/** 把路径规范化为仓库相对的正斜杠形式。 */
 export function repositoryRelative(absolutePath: string): string {
   return absolutePath.replaceAll('\\', '/').replace(`${REPO_ROOT.replaceAll('\\', '/')}/`, '')
 }

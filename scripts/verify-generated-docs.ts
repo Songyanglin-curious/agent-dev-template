@@ -1,11 +1,11 @@
 /**
- * Verify generated documentation regions and their ownership. A generated
- * region is delimited by `<!-- name:start -->` / `<!-- name:end -->` comments;
- * markers must pair, must not nest, and must be unique within a file. Every
- * document carrying a generated region must be declared in
- * `scripts/generated-docs.manifest.json` with a producer, so readers can find
- * the script that owns the region. The gate checks ownership and structure,
- * not freshness: running generators stays project-specific.
+ * 校验生成的文档区域及其归属。生成区域由
+ * `<!-- name:start -->` / `<!-- name:end -->` 注释界定；
+ * 标记必须成对、不得嵌套，且在一个文件内必须唯一。
+ * 每个带有生成区域的文档都必须在
+ * `scripts/generated-docs.manifest.json` 中声明一个 producer，
+ * 以便读者找到拥有该区域的脚本。门禁检查归属与结构，
+ * 不检查新鲜度：何时运行生成器由各项目自行决定。
  */
 
 import { existsSync, readFileSync } from 'node:fs'
@@ -15,7 +15,7 @@ import { markdownSourcePaths, readRepositoryFile, REPO_ROOT } from './doc-toolin
 const MANIFEST_PATH = 'scripts/generated-docs.manifest.json'
 const MARKER = /<!--\s*([A-Za-z0-9_-]+):(start|end)\s*-->/gu
 
-/** Whether a producer looks like a repository-relative script path. */
+/** 判断 producer 是否形如仓库相对路径的脚本路径。 */
 function isScriptPath(producer: string): boolean {
   return producer.includes('/') || /\.(?:[cm]?[jt]sx?|py|sh|ps1)$/u.test(producer)
 }

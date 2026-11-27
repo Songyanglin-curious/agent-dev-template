@@ -1,10 +1,10 @@
 /**
- * Verify root-relative documentation paths cited by source comments. The scan
- * covers repo-authored source under `src/`, `app/`, and `scripts/`; a token
- * such as `docs/AGENTS.md` or `.agents/notes/README.md` must name an existing file.
- * Generated output, vendored sources, the template deliverable, and test
- * fixtures are out of scope. Add language extensions to {@link SOURCE_EXTENSIONS}
- * when the project adopts another stack.
+ * 校验源码注释中引用的、以仓库根为基准的文档路径。扫描范围覆盖
+ * `src/`、`app/` 和 `scripts/` 下仓库自行编写的源码；像
+ * `docs/AGENTS.md` 或 `.agents/notes/README.md` 这样的 token
+ * 必须指向一个已存在的文件。生成产物、第三方源码、模板交付物
+ * 以及测试夹具不在范围内。当项目采用其他技术栈时，向
+ * {@link SOURCE_EXTENSIONS} 添加对应的语言扩展名。
  */
 
 import { existsSync } from 'node:fs'
@@ -12,10 +12,10 @@ import { resolve } from 'node:path'
 import { readRepositoryFile, REPO_ROOT } from './doc-tooling.ts'
 import { uniqueRepoFiles } from './repo-files.ts'
 
-/** Source roots that may cite documentation. */
+/** 可能引用文档的源码根目录。 */
 const PATTERNS = ['src/**/*', 'app/**/*', 'scripts/**/*']
 
-/** File extensions treated as source code. */
+/** 视为源代码的文件扩展名。 */
 const SOURCE_EXTENSIONS = new Set([
   '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs',
   '.py', '.cs', '.go', '.rs', '.java', '.kt', '.swift',
@@ -23,7 +23,7 @@ const SOURCE_EXTENSIONS = new Set([
   '.sh', '.ps1',
 ])
 
-/** Root-relative Markdown path token. */
+/** 以仓库根为基准的 Markdown 路径 token。 */
 const DOC_REF = /(?:\bdocs|\.agents\/notes)\/[A-Za-z0-9._/-]+\.md/gu
 
 const failures: string[] = []

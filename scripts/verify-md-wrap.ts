@@ -1,10 +1,10 @@
 /**
- * Reject Markdown prose paragraphs spanning multiple physical lines. The GFM
- * AST distinguishes paragraphs—including those in lists and blockquotes—from
- * multiline structural nodes. The checker never rewrites; symlinked files are
- * deduped. YAML frontmatter is skipped before parsing; archived Agent Notes
- * are excluded as frozen history. The owning convention is the repository's
- * documentation standard.
+ * 拒绝跨多个物理行的 Markdown 散文段落。GFM AST 能区分
+ * 段落（包括列表和块引用中的段落）与多行结构节点。
+ * 检查器从不改写文件；符号链接文件会去重。
+ * 解析前跳过 YAML frontmatter；归档的 Agent Note 作为
+ * 冻结历史被排除在外。相关约定的归属方是仓库的
+ * 文档标准。
  */
 
 import { readFileSync } from 'node:fs'
@@ -15,20 +15,20 @@ import { parseMarkdown, visitMarkdown } from './markdown.ts'
 
 const root = resolve(import.meta.dirname, '..')
 
-/** A located hard-wrap: a prose paragraph spanning more than one source line. */
+/** 一处定位到的硬换行：跨多个源码行的散文段落。 */
 interface Violation {
   file: string
-  /** 1-based line where the hard-wrapped paragraph starts. */
+  /** 硬换行段落起始处、从 1 开始计数的行号。 */
   line: number
   text: string
 }
 
 /**
- * Blank YAML frontmatter while preserving line numbers, so metadata never
- * parses as prose. A document that does not start with a `---` delimiter is
- * returned unchanged.
- * @param source - Markdown source whose frontmatter is masked.
- * @returns source with the same line count and every frontmatter line empty.
+ * 清空 YAML frontmatter 同时保留行号，使元数据永远不会
+ * 被当作散文解析。不以 `---` 分隔符开头的文档
+ * 原样返回。
+ * @param source - frontmatter 被遮蔽的 Markdown 源码。
+ * @returns 行数相同、且每个 frontmatter 行都为空的原文本。
  */
 function maskFrontmatter(source: string): string {
   const lines = source.split('\n')
@@ -39,7 +39,7 @@ function maskFrontmatter(source: string): string {
   return lines.join('\n')
 }
 
-/** Find every hard-wrapped prose paragraph in one Markdown file via its AST. */
+/** 通过 AST 找出单个 Markdown 文件中所有硬换行的散文段落。 */
 function findViolations(absPath: string): Violation[] {
   const file = relative(root, absPath).split(sep).join('/')
   const source = readFileSync(absPath, 'utf8')
@@ -54,7 +54,7 @@ function findViolations(absPath: string): Violation[] {
         const firstLine = rawLines[start.line - 1] ?? ''
         out.push({ file, line: start.line, text: firstLine.trim() })
       }
-      // Paragraph children are inline, so no further paragraph can be nested.
+      // 段落的子节点都是行内节点，因此不可能再嵌套段落。
       return false
     }
   })
