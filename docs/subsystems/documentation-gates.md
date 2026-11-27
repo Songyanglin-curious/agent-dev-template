@@ -23,7 +23,7 @@
 | `verify-doc-metadata` | 维护中的 `README.md` | 带 `kind` 的 README 具有合法 `kind` 与 `description`，kind 有对应模板，无禁用字段，标题存在 |
 | `verify-module-readmes` | 同上，按 `kind` 过滤 | 模块 Summary 与 `已知限制与暂缓工作` 章节；模块组不得携带限制类章节；豁免清单有效 |
 | `verify-module-groups` | 同上 | 模块组必须含 `## 模块与职责` 表，每行链接真实存在的 module 或 module-group 文档，且不含模块专属章节 |
-| `verify-subsystem-pages` | 所有 module-group 文档（无分组时为 module 文档） | 每个单元至少链接一个存在的 `docs/subsystems/*.md`，否则需要登记豁免；失效豁免会失败 |
+| `verify-subsystem-pages` | 所有 module-group 文档，加上未被任何模块组列出的 module 文档 | 每个单元至少链接一个存在的 `docs/subsystems/*.md`，否则需要登记豁免；失效豁免会失败 |
 | `verify-doc-refs` | `src/`、`app/`、`scripts/` 下的源码（排除 `scripts/tests/` 测试夹具） | 注释中引用的 `docs/...` 与 `.agents/notes/...` 路径必须存在 |
 | `verify-persistence-records` | `docs/persistence-changes/**/*.md` | 记录位置、frontmatter、必需章节、唯一 YAML 声明块、digest 语法、前驱记录、伴生 schema |
 | `verify-generated-docs` | 维护中的 Markdown（含模块 README） | 生成区域标记成对、不嵌套、不重复，且每个含生成区域的文档在清单中声明生产者 |
@@ -69,7 +69,7 @@
 
 ## 回归测试与 CI
 
-`pnpm run test:gates` 用 `node:test` 在临时工作区运行关键门禁的失败路径：坏链接（含模块 README）、缺失的预算文档、无效基线、Git 缺失时的跳过、错误的 Agent Note 格式、维护文件中的 commit 标识，以及 `require` 在默认与 `--strict` 下的差异；同时验证 `研发输入/` 中的原始 commit 标识被排除。正向通过不能证明门禁能发现错误，新增或修改门禁时同时补失败用例。
+`pnpm run test:gates` 用 `node:test` 在临时工作区运行关键门禁的失败路径：坏链接（含模块 README）、缺失的预算文档、无效基线、Git 缺失时的跳过、错误的 Agent Note 格式、维护文件中的 commit 标识、模块组与独立模块混合时的子系统关联，以及 `require` 在默认与 `--strict` 下的差异；同时验证 `研发输入/` 中的原始 commit 标识被排除。正向通过不能证明门禁能发现错误，新增或修改门禁时同时补失败用例。
 
 `.github/workflows/docs.yml` 在 push 和 pull request 上运行 `test:gates`、`test:tools`、`test:docs`、`test:notes`；pull request 额外以 `--strict` 运行变更影响检查。CI 能发现问题，但只有把该工作流设为仓库的必需检查，才会阻止不合规的合并。
 

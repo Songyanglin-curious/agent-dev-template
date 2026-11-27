@@ -200,6 +200,50 @@ test('verify-agent-note-format rejects a malformed note', () => {
   }
 })
 
+test('verify-subsystem-pages checks ungrouped modules alongside module groups', () => {
+  const moduleDoc = (name: string): string => `---\ndescription: "${name} module."\nkind: "module"\n---\n# ${name}\n`
+  const current = workspace({
+    'docs/subsystems/group.md': '# Group\n',
+    'mods/a/README.md': moduleDoc('A'),
+    'mods/b/README.md': moduleDoc('B'),
+    'mods/c/README.md': moduleDoc('C'),
+    'mods/g/README.md': [
+      '---',
+      'description: "Group module."',
+      'kind: "module-group"',
+      '---',
+      '# Group',
+      '',
+      '## 模块与职责',
+      '',
+      '| 模块 | 职责 |',
+      '|---|---|',
+      '| [A](../a/README.md) | A |',
+      '| [B](../b/README.md) | B |',
+      '',
+      '[Group subsystem](../../docs/subsystems/group.md)',
+      '',
+    ].join('\n'),
+  })
+  try {
+    const failure = current.run('verify-subsystem-pages.ts')
+    assert.equal(failure.status, 1)
+    assert.match(failure.stderr, /mods\/c\/README\.md/u)
+    assert.doesNotMatch(failure.stderr, /mods\/a\/README\.md/u)
+    assert.doesNotMatch(failure.stderr, /mods\/b\/README\.md/u)
+
+    writeFileSync(
+      join(current.dir, 'mods/c/README.md'),
+      `${moduleDoc('C')}\n[Group subsystem](../../docs/subsystems/group.md)\n`,
+    )
+    const success = current.run('verify-subsystem-pages.ts')
+    assert.equal(success.status, 0)
+    assert.match(success.stdout, /2 unit\(s\) checked \(1 module group\(s\), 1 independent module\(s\)\)/u)
+  } finally {
+    cleanup(current)
+  }
+})
+
 test('verify-repository-references rejects a maintained commit reference', () => {
   const current = workspace({
     '.gitignore': 'node_modules/\n',

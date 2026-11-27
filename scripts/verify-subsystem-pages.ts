@@ -1,19 +1,21 @@
 /**
  * Verify that each documentation unit links the subsystem page that owns its
- * cross-module capability. Units are module-group docs when the project has
- * groups, otherwise module docs; a unit without such a link needs a justified
- * entry in `scripts/subsystem-page-exemptions.json`. Stale exemptions,
- * exempt units that do link a page, and links to missing pages all fail.
+ * cross-module capability. Units are all module-group docs plus module docs not
+ * listed by any group; a unit without such a link needs a justified entry in
+ * `scripts/subsystem-page-exemptions.json`. Stale exemptions, exempt units that
+ * do link a page, and links to missing pages all fail.
  */
 
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, relative, resolve, sep } from 'node:path'
 import {
   documentLinks,
+  h2Section,
   parseDocumentFrontmatter,
   readRepositoryFile,
   REPO_ROOT,
   repositoryMarkdownFiles,
+  tableRows,
 } from './doc-tooling.ts'
 
 const EXEMPTIONS_PATH = 'scripts/subsystem-page-exemptions.json'
@@ -51,7 +53,25 @@ for (const file of repositoryMarkdownFiles(['**/README.md'], { excludeTemplate: 
   if (kind === 'module-group') moduleGroups.push(file)
   else if (kind === 'module') modules.push(file)
 }
-const units = moduleGroups.length > 0 ? moduleGroups : modules
+const moduleSet = new Set(modules)
+const groupedModules = new Set<string>()
+for (const group of moduleGroups) {
+  const section = h2Section(readRepositoryFile(group), '模块与职责')
+  if (section === undefined) continue
+  for (const row of tableRows(section)) {
+    const first = row.cells[0] ?? ''
+    const match = /\[[^\]]*\]\(([^)\s]+)\)/u.exec(first)
+    if (match === null) continue
+    const url = (match[1] ?? '').replace(/[#?].*$/, '')
+    if (url === '' || url.startsWith('#') || /^[a-z][a-z0-9+.-]*:/iu.test(url)) continue
+    const absolute = resolve(REPO_ROOT, dirname(group), url)
+    if (!absolute.startsWith(REPO_ROOT + sep)) continue
+    const target = relative(REPO_ROOT, absolute).replaceAll('\\', '/')
+    if (moduleSet.has(target)) groupedModules.add(target)
+  }
+}
+const independentModules = modules.filter(file => !groupedModules.has(file))
+const units = [...moduleGroups, ...independentModules]
 const unitSet = new Set(units)
 
 for (const file of units) {
@@ -93,7 +113,7 @@ if (failures.length > 0) {
   for (const failure of failures) console.error(`  ${failure}`)
   process.exit(1)
 }
-console.log(
-  `verify-subsystem-pages: ${String(units.length)} unit(s) checked`
-  + ` (${moduleGroups.length > 0 ? 'module groups' : 'modules'}), all conform.`,
-)
+const composition = moduleGroups.length > 0
+  ? `${String(moduleGroups.length)} module group(s), ${String(independentModules.length)} independent module(s)`
+  : `${String(modules.length)} module(s)`
+console.log(`verify-subsystem-pages: ${String(units.length)} unit(s) checked (${composition}), all conform.`)
