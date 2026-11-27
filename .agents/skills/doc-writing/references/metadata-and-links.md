@@ -1,4 +1,4 @@
-﻿# 元数据与链接
+# 元数据与链接
 
 ## Summary
 
@@ -32,13 +32,13 @@ kind: "module"
 
 | `kind` | 仓库位置 | 模板 | 标准 |
 |---|---|---|---|
-| `module` | 模块代码目录内的模块说明（`<module>/README.md`） | [module.md](../templates/module.md) | 模块约定：能力说明、使用方式、行为契约、职责边界、概念层面的内部设计与源码导航、已知限制。 |
+| `module` | 模块所属位置附近的模块说明（通常为 `<module>/README.md`；具体位置由项目模块组织决定） | [module.md](../templates/module.md) | 模块约定：能力说明、使用方式、行为契约、职责边界、概念层面的内部设计与源码导航、已知限制。 |
 | `module-group` | 模块组目录内的组说明（具体位置由项目的模块组织决定） | [module-group.md](../templates/module-group.md) | 模块组约定：组定位、直接下属模块的职责、组合关系与导航；不重复模块自己负责的使用方式、契约和限制。 |
 | `persistence-change` | `docs/persistence-changes/YYYY-MM-DD-slug.md` | [persistence-change.md](../templates/persistence-change.md) | 历史确认：机械检测到的持久化数据结构变更、各 root 的前驱引用、兼容性决策和生成的 after schema。 |
 | `persistence-release` | `docs/persistence-changes/releases/<release-tag>.md` | [persistence-release.md](../templates/persistence-release.md) | 回溯观察：固定的发布标签、相邻的 before/after digest、实际格式版本常量和变更的 after schema；不做兼容性确认。 |
 | `persistence-format` | `docs/persistence-changes/historical-formats/vN.md` | [persistence-format.md](../templates/persistence-format.md) | 选定的历史格式：源码证据、完整的 root schema 和可达类型；当前写入器使用生成的 catalog。 |
 
-`module` 覆盖一切随模块代码维护的模块说明。模块是拥有独立代码目录和入口的软件组成单元；它是常驻服务、进程内库、插件、命令行工具还是一次性脚本，写在使用方式和行为契约里，不改变文档类型。模块形态在动笔前必须从 manifest、入口文件和配置声明读出，不能根据目录名猜测。
+`module` 覆盖一切随模块维护的模块说明。模块是具有独立职责和维护价值的软件单元；代码目录、入口和部署形态不是固定条件，具体形态由模块文档说明。它是常驻服务、进程内库、插件、命令行工具还是一次性脚本，写在使用方式和行为契约里，不改变文档类型。模块形态在动笔前应从 manifest、入口文件和配置声明读出，但不能根据目录名猜测，也不能用目录或入口条件否定一个模块。
 
 `module` 与 `module-group` 都随模块代码维护，区别在职责而不是目录深度：README 描述一个模块的能力、使用方式和契约 → `module`；README 描述一组模块的整体能力、分工、组合关系与导航 → `module-group`。模块组的目录位置由项目的模块组织决定，不绑定 `packages/`、`src/` 等固定目录；没有模块分组的项目不需要 `module-group`。
 

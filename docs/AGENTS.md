@@ -26,7 +26,7 @@
 | [defensive-patterns/](defensive-patterns/README.md) | 本仓库在评审中执行的规则，按工件拆分：一个页面覆盖一类工件的缺陷检查 | 类型定义与语义（→ subsystems）、决策理由（→ Agent Note）、写代码的设计规则（→ core-guidelines/） |
 | [core-guidelines/](core-guidelines/README.md) | 写代码的编号设计规则，每个领域一个文件，格式由规则 G.1 定义 | 业务领域规则（→ 模块文档、subsystems/、Agent Note）；工件 bug 类别检查（→ defensive-patterns/） |
 | [postmortem/](postmortem/README.md) | 事故故事——唯一适合事故亲历式叙事的层级 | 日常任务清单、通用设计理由（→ Agent Note）、可复用的缺陷模式（→ defensive-patterns/） |
-| 模块文档（`module`） | 逐模块契约：能力、使用方式、行为契约、职责边界、内部设计、限制和源码导航 | JSDoc 复述、生成目录复述、系统级类型定义（→ subsystems）、决策理由（→ Agent Note） |
+| 模块文档（`module`） | 逐模块契约：能力、使用方式、行为契约、职责边界、内部设计、限制和源码导航；模块是具有独立职责和维护价值的软件单元，代码目录、入口和部署形态不是固定条件 | JSDoc 复述、生成目录复述、系统级类型定义（→ subsystems）、决策理由（→ Agent Note） |
 | 模块组文档（`module-group`，按需） | 一组相关模块的整体能力、直接下属模块的职责、组合关系与导航 | 单个模块的使用方式、配置、限制和内部实现（→ 模块文档） |
 | [持久化记录](persistence-changes/README.md) | 持久化类型变更确认、发布对比和完整的历史格式 schema | 纯行为变更；当前运行时契约（→ subsystems 或模块文档） |
 | [cookbook/](cookbook/README.md) | 带编号验证步骤的分步操作指南 | 设计理由（→ 各指南链接的 Agent Note）、场景判断（→ Skills） |
