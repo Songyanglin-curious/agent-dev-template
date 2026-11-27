@@ -1,6 +1,6 @@
 ---
 name: pre-push-checks
-description: 在本地提交或推送前使用；按 change-scope 报告选择与变更范围相称的最小检查，避免全量和重复执行，失败停止；处理历史重写与远端验证，发布和部署另行处理。
+description: 在本地提交或推送前使用；按 change-scope 报告选择与变更范围相称的最小检查，避免全量和重复执行，失败停止；处理历史重写与存在远端时的验证，发布和部署另行处理。
 ---
 # 本地检查与推送
 
@@ -13,13 +13,19 @@ git status --short --branch
 git rev-parse --show-toplevel
 ```
 
-2. 验证基线，运行：
+2. 显式选择基线，运行：
 
 ```sh
 pnpm run change-scope --base <verified-base>
 ```
 
-`change-scope` 输出 committed、staged、unstaged、untracked 路径。它不猜测基线，也不决定检查；基线必须来自当前分支、远端分支或用户明确指定。
+`change-scope` 输出 committed、staged、unstaged、untracked 路径。它不猜测基线，也不决定检查。基线按场景选择：
+
+- **有 upstream**：使用实际 upstream（如 `@{upstream}`），不使用猜测的 `origin/<本地分支>`。
+- **纯本地、无远端**：使用本地分支、tag、commit 或 merge-base；只检查工作区时用 `HEAD`，但这不会包含已提交的分支改动。
+- **首次推送或新分支**：推送前先明确并记录基线（本地分支、`main`、tag 或用户指定 ref）；不要假设远端已有同名分支。
+
+如果选择的基线无法解析，停止并说明，不退回猜测值。
 
 ## 选择证据
 
@@ -45,14 +51,27 @@ pnpm run change-scope --base <verified-base>
 
 - 提交前检查 `git diff` 和 `git diff --cached`；只提交本次任务的文件，不盲目 `git add -A`。
 - 不覆盖用户未提交的改动；不把无关文件、生成物或凭据带入提交。
-- 推送前确认远端分支和本地 HEAD；推送后核对远端 ref。
-- 历史重写只在明确授权时进行；使用 `--force-with-lease`，禁止 raw `--force`。
-- 推送不等于发布。发布、部署、生产迁移和删除外部资源必须单独授权，并按项目发布流程执行。
+- **纯本地 Git**：完成本地检查和提交即可，不执行远端验证；报告中明确说明“仅本地”。
+- **存在 upstream**：用实际 upstream 作为基线和推送后核对目标，不假设远端名为 `origin`，也不假设远端分支名与本地相同。
 
 ```sh
+git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}'
 git rev-parse HEAD
-git rev-parse origin/$(git branch --show-current)
+git rev-parse '@{upstream}'
 ```
+
+- **首次推送或新分支**：推送前明确 remote 和远端分支，并记录所用基线；推送后用你实际推送的 `<remote>/<remote-branch>` 核对，不按本地分支名猜。
+
+```sh
+git remote -v
+git push -u <remote> <branch>
+git rev-parse '<remote>/<remote-branch>'
+```
+
+如果 `@{upstream}` 不存在，就不要执行上游核对；不要为了“看起来完整”而伪造一个 `origin/<branch>`。只有确实存在远端并经用户授权推送时，才执行远端验证。
+
+- 历史重写只在明确授权时进行；使用 `--force-with-lease`，禁止 raw `--force`。
+- 推送不等于发布。发布、部署、生产迁移和删除外部资源必须单独授权，并按项目发布流程执行。
 
 ## 失败处理
 

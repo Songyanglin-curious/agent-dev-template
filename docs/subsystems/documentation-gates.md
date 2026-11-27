@@ -63,7 +63,7 @@
 
 ## 变更影响检查
 
-`verify-change-docs` 读取 Git 中相对基线（默认 `HEAD`）的改动，包括工作区与未跟踪文件，按 `scripts/change-doc-rules.json` 匹配规则并打印归属方。`remind` 规则始终只提示；`require` 规则仅在 `--strict` 下要求归属文档也出现在本次改动中，否则退出非零。`--strict` 不会把 `remind` 提升为强制，因此当前没有 `require` 规则时它没有实际强制效果。CI 用 `node scripts/verify-change-docs.ts --base origin/main --strict` 执行已建立的强制规则。
+`verify-change-docs` 读取 Git 中相对基线（默认 `HEAD`）的改动，包括工作区与未跟踪文件，按 `scripts/change-doc-rules.json` 匹配规则并打印归属方。`remind` 规则始终只提示；`require` 规则仅在 `--strict` 下要求归属文档也出现在本次改动中，否则退出非零。`--strict` 不会把 `remind` 提升为强制，因此当前没有 `require` 规则时它没有实际强制效果。CI 用 `node scripts/verify-change-docs.ts --base "origin/${{ github.base_ref }}" --strict` 执行已建立的强制规则。
 
 规则只声明“哪类改动由哪份文档拥有”，不尝试推断改动语义。代码变化不一定意味着文档描述的事实变化，例如修复脚本内部的异常处理通常不需要修改架构页；因此不为了使用严格模式而人为增加 `require` 规则。一条规则覆盖的变动范围过宽会产生噪音，过窄会漏掉影响；按实际归属调整。
 

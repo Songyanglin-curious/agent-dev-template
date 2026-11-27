@@ -40,9 +40,9 @@ pnpm run test:gates
 pnpm run test:tools
 pnpm run test:docs
 pnpm run test:notes
-pnpm run change-scope --base origin/main
+pnpm run change-scope --base main
 node scripts/verify-doc-budgets.ts --list
-node scripts/verify-change-docs.ts --base origin/main --strict
+node scripts/verify-change-docs.ts --base main --strict
 ```
 
 成功时脚本打印一行摘要并以 0 退出；失败时把每条违规写到 stderr 并以非零退出。`verify-change-docs` 默认只提示，`--strict` 只执行标记为 `require` 的规则；当前没有这类规则时，`--strict` 会明确说明没有强制效果。
