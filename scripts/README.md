@@ -6,7 +6,7 @@ kind: "module"
 
 ## 摘要
 
-本模块是仓库的文档与研发门禁工具链。它提供一组可单独运行、也可由 `test:docs` 和 `test:notes` 串联的检查脚本，用退出码和可定位诊断报告结构违规，并通过共享解析模块避免每条门禁复制 Markdown、frontmatter 与文件发现逻辑；`change-scope` 另外报告相对基线的变更路径。门禁只判断可机械验证的结构，内容质量与归属判断仍属于评审和 Skills。
+本模块是仓库的文档与研发门禁工具链。它提供一组可单独运行、也可由 `test:docs` 和 `test:notes` 串联的检查脚本，用退出码和可定位诊断报告结构违规，共享解析模块避免复制 Markdown、frontmatter 与文件发现逻辑；`change-scope` 另报告相对基线的变更路径。门禁只判断可机械验证的结构，内容质量与归属判断仍属于评审和 Skills。
 
 ## 目录
 
@@ -21,7 +21,7 @@ kind: "module"
 
 ## 能力说明
 
-门禁工具链覆盖文档结构、Agent Note 生命周期、链接与锚点、段落换行、提交号引用、字数预算、持久化记录、生成区域、模块与子系统关联，以及变更影响清单；`change-scope` 报告已提交、暂存、未暂存和未跟踪路径；关键门禁与工具配有回归测试。每条门禁只回答一个结构问题，失败时直接指向需要修改的位置。
+门禁工具链覆盖文档结构、Agent Note 生命周期、链接与锚点、段落换行、提交号引用、字数预算、持久化记录、生成区域、模块与子系统关联，以及变更影响清单；`change-scope` 报告已提交、暂存、未暂存和未跟踪路径；关键门禁与工具配有回归测试。
 
 ### 适用场景
 
@@ -38,21 +38,23 @@ Node ≥ 22.18（直接运行 `.ts` 脚本），仓库依赖已安装。`verify-
 ```sh
 pnpm run test:gates
 pnpm run test:tools
+pnpm run verify-tasks
 pnpm run test:docs
 pnpm run test:notes
 pnpm run change-scope --base main
 node scripts/verify-doc-budgets.ts --list
 node scripts/verify-change-docs.ts --base main --strict
+node scripts/verify-change-docs.ts --list-rules
 ```
 
-成功时脚本打印一行摘要并以 0 退出；失败时把每条违规写到 stderr 并以非零退出。`verify-change-docs` 默认只提示，`--strict` 只执行标记为 `require` 的规则；当前没有这类规则时，`--strict` 会明确说明没有强制效果。
+成功时打印摘要并以 0 退出；失败时把每条违规写到 stderr 并以非零退出。`verify-change-docs` 默认只提示；`--strict` 只执行 `require` 规则并报告其数量；`--list-rules` 打印级别、归属与升级条件。
 
 ### 配置
 
 | 配置项 | 默认值 | 含义 |
 |---|---|---|
 | `doc-budgets.manifest.json` | 登记的常驻文档 | 常驻文档路径到字数上限的映射 |
-| `change-doc-rules.json` | 本仓库的归属规则 | 改动 glob 到文档归属方的映射与提示级别 |
+| `change-doc-rules.json` | 本仓库的归属规则 | 改动 glob 到文档归属方的映射、提示级别与升级条件 |
 | `verify-archived-agent-notes --write` | 不加参数时只校验 | 追加新归档记录的封存 hash |
 | `verify-doc-budgets --list` | 不加参数时只校验 | 打印每个登记文档的用量 |
 
@@ -97,6 +99,7 @@ node scripts/verify-change-docs.ts --base main --strict
 | `verify-md-wrap.ts` | 段落物理行规则 |
 | `verify-md-links.ts` | 相对链接与锚点 |
 | `verify-repository-references.ts` | 维护文件中的 commit 标识（排除研发输入、归档和 vendor） |
+| `verify-tasks.ts` | 研发任务目录、状态、章节与本地引用 |
 | `change-scope.ts` | 按基线报告已提交、暂存、未暂存和未跟踪路径 |
 | `verify-doc-budgets.ts` | 常驻文档字数上限 |
 | `verify-agent-note-classification.ts` | Agent Note 目录与文件名结构 |
@@ -125,7 +128,7 @@ node scripts/verify-change-docs.ts --base main --strict
 
 - 门禁不检查 Markdown 中的 TypeScript 示例和类型等价，也没有 Mermaid 校验；接入真实代码库后按需增加。
 - 模块门禁按 `kind` 发现文档；未声明元数据的 README 不进入检查，由评审发现，当前不引入模块清单。
-- `verify-change-docs` 只按路径 glob 匹配归属文档，不能判断改动是否真的影响该文档的语义；默认只提示，`require` 规则仅在 `--strict` 下失败。
+- `verify-change-docs` 只按路径 glob 匹配归属文档，不能判断改动是否真的影响该文档的语义；默认只提示，`require` 仅在 `--strict` 下失败，`--list-rules` 显示级别与升级条件。
 - 回归测试覆盖关键门禁的代表性失败路径，不覆盖每条规则和每个分支；零记录的持久化、模块组、归档和生成区域机制仍只有代码审阅，空语料计数已测。
 - 字数口径是跨语言近似值，不按词典分词；上限是护栏，不是质量指标。
 

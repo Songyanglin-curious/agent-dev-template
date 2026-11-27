@@ -186,6 +186,95 @@ test('verify-change-docs enforces require rules only under --strict', () => {
   }
 })
 
+test('verify-change-docs lists rule levels and hardening conditions', () => {
+  const rules = JSON.stringify({
+    version: 1,
+    rules: [
+      {
+        when: ['scripts/**/*.ts'],
+        owners: ['docs/owner.md'],
+        reason: 'fixture ownership',
+        level: 'remind',
+        hardenWhen: 'again after two misses',
+      },
+      {
+        when: ['package.json'],
+        owners: ['docs/owner.md'],
+        reason: 'fixture package ownership',
+        level: 'require',
+      },
+    ],
+  })
+  const current = workspace({
+    'scripts/change-doc-rules.json': `${rules}\n`,
+    'docs/owner.md': '# Owner\n',
+  })
+  try {
+    const result = current.run('verify-change-docs.ts', ['--list-rules'])
+    assert.equal(result.status, 0)
+    assert.match(result.stdout, /1 remind \/ 1 require/u)
+    assert.match(result.stdout, /\[remind\] scripts\/\*\*\/\*\.ts/u)
+    assert.match(result.stdout, /harden when: again after two misses/u)
+    assert.match(result.stdout, /\[require\] package\.json/u)
+  } finally {
+    cleanup(current)
+  }
+})
+
+test('verify-change-docs rejects hardenWhen on a require rule', () => {
+  const rules = JSON.stringify({
+    version: 1,
+    rules: [{
+      when: ['scripts/**/*.ts'],
+      owners: ['docs/owner.md'],
+      reason: 'fixture ownership',
+      level: 'require',
+      hardenWhen: 'not allowed here',
+    }],
+  })
+  const current = workspace({
+    'scripts/change-doc-rules.json': `${rules}\n`,
+    'docs/owner.md': '# Owner\n',
+  })
+  try {
+    const result = current.run('verify-change-docs.ts')
+    assert.equal(result.status, 1)
+    assert.match(result.stderr, /hardenWhen is only allowed on remind rules/u)
+    assert.doesNotMatch(result.stderr, /^\s+at /mu)
+  } finally {
+    cleanup(current)
+  }
+})
+
+test('verify-change-docs reports zero require rules under --strict', () => {
+  const rules = JSON.stringify({
+    version: 1,
+    rules: [{
+      when: ['scripts/**/*.ts'],
+      owners: ['docs/owner.md'],
+      reason: 'fixture ownership',
+      level: 'remind',
+      hardenWhen: 'again after two misses',
+    }],
+  })
+  const current = workspace({
+    '.gitignore': 'node_modules/\n',
+    'scripts/change-doc-rules.json': `${rules}\n`,
+    'scripts/foo.ts': 'export const value = 1\n',
+    'docs/owner.md': '# Owner\n',
+  })
+  try {
+    initGit(current, true)
+    writeFileSync(join(current.dir, 'scripts/foo.ts'), 'export const value = 2\n')
+    const result = current.run('verify-change-docs.ts', ['--strict'])
+    assert.equal(result.status, 0)
+    assert.match(result.stdout, /0 require rules/u)
+    assert.match(result.stdout, /--strict has no effect/u)
+  } finally {
+    cleanup(current)
+  }
+})
+
 test('verify-agent-note-format rejects a malformed note', () => {
   const current = workspace({
     '.agents/notes/proposed/feature/2026-01-01-bad.md': '# Wrong\n\nStatus: proposed\n',
@@ -501,6 +590,131 @@ test('documentation gates report empty corpora instead of silently passing', () 
     }
   } finally {
     cleanup(current)
+  }
+})
+
+function taskWorkspace(files: Readonly<Record<string, string>>): Workspace {
+  return workspace({
+    '研发任务/README.md': '# 研发任务\n',
+    '研发任务/进行中/.gitkeep': '',
+    '研发任务/归档/已交付/.gitkeep': '',
+    '研发任务/归档/已放弃/.gitkeep': '',
+    '研发任务/归档/已替代/.gitkeep': '',
+    '研发输入/需求.md': '# 需求\n',
+    ...files,
+  })
+}
+
+function taskDoc(
+  status: string,
+  options: { input?: string; omitSection?: string; extra?: string } = {},
+): string {
+  const input = options.input ?? '[需求](../../研发输入/需求.md)'
+  const sections = [
+    ['任务目标与背景', '说明任务目标。'],
+    ['关联输入', input],
+    ['工作范围与验收条件', '- 范围：示例。\n- 验收：示例通过。'],
+    ['进展记录', '- 2026-11-27：创建任务。'],
+    ['最终交付结果', status === '进行中' ? '待交付。' : '已交付示例。'],
+    ['验证结果', '示例检查通过。'],
+    ['遗留问题', '无。'],
+  ].filter(([heading]) => heading !== options.omitSection)
+  return [
+    '---',
+    `status: ${status}`,
+    '---',
+    '# 任务：示例',
+    '',
+    ...sections.flatMap(([heading, body]) => [`## ${heading}`, '', body, '']),
+    options.extra ?? '',
+  ].join('\n')
+}
+
+test('verify-tasks accepts active and archived task records', () => {
+  const current = taskWorkspace({
+    '研发任务/进行中/2026-11-27-successor.md': taskDoc('进行中'),
+    '研发任务/归档/已交付/2026-11-27-delivered.md': taskDoc('已交付', { input: '无。' }),
+    '研发任务/归档/已放弃/2026-11-27-abandoned.md': taskDoc('已放弃', {
+      input: '无。',
+      extra: '## 放弃原因\n\n示例原因。\n',
+    }),
+    '研发任务/归档/已替代/2026-11-27-old.md': taskDoc('已替代', {
+      input: '无。',
+      extra: '## 替代关系\n\n- 由 [新任务](../../进行中/2026-11-27-successor.md) 替代。\n',
+    }),
+  })
+  try {
+    const result = current.run('verify-tasks.ts')
+    assert.equal(result.status, 0, result.stderr)
+    assert.match(result.stdout, /4 task\(s\) checked \(1 active, 3 archived\)/u)
+  } finally {
+    cleanup(current)
+  }
+})
+
+test('verify-tasks rejects status and directory mismatches', () => {
+  const current = taskWorkspace({
+    '研发任务/进行中/2026-11-27-wrong-status.md': taskDoc('已交付'),
+  })
+  try {
+    const result = current.run('verify-tasks.ts')
+    assert.equal(result.status, 1)
+    assert.match(result.stderr, /status "已交付" does not match its directory/u)
+  } finally {
+    cleanup(current)
+  }
+})
+
+test('verify-tasks rejects missing sections and broken local references', () => {
+  const missingSection = taskWorkspace({
+    '研发任务/进行中/2026-11-27-missing-section.md': taskDoc('进行中', { omitSection: '验证结果' }),
+  })
+  try {
+    const result = missingSection.run('verify-tasks.ts')
+    assert.equal(result.status, 1)
+    assert.match(result.stderr, /missing ## 验证结果/u)
+  } finally {
+    cleanup(missingSection)
+  }
+
+  const brokenLink = taskWorkspace({
+    '研发任务/进行中/2026-11-27-broken-link.md': taskDoc('进行中', {
+      input: '[缺失输入](../../研发输入/missing.md)',
+    }),
+  })
+  try {
+    const result = brokenLink.run('verify-tasks.ts')
+    assert.equal(result.status, 1)
+    assert.match(result.stderr, /linked path does not exist/u)
+  } finally {
+    cleanup(brokenLink)
+  }
+})
+
+test('verify-tasks requires abandonment reasons and replacement links', () => {
+  const abandoned = taskWorkspace({
+    '研发任务/归档/已放弃/2026-11-27-abandoned.md': taskDoc('已放弃'),
+  })
+  try {
+    const result = abandoned.run('verify-tasks.ts')
+    assert.equal(result.status, 1)
+    assert.match(result.stderr, /non-empty ## 放弃原因/u)
+  } finally {
+    cleanup(abandoned)
+  }
+
+  const replaced = taskWorkspace({
+    '研发任务/归档/已替代/2026-11-27-replaced.md': taskDoc('已替代', {
+      input: '无。',
+      extra: '## 替代关系\n\n无。\n',
+    }),
+  })
+  try {
+    const result = replaced.run('verify-tasks.ts')
+    assert.equal(result.status, 1)
+    assert.match(result.stderr, /替代关系 must link an existing task file/u)
+  } finally {
+    cleanup(replaced)
   }
 })
 

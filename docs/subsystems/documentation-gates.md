@@ -34,7 +34,7 @@
 | `verify-agent-note-classification` | `.agents/notes/{proposed,implemented,rejected}/` | 生命周期、类别目录与文件名结构合法，禁止集中索引 |
 | `verify-agent-note-format` | 活跃 Agent Note | 头部三行、`Status:` 与目录一致、必需章节、`## Alternatives considered`、implemented 禁用提案标题 |
 | `verify-archived-agent-notes` | `archived/{kind}/` 与冻结清单 | 归档元数据、内容 hash、只增不改的 manifest；`--write` 追加新 hash |
-| `verify-change-docs` | 相对基线变更的文件 | 按清单输出每个改动对应的文档归属方；`require` 规则只在 `--strict` 下缺失即失败 |
+| `verify-change-docs` | 相对基线变更的文件 | 输出每个改动的文档归属方；`remind` / `require` 分级，`require` 只在 `--strict` 下缺失即失败；`--list-rules` 打印级别与升级条件 |
 
 `pnpm run test:docs` 依次运行结构、引用、持久化、生成区域、段落换行、链接、提交号、预算和变更影响检查；`pnpm run test:notes` 运行三条 Agent Note 检查；`pnpm run test:gates` 运行关键门禁的失败路径测试。单独运行某个门禁用于定位问题，交付前仍需跑总入口。
 
@@ -58,20 +58,20 @@
 | `scripts/generated-docs.manifest.json` | 含生成区域的文档到生产者的映射 |
 | `scripts/module-readme-limitations.allowlist.json` | 无限制章节的模块文档及理由 |
 | `scripts/subsystem-page-exemptions.json` | 不链接子系统页的单元及理由 |
-| `scripts/change-doc-rules.json` | 改动 glob 到文档归属方的映射与提示级别 |
+| `scripts/change-doc-rules.json` | 改动 glob 到文档归属方的映射、提示级别与升级条件 |
 | `.agents/notes/archived/manifest.json` | 归档记录的内容 hash，只增不改 |
 
 ## 变更影响检查
 
-`verify-change-docs` 读取 Git 中相对基线（默认 `HEAD`）的改动，包括工作区与未跟踪文件，按 `scripts/change-doc-rules.json` 匹配规则并打印归属方。`remind` 规则始终只提示；`require` 规则仅在 `--strict` 下要求归属文档也出现在本次改动中，否则退出非零。`--strict` 不会把 `remind` 提升为强制，因此当前没有 `require` 规则时它没有实际强制效果。CI 用 `node scripts/verify-change-docs.ts --base "origin/${{ github.base_ref }}" --strict` 执行已建立的 `require` 规则；当前没有这类规则，文档语义是否同步仍由评审保证。
+`verify-change-docs` 读取 Git 中相对基线（默认 `HEAD`）的改动，包括工作区与未跟踪文件，按 `scripts/change-doc-rules.json` 匹配规则并打印归属方。规则分两级：`remind` 只提示，可带 `hardenWhen` 记录升级为强制规则的观察条件；`require` 仅在 `--strict` 下要求归属文档也出现在本次改动中，否则退出非零。每次运行都报告规则数量；`--list-rules` 打印全部规则的级别、归属、原因与升级条件，不需要 Git。`--strict` 不提升 `remind`，并在没有 `require` 规则时明确说明没有强制效果。CI 用 `--base "origin/${{ github.base_ref }}" --strict` 执行已建立的 `require` 规则，文档语义是否同步仍由评审保证。
 
-规则只声明“哪类改动由哪份文档拥有”，不尝试推断改动语义。代码变化不一定意味着文档描述的事实变化，例如修复脚本内部的异常处理通常不需要修改架构页；因此不为了使用严格模式而人为增加 `require` 规则。一条规则覆盖的变动范围过宽会产生噪音，过窄会漏掉影响；按实际归属调整。
+规则只声明“哪类改动由哪份文档拥有”，不推断改动语义。代码变化不一定意味着文档描述的事实变化；因此不为了使用严格模式而人为增加 `require`。覆盖过宽会产生噪音，过窄会漏掉影响。
 
 ## 回归测试与 CI
 
-`pnpm run test:gates` 用 `node:test` 在临时工作区运行关键门禁的失败路径：坏链接（含模块 README）、缺失的预算文档、无效基线、Git 缺失时的跳过、错误的 Agent Note 格式、维护文件中的 commit 标识、模块组与独立模块混合时的子系统关联、模块摘要与三类持久化记录的中文标题、六个门禁的空语料扫描可见性，以及 `require` 在默认与 `--strict` 下的差异；同时验证 `研发输入/` 中的原始 commit 标识被排除。正向通过不能证明门禁能发现错误，新增或修改门禁时同时补失败用例。
+`pnpm run test:gates` 用 `node:test` 在临时工作区运行关键门禁的失败路径：坏链接（含模块 README）、缺失的预算文档、无效基线、Git 缺失时的跳过、错误的 Agent Note 格式、维护文件中的 commit 标识、模块组与独立模块混合时的子系统关联、模块摘要与三类持久化记录的中文标题、六个门禁的空语料扫描可见性、研发任务状态与引用，以及 `require` 在默认与 `--strict` 下的差异、`--list-rules` 输出与 `hardenWhen` 约束；同时验证 `研发输入/` 中的原始 commit 标识被排除。正向通过不能证明能发现错误；修改门禁时同时补失败用例。
 
-`.github/workflows/docs.yml` 在 push 和 pull request 上运行 `test:gates`、`test:tools`、`test:docs`、`test:notes`；pull request 额外以 `--strict` 运行变更影响检查。CI 能发现问题，但只有把该工作流设为仓库的必需检查，才会阻止不合规的合并。
+`.github/workflows/docs.yml` 在 push 和 pull request 上运行 `test:gates`、`test:tools`、`verify-tasks`、`test:docs`、`test:notes`；pull request 额外以 `--strict` 运行变更影响检查。CI 能发现问题，但只有把该工作流设为仓库的必需检查，才会阻止不合规的合并。
 
 ## 新增门禁
 
@@ -81,6 +81,6 @@
 
 - 不检查文档中的 TypeScript 代码、类型与源码等价、Mermaid 图；这些依赖具体技术栈，接入项目的真实代码后再实现。
 - 模块文档按 `kind` 发现；未声明元数据的 README 不会进入模块门禁，也不会有失败提示，由评审发现。当前不引入模块清单。
-- `verify-change-docs` 在无 Git 或非 Git 仓库时跳过并说明；显式基线无法解析时以非零退出并报告基线。它只按路径匹配，不能判断改动是否真的影响文档语义。
+- `verify-change-docs` 在无 Git 或非 Git 仓库时跳过并说明（`--list-rules` 不需要 Git）；显式基线无法解析时以非零退出并报告基线。它只按路径匹配，不能判断改动是否真的影响文档语义。
 - 回归测试覆盖关键门禁的代表性失败路径，不覆盖每条规则和每个分支；零记录的持久化、模块组、归档和生成区域机制仍只有代码审阅。
 - 字数口径是跨语言近似，不按词形还原或分词词典计算。

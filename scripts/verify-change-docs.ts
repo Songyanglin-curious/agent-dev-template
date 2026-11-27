@@ -3,11 +3,13 @@
  * `scripts/change-doc-rules.json`，每条规则把变更路径映射到
  * 拥有这些事实的文档。
  *
- * 规则默认是提示性的。`remind` 规则始终输出，`require` 规则
- * 仅在 `--strict` 下失败，该模式运行已建立的强制检查。
- * `--strict` 从不把 `remind` 规则升级为强制，因此无法强制
- * 做出无意义的文档修改。缺少 Git 或基线不可读时，以简短
- * 消息报告，而不是 Node 堆栈跟踪。
+ * 规则分两级：`remind` 始终只提示，`require` 仅在 `--strict`
+ * 下失败。`remind` 规则可声明 `hardenWhen`，记录它应升级为
+ * 强制规则的观察条件；`--list-rules` 打印全部规则的级别、
+ * 归属与条件。每次运行都报告规则数量，`--strict` 不把 `remind`
+ * 升级为强制，并明确说明当前强制规则数，避免把提示误读为
+ * 保障。缺少 Git 或基线不可读时，以简短消息报告，而不是
+ * Node 堆栈跟踪。
  */
 
 import { execFileSync } from 'node:child_process'
@@ -27,6 +29,8 @@ interface ChangeDocRule {
   reason: string
   /** 缺少所有者时是否在 `--strict` 下失败。 */
   level: 'remind' | 'require'
+  /** 该 `remind` 规则应升级为 `require` 的观察条件。 */
+  hardenWhen?: string
   /** 编译后的路径模式。 */
   patterns: RegExp[]
 }
@@ -52,13 +56,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /** 拒绝不支持的命令行参数，而不是静默忽略。 */
-function parseArguments(argv: readonly string[]): { base: string; strict: boolean } {
+function parseArguments(argv: readonly string[]): { base: string; strict: boolean; listRules: boolean } {
   let base = 'HEAD'
   let strict = false
+  let listRules = false
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index] ?? ''
     if (argument === '--strict') {
       strict = true
+      continue
+    }
+    if (argument === '--list-rules') {
+      listRules = true
       continue
     }
     if (argument === '--base') {
@@ -76,7 +85,7 @@ function parseArguments(argv: readonly string[]): { base: string; strict: boolea
     }
     throw new Error(`unknown argument: ${argument}`)
   }
-  return { base, strict }
+  return { base, strict, listRules }
 }
 
 /**
@@ -138,6 +147,13 @@ function readRules(): ChangeDocRule[] {
     if (level !== 'remind' && level !== 'require') throw new Error(`${RULES_PATH}: ${at}.level must be remind or require`)
     const reason = entry.reason ?? ''
     if (typeof reason !== 'string') throw new Error(`${RULES_PATH}: ${at}.reason must be a string`)
+    const hardenWhen = entry.hardenWhen
+    if (hardenWhen !== undefined) {
+      if (typeof hardenWhen !== 'string' || hardenWhen.trim() === '') {
+        throw new Error(`${RULES_PATH}: ${at}.hardenWhen must be a non-empty string`)
+      }
+      if (level !== 'remind') throw new Error(`${RULES_PATH}: ${at}.hardenWhen is only allowed on remind rules`)
+    }
     for (const owner of owners) {
       if (!existsSync(resolve(REPO_ROOT, owner))) throw new Error(`${RULES_PATH}: ${at}.owners names a missing document: ${owner}`)
     }
@@ -146,6 +162,7 @@ function readRules(): ChangeDocRule[] {
       owners: owners as string[],
       reason,
       level,
+      hardenWhen: typeof hardenWhen === 'string' ? hardenWhen : undefined,
       patterns: (when as string[]).map(globToRegExp),
     }
   })
@@ -185,21 +202,46 @@ function changedFiles(base: string): string[] | undefined {
   }
 }
 
+/** 统计规则级别，返回供摘要输出的文本。 */
+function describeRuleLevels(rules: readonly ChangeDocRule[]): string {
+  const remind = rules.filter(rule => rule.level === 'remind').length
+  return `${String(remind)} remind / ${String(rules.length - remind)} require`
+}
+
+/** 打印全部规则的级别、归属、原因与升级条件。 */
+function printRules(rules: readonly ChangeDocRule[]): void {
+  console.log(`change-doc rules: ${describeRuleLevels(rules)} (--strict enforces require only)`)
+  for (const rule of rules) {
+    console.log(`  [${rule.level}] ${rule.when.join(', ')}`)
+    console.log(`    owners: ${rule.owners.join(', ')}`)
+    if (rule.hardenWhen !== undefined) console.log(`    harden when: ${rule.hardenWhen}`)
+    if (rule.reason !== '') console.log(`    reason: ${rule.reason}`)
+  }
+}
+
 /** 运行所有权检查并返回进程退出码。 */
 function main(): number {
-  const { base, strict } = parseArguments(process.argv.slice(2))
+  const { base, strict, listRules } = parseArguments(process.argv.slice(2))
   const rules = readRules()
+  if (listRules) {
+    printRules(rules)
+    return 0
+  }
+
+  console.log(`verify-change-docs: ${describeRuleLevels(rules)} rules; --strict enforces require only.`)
+  if (strict) {
+    const required = rules.filter(rule => rule.level === 'require').length
+    console.log(required === 0
+      ? 'verify-change-docs: --strict has no effect: 0 require rules (all rules are advisory).'
+      : `verify-change-docs: --strict enforces ${String(required)} require rule(s).`)
+  }
+
   const changed = changedFiles(base)
   if (changed === undefined) return 0
 
   if (changed.length === 0) {
     console.log(`verify-change-docs: no changed files against ${base}.`)
     return 0
-  }
-
-  const hasRequireRules = rules.some(rule => rule.level === 'require')
-  if (strict && !hasRequireRules) {
-    console.log('verify-change-docs: --strict has no effect: no rule declares level "require".')
   }
 
   const changedSet = new Set(changed)
@@ -226,6 +268,7 @@ function main(): number {
       }
     }
     if (rule.reason !== '') console.log(`           ${rule.reason}`)
+    if (rule.hardenWhen !== undefined) console.log(`           harden when: ${rule.hardenWhen}`)
   }
 
   if (failures.length > 0) {

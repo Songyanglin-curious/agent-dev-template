@@ -24,6 +24,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run test:gates
       - run: pnpm run test:tools
+      - run: pnpm run verify-tasks
       - run: pnpm run test:docs
       - run: pnpm run test:notes
       - name: Change ownership (strict)

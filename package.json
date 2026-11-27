@@ -4,6 +4,7 @@
     "description": "面向 AI Agent 辅助软件研发的项目模板。",
     "scripts": {
         "change-scope": "node scripts/change-scope.ts",
+        "verify-tasks": "node scripts/verify-tasks.ts",
         "test:gates": "node --test scripts/tests/gates.test.ts",
         "test:tools": "node --test scripts/tests/change-scope.test.ts",
         "verify-agent-note-classification": "node scripts/verify-agent-note-classification.ts",

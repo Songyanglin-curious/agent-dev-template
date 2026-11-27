@@ -3,7 +3,7 @@
 agent-dev-template：面向 AI Agent 辅助软件研发的项目模板，以研发文档体系本身为交付物。说明见 [README](README.md)，体系结构见 [docs/architecture.md](docs/architecture.md)。
 
 - 维护文档遵循 [docs/AGENTS.md](docs/AGENTS.md)。
-- `研发输入/` 只保存原始需求、外部约束和资料，不写已确认的决策；研发任务与 Agent Note 通过引用关联，不建 Issue 系统。
+- `研发输入/` 保存外部原始材料，`研发任务/` 保存本次目标、范围、进展与交付，Agent Note 保存长期决策理由；用链接关联，不建 Issue 系统。
 
 ## 任务与授权
 
@@ -17,6 +17,7 @@ agent-dev-template：面向 AI Agent 辅助软件研发的项目模板，以研�
 
 | 改动或活动 | 同一次变更中必须完成 |
 |---|---|
+| 新建、推进、交付或归档研发任务 | 按 [任务管理](.agents/skills/task-management/SKILL.md) 维护任务文件；状态变化移动目录并运行 `pnpm run verify-tasks` |
 | 修改 `scripts/` 中的门禁、共享工具或清单 | 更新 [文档门禁](docs/subsystems/documentation-gates.md)；必要时同步 [scripts 模块](scripts/README.md)；修改门禁逻辑时增加或调整失败路径用例 |
 | 修改 Agent Note 规则、目录或校验脚本 | 更新 [Agent Note 规则](.agents/notes/README.md)；机制说明变化时同步 [体系架构](docs/architecture.md)，运行 `pnpm run test:notes` |
 | 新增或修改 `docs/` 层级、文档 kind 或写作规则 | 更新 [文档标准](docs/AGENTS.md) 与字数预算清单；层级或组成变化时同步 [体系架构](docs/architecture.md) |
@@ -35,6 +36,7 @@ agent-dev-template：面向 AI Agent 辅助软件研发的项目模板，以研�
 | 文档门禁 | `pnpm run test:docs` |
 | 门禁失败路径测试 | `pnpm run test:gates` |
 | 工具测试 | `pnpm run test:tools` |
+| 任务门禁 | `pnpm run verify-tasks` |
 | Agent Note 门禁 | `pnpm run test:notes` |
 | 变更影响清单 | `pnpm run verify-change-docs` |
 | 文档字数用量 | `pnpm run verify-doc-budgets --list` |

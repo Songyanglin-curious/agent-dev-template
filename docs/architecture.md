@@ -30,10 +30,10 @@
 研发信息在四层之间流动，并有两个回环：验证发现的问题回到实施，沉淀出的经验回到下一次定位。
 
 1. **输入**：需求、缺陷和外部约束进入 `研发输入/`，保留原文、来源和约束；它是外部要求，不是已确认决策。
-2. **任务**：明确目标、范围、验收和约束；简单任务只存在于对话，复杂任务写简短说明。任务范围是实施边界，原始输入、任务和 Agent Note 用链接关联，不建 Issue 系统。
+2. **任务**：目标、范围、验收和约束记入 `研发任务/进行中/`；简单任务可以只在对话中完成。任务范围是实施边界，原始输入、任务和 Agent Note 用链接关联，不建 Issue 系统。
 3. **决策**：存在长期取舍、被否决方案或跨模块影响时，在 `.agents/notes/` 建立 proposed 或 implemented 记录；机械性或局部修改不立记录。
 4. **实施与同步**：代码、测试、配置和文档在同一次变更中完成；按根 `AGENTS.md` 的触发表更新系统认知与决策记录。
-5. **验证与交付**：按变更范围选择检查；交付说明实际变更、验证、风险和状态，交付不等于发布。可复用的经验再进入准则、防御模式、cookbook 或 Skill。
+5. **验证与交付**：按变更范围选择检查；任务文件记录实际交付、验证和遗留，交付说明按事实报告；交付不等于发布。可复用的经验再进入准则、防御模式、cookbook 或 Skill。
 
 具体规则见根 `AGENTS.md`、[文档标准](AGENTS.md)、[Agent Note 规则](../.agents/notes/README.md) 和专项 Skills；不存在统一研发流程 Skill。
 
@@ -42,6 +42,7 @@
 | 路径 | 归属的事实 | 维护入口 |
 |---|---|---|
 | `研发输入/` | 原始需求、外部资料、梳理草稿 | 同目录 README |
+| `研发任务/` | 当前任务目标、范围、进展与交付 | [任务规则](../研发任务/README.md) |
 | `.agents/notes/` | 设计问题、方案、取舍、后果 | [Agent Note 规则](../.agents/notes/README.md) |
 | `docs/architecture.md` | 整体组成、依赖方向、扩展点 | 本页 |
 | `docs/subsystems/` | 能力语义、类型契约、重要机制 | [子系统索引](subsystems/README.md) |
@@ -52,15 +53,15 @@
 | `docs/postmortem/` | 事故经过与系统性根因 | [复盘规则](postmortem/README.md) |
 | `docs/persistence-changes/` | 持久化格式的历史结构与兼容决策 | [记录规则](persistence-changes/README.md) |
 | `.agents/skills/` | 场景工作流与判断标准 | 各 Skill 的 `SKILL.md` |
-| `scripts/` | 可机械判定的结构约束 | [文档门禁](subsystems/documentation-gates.md) |
+| `scripts/` | 可机械判定的结构约束（文档、任务） | [文档门禁](subsystems/documentation-gates.md)、[任务规则](../研发任务/README.md) |
 
 ## 关键机制
 
 - **任务范围是实施边界**：调查、研究、讨论默认只读；实施在明确范围内自主完成；超出范围、改变方向或触及未预期契约、持久化、安全、外部操作时暂停确认。交付不等于发布。
 - **变更范围与检查选择**：`change-scope` 报告相对基线的已提交、暂存、未暂存和未跟踪路径；[pre-push-checks](../.agents/skills/pre-push-checks/SKILL.md) 按触及面选择最小证据；[code-review](../.agents/skills/code-review/SKILL.md) 先读要求和归属，再读 diff。
-- **生命周期表达状态**：Agent Note 所在目录、`Status:` 行和正文章节必须一致，由 `verify-agent-note-format` 交叉检查；归档记录冻结并追加 hash。
+- **生命周期表达状态**：Agent Note 所在目录、`Status:` 行和正文章节必须一致，由 `verify-agent-note-format` 交叉检查；归档记录冻结并追加 hash。任务的状态、目录、终态记录和引用由 `verify-tasks` 交叉检查。
 - **门禁只检查结构**：脚本负责格式、元数据、链接、锚点、字数、冻结状态和生成区域所有权；语义质量由评审和 Skills 负责。
-- **变更影响清单**：`verify-change-docs` 把“回忆哪些文档受影响”变成按 manifest 生成的逐项清单；`remind` 始终提示，`require` 只在 CI 的 `--strict` 下失败；当前没有 `require` 规则。
+- **变更影响清单**：`verify-change-docs` 按 manifest 生成逐项清单；`remind` 提示、`require` 在 CI 的 `--strict` 下失败，`--strict` 报告强制规则数，`--list-rules` 显示升级条件。
 
 ## 扩展点
 
@@ -71,4 +72,4 @@
 
 ## 边界
 
-本仓库不建立文档网站、不做双语文档配对、不检查文档中的类型与源码等价，也不内建 Issue、PR 或任务管理自动化。这些机制依赖具体技术栈和托管平台；需要时由使用这套体系的项目按同样归属原则自行接入。任务在对话或简短说明中表达，不构成新的常驻文档层。
+本仓库不建立文档网站、不做双语文档配对、不检查文档中的类型与源码等价，也不内建 Issue、PR 生命周期、任务看板或自动状态流转。`研发任务/` 只记录本地任务目标、范围、进展和交付，终态归档；它不承担决策理由，也不替代 Agent Note。

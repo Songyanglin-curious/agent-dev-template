@@ -10,7 +10,8 @@
                 "scripts/README.md"
             ],
             "reason": "门禁的语料、检查项与失败语义由文档门禁子系统页拥有；模块说明拥有使用方式与内部设计。",
-            "level": "remind"
+            "level": "remind",
+            "hardenWhen": "改门禁脚本时子系统页或模块说明连续两次未同步。"
         },
         {
             "when": [
@@ -28,7 +29,8 @@
                 ".agents/notes/README.md"
             ],
             "reason": "Agent Note 的生命周期、类别、格式与归档规则由笔记规则页拥有。",
-            "level": "remind"
+            "level": "remind",
+            "hardenWhen": "Note 规则或校验脚本变更后再次出现格式或分类遗漏。"
         },
         {
             "when": [
@@ -39,7 +41,8 @@
                 "docs/subsystems/documentation-gates.md"
             ],
             "reason": "命令入口由根 AGENTS.md 拥有；命令背后的门禁语义由文档门禁页拥有。",
-            "level": "remind"
+            "level": "remind",
+            "hardenWhen": "命令入口变更后根 AGENTS.md 与文档门禁页连续两次未同步。"
         }
     ]
 }
