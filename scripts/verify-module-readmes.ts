@@ -1,5 +1,5 @@
 /**
- * 校验模块与模块组 README：Summary 保持在
+ * 校验模块与模块组 README：摘要保持在
  * 100 词当量的限制内，模块文档带有标准的限制
  * 章节（或理由充分的允许清单条目），而模块组文档
  * 省略归其模块所有的章节。识别依据是声明的
@@ -56,15 +56,15 @@ for (const file of repositoryMarkdownFiles(['**/README.md'], { excludeTemplate: 
   else groups += 1
 
   const headings = documentHeadings(source)
-  const summary = h2Section(source, 'Summary')
+  const summary = h2Section(source, '摘要')
   if (summary === undefined) {
-    failures.push(`${file}: missing ## Summary`)
+    failures.push(`${file}: 缺少 ## 摘要`)
   } else if (summary.trim().length === 0) {
-    failures.push(`${file}: ## Summary is empty`)
+    failures.push(`${file}: ## 摘要 为空`)
   } else {
     const words = countWordEquivalents(summary)
     if (words > SUMMARY_LIMIT) {
-      failures.push(`${file}: Summary is ${String(words)} word equivalents, over the ${String(SUMMARY_LIMIT)} limit`)
+      failures.push(`${file}: 摘要为 ${String(words)} 个词等量，超过 ${String(SUMMARY_LIMIT)} 上限`)
     }
   }
 

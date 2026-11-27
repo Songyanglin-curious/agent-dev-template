@@ -46,7 +46,7 @@
 - **所属 [subsystems 页面](subsystems/README.md) 必须在同一次变更中更新**，只要该变更重塑了已记录的类型（由评审保证；`verify-subsystem-pages` 只检查关联存在）。类型记录在其声明模块所属的子系统页面上；模块文档只链接类型定义，不复制。
 - **不保留占位内容。** 不要写“目录待建”“TODO”“后续补充”或指向尚不存在文件的 Markdown 链接；机制尚未落地时用行内代码写明现状，或先不写。建立后再改成链接。
 - **注释和 JSDoc 陈述完整契约，而不是推理过程记录。** 保留行为、失败、时序、归属、情态、例外、后果和非显而易见的定位；删除叙述、测试走查、评审分析和代码复述。保留本地契约并链接其理由。细节使用 [prose-standard](../.agents/skills/prose-standard/SKILL.md)。
-- **元数据与模块门禁。** 模块和模块组 README 必须声明 `description` 与 `kind`；模块门禁按 `kind` 发现文档，未声明元数据的 README 不会进入检查，计数下降由评审发现。模块 Summary 与限制章节由 `verify-module-readmes` 校验；模块组表由 `verify-module-groups` 校验；子系统关联由 `verify-subsystem-pages` 校验。豁免登记在 `scripts/module-readme-limitations.allowlist.json` 与 `scripts/subsystem-page-exemptions.json`，每条写明理由。
+- **元数据与模块门禁。** 模块和模块组 README 必须声明 `description` 与 `kind`；模块门禁按 `kind` 发现文档，未声明元数据的 README 不会进入检查，计数下降由评审发现。模块摘要与限制章节由 `verify-module-readmes` 校验；模块组表由 `verify-module-groups` 校验；子系统关联由 `verify-subsystem-pages` 校验。豁免登记在 `scripts/module-readme-limitations.allowlist.json` 与 `scripts/subsystem-page-exemptions.json`，每条写明理由。
 - **直接写：写明执行者和事实**（[参考](../.agents/skills/prose-standard/SKILL.md)）。写明确切的检查、类型、API、操作或行为，避免没有定义的隐喻。
 
 <a id="wordcount-budgets"></a>

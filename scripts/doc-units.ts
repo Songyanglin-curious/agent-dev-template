@@ -20,11 +20,11 @@ export function countDocumentUnits(text: string): number {
 }
 
 /**
- * 按词当量统计模块 Summary 的字数上限。
+ * 按词当量统计模块摘要的字数上限。
  * 英文文本按空白分隔的片段每个计一个单位；CJK 文本每两个字符计一个单位，
- * 从而三到五句的中文 Summary 与 100 个英文单词
+ * 从而三到五句的中文摘要与 100 个英文单词
  * 使用同一尺度度量。
- * @param text - 待度量的 Summary 正文。
+ * @param text - 待度量的摘要正文。
  * @returns 空白分隔片段数加上 CJK 字符数的一半，向上取整。
  */
 export function countWordEquivalents(text: string): number {

@@ -21,9 +21,9 @@ import {
 
 const CHANGES_ROOT = 'docs/persistence-changes'
 const REQUIRED_SECTIONS: Record<string, readonly string[]> = {
-  'persistence-change': ['Summary', 'Table of Contents', 'Declaration', 'Compatibility', 'Verification', 'Dev Note'],
-  'persistence-release': ['Summary', 'Table of Contents', '发布证据', 'Declaration', '结构变更', '验证', 'Dev Note'],
-  'persistence-format': ['Summary', 'Table of Contents', '源码证据', '格式特征', 'Declaration', '完整 schema', '验证与限制', 'Dev Note'],
+  'persistence-change': ['摘要', '目录', '机器声明', '兼容性', '验证', '开发备注'],
+  'persistence-release': ['摘要', '目录', '发布证据', '机器声明', '结构变更', '验证', '开发备注'],
+  'persistence-format': ['摘要', '目录', '源码证据', '格式特征', '机器声明', '完整 schema', '验证与限制', '开发备注'],
 }
 
 /** 判断某个值是否为普通映射。 */

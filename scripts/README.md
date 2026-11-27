@@ -4,20 +4,20 @@ kind: "module"
 ---
 # scripts
 
-## Summary
+## 摘要
 
 本模块是仓库的文档与研发门禁工具链。它提供一组可单独运行、也可由 `test:docs` 和 `test:notes` 串联的检查脚本，用退出码和可定位诊断报告结构违规，并通过共享解析模块避免每条门禁复制 Markdown、frontmatter 与文件发现逻辑；`change-scope` 另外报告相对基线的变更路径。门禁只判断可机械验证的结构，内容质量与归属判断仍属于评审和 Skills。
 
-## Table of Contents
+## 目录
 
 - [能力说明](#能力说明)
 - [使用方式](#使用方式)
 - [行为契约](#行为契约)
 - [职责边界](#职责边界)
 - [内部设计](#内部设计)
-- [Further Exploration](#further-exploration)
+- [延伸阅读](#延伸阅读)
 - [已知限制与暂缓工作](#已知限制与暂缓工作)
-- [Dev Note](#dev-note)
+- [开发备注](#开发备注)
 
 ## 能力说明
 
@@ -88,7 +88,7 @@ node scripts/verify-change-docs.ts --base main --strict
 | 路径 | 职责 |
 |---|---|
 | `verify-doc-metadata.ts` | README frontmatter 与 kind 到模板的映射 |
-| `verify-module-readmes.ts` | 模块 Summary 与限制章节 |
+| `verify-module-readmes.ts` | 模块摘要与限制章节 |
 | `verify-module-groups.ts` | 模块组的职责表与禁写章节 |
 | `verify-subsystem-pages.ts` | 模块或模块组到子系统页的关联 |
 | `verify-doc-refs.ts` | 源码注释中的文档路径引用 |
@@ -114,7 +114,7 @@ node scripts/verify-change-docs.ts --base main --strict
 
 </details>
 
-## Further Exploration
+## 延伸阅读
 
 - [文档门禁](../docs/subsystems/documentation-gates.md)：每条门禁的语料、清单和失败语义。
 - [文档标准](../docs/AGENTS.md)：文档层级、写作规则与字数预算的依据。
@@ -129,7 +129,7 @@ node scripts/verify-change-docs.ts --base main --strict
 - 回归测试覆盖关键门禁的代表性失败路径，不覆盖每条规则和每个分支；零记录的持久化、模块组、归档和生成区域机制仍只有代码审阅。
 - 字数口径是跨语言近似值，不按词典分词；上限是护栏，不是质量指标。
 
-## Dev Note
+## 开发备注
 
 <details>
 <summary>维护者的工作语境 — 点击展开</summary>

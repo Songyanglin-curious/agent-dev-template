@@ -1,10 +1,10 @@
-﻿# 模板：persistence-release
+# 模板：persistence-release
 
 本 kind 用于 `docs/persistence-changes/releases/<release-tag>.md`。这些记录重建已打标签的持久化类型，供人工比较和格式校验。它们是观察结果，不是兼容性确认，也不参与当前源码的历史。
 
 重建由项目按所用持久化技术实现。工具就绪前不要创建本类记录：无法从历史标签重建类型时，观察记录会变成猜测。
 
-## Frontmatter
+## 元数据
 
 ```yaml
 ---
@@ -15,13 +15,13 @@ kind: persistence-release
 
 ## 章节
 
-1. **Summary：** 说明与上一个可用标签相比的具体类型差异或没有差异，并在相关时说明持久化格式版本常量。
-2. **Table of Contents：** 链接后续章节，锚点使用标题生成的 id。
+1. **摘要：** 说明与上一个可用标签相比的具体类型差异或没有差异，并在相关时说明持久化格式版本常量。
+2. **目录：** 链接后续章节，锚点使用标题生成的 id。
 3. **发布证据：** 写明源标签和已打标签的源码路径，然后用相对路径链接前一条记录和 schema 伴生文件。说明重建的限制。
-4. **Declaration：** 恰好包含一个 `yaml persistence-release` 块，其中有 `schemaVersion: 1`、`tag`、`previous`、`formatVersion` 和 `changes`。每项变更写明 `root`、`before` 和 `after`；null 表示缺失。
+4. **机器声明：** 恰好包含一个 `yaml persistence-release` 块，其中有 `schemaVersion: 1`、`tag`、`previous`、`formatVersion` 和 `changes`。每项变更写明 `root`、`before` 和 `after`；null 表示缺失。
 5. **结构变更：** 列出机械检测到的路径和类型。按当前规则做的分类仅供参考；它们不能确立历史发布的安全性，也不意味着观察到的格式版本被提升过。
 6. **验证：** 写明实际执行的重建和校验证据。项目的校验入口在不检出源码、Git 或网络访问的情况下校验已提交的归档；命令名与参数随项目工具而定。
-7. **Dev Note：** 把该章节保留给非权威的工作语境，或写 `None.`。
+7. **开发备注：** 把该章节保留给非权威的工作语境，或写 `None.`。
 
 ## 快照与历史规则
 

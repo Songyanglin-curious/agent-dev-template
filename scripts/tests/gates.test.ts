@@ -244,6 +244,241 @@ test('verify-subsystem-pages checks ungrouped modules alongside module groups', 
   }
 })
 
+test('verify-module-readmes accepts 摘要 and rejects the English heading', () => {
+  const moduleDoc = [
+    '---',
+    'description: "Fixture module."',
+    'kind: "module"',
+    '---',
+    '# Fixture',
+    '',
+    '## 摘要',
+    '',
+    'Fixture summary.',
+    '',
+    '## 已知限制与暂缓工作',
+    '',
+    '- None.',
+    '',
+  ].join('\n')
+  const current = workspace({ 'mods/widget/README.md': moduleDoc })
+  try {
+    const accepted = current.run('verify-module-readmes.ts')
+    assert.equal(accepted.status, 0)
+
+    writeFileSync(join(current.dir, 'mods/widget/README.md'), moduleDoc.replace('## 摘要', '## Summary'))
+    const rejected = current.run('verify-module-readmes.ts')
+    assert.equal(rejected.status, 1)
+    assert.match(rejected.stderr, /缺少 ## 摘要/u)
+  } finally {
+    cleanup(current)
+  }
+})
+
+const digest = 'a'.repeat(64)
+
+function persistenceChangeDoc(): string {
+  return [
+    '---',
+    'description: "Fixture change."',
+    'kind: "persistence-change"',
+    '---',
+    '# 持久化变更：fixture',
+    '',
+    '## 摘要',
+    '',
+    'Fixture summary.',
+    '',
+    '## 目录',
+    '',
+    '- [机器声明](#机器声明)',
+    '- [兼容性](#兼容性)',
+    '- [验证](#验证)',
+    '- [开发备注](#开发备注)',
+    '',
+    '## 机器声明',
+    '',
+    '```yaml persistence-change',
+    'schemaVersion: 1',
+    'id: 2026-01-01-fixture',
+    'baseline: false',
+    'changes:',
+    '  - root: state',
+    '    previous: null',
+    '    after: null',
+    '    decision: same-version',
+    '```',
+    '',
+    '## 兼容性',
+    '',
+    'Fixture.',
+    '',
+    '## 验证',
+    '',
+    'None.',
+    '',
+    '## 开发备注',
+    '',
+    'None.',
+    '',
+  ].join('\n')
+}
+
+function persistenceReleaseDoc(): string {
+  return [
+    '---',
+    'description: "Fixture release."',
+    'kind: "persistence-release"',
+    '---',
+    '# 持久化发布：v1.0.0',
+    '',
+    '## 摘要',
+    '',
+    'Fixture summary.',
+    '',
+    '## 目录',
+    '',
+    '- [发布证据](#发布证据)',
+    '- [机器声明](#机器声明)',
+    '- [结构变更](#结构变更)',
+    '- [验证](#验证)',
+    '- [开发备注](#开发备注)',
+    '',
+    '## 发布证据',
+    '',
+    'Fixture.',
+    '',
+    '## 机器声明',
+    '',
+    '```yaml persistence-release',
+    'schemaVersion: 1',
+    'tag: v1.0.0',
+    'previous: null',
+    'formatVersion: 1',
+    'changes: []',
+    '```',
+    '',
+    '## 结构变更',
+    '',
+    'None.',
+    '',
+    '## 验证',
+    '',
+    'None.',
+    '',
+    '## 开发备注',
+    '',
+    'None.',
+    '',
+  ].join('\n')
+}
+
+function persistenceFormatDoc(): string {
+  return [
+    '---',
+    'description: "Fixture format."',
+    'kind: "persistence-format"',
+    '---',
+    '# 历史格式：v1',
+    '',
+    '## 摘要',
+    '',
+    'Fixture summary.',
+    '',
+    '## 目录',
+    '',
+    '- [源码证据](#源码证据)',
+    '- [格式特征](#格式特征)',
+    '- [机器声明](#机器声明)',
+    '- [完整 schema](#完整-schema)',
+    '- [验证与限制](#验证与限制)',
+    '- [开发备注](#开发备注)',
+    '',
+    '## 源码证据',
+    '',
+    'Fixture.',
+    '',
+    '## 格式特征',
+    '',
+    'Fixture.',
+    '',
+    '## 机器声明',
+    '',
+    '```yaml persistence-format',
+    'schemaVersion: 1',
+    'formatVersion: 1',
+    'source:',
+    '  tag: v1.0.0',
+    'roots:',
+    `  state: ${digest}`,
+    '```',
+    '',
+    '## 完整 schema',
+    '',
+    '<!-- persistence-format-schema:start -->',
+    '<!-- persistence-format-schema:end -->',
+    '',
+    '## 验证与限制',
+    '',
+    'None.',
+    '',
+    '## 开发备注',
+    '',
+    'None.',
+    '',
+  ].join('\n')
+}
+
+const persistenceCases = [
+  {
+    kind: 'persistence-change',
+    path: 'docs/persistence-changes/2026-01-01-fixture.md',
+    content: persistenceChangeDoc,
+    extra: {},
+    heading: '## 兼容性',
+    englishHeading: '## Compatibility',
+    missing: '## 兼容性',
+  },
+  {
+    kind: 'persistence-release',
+    path: 'docs/persistence-changes/releases/v1.0.0.md',
+    content: persistenceReleaseDoc,
+    extra: {},
+    heading: '## 机器声明',
+    englishHeading: '## Declaration',
+    missing: '## 机器声明',
+  },
+  {
+    kind: 'persistence-format',
+    path: 'docs/persistence-changes/historical-formats/v1.md',
+    content: persistenceFormatDoc,
+    extra: { 'docs/persistence-changes/historical-formats/v1.schema.json': '{}\n' },
+    heading: '## 验证与限制',
+    englishHeading: '## Verification',
+    missing: '## 验证与限制',
+  },
+] as const
+
+for (const fixture of persistenceCases) {
+  test(`verify-persistence-records accepts Chinese headings and rejects English for ${fixture.kind}`, () => {
+    const current = workspace({ ...fixture.extra, [fixture.path]: fixture.content() })
+    try {
+      const accepted = current.run('verify-persistence-records.ts')
+      assert.equal(accepted.status, 0)
+
+      writeFileSync(
+        join(current.dir, fixture.path),
+        fixture.content().replace(fixture.heading, fixture.englishHeading),
+      )
+      const rejected = current.run('verify-persistence-records.ts')
+      assert.equal(rejected.status, 1)
+      assert.match(rejected.stderr, new RegExp(`missing ${fixture.missing}`, 'u'))
+    } finally {
+      cleanup(current)
+    }
+  })
+}
+
 test('verify-repository-references rejects a maintained commit reference', () => {
   const current = workspace({
     '.gitignore': 'node_modules/\n',

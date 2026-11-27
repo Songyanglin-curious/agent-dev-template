@@ -21,7 +21,7 @@
 | 命令 | 扫描语料 | 检查 |
 |---|---|---|
 | `verify-doc-metadata` | 维护中的 `README.md` | 带 `kind` 的 README 具有合法 `kind` 与 `description`，kind 有对应模板，无禁用字段，标题存在 |
-| `verify-module-readmes` | 同上，按 `kind` 过滤 | 模块 Summary 与 `已知限制与暂缓工作` 章节；模块组不得携带限制类章节；豁免清单有效 |
+| `verify-module-readmes` | 同上，按 `kind` 过滤 | 模块摘要与 `已知限制与暂缓工作` 章节；模块组不得携带限制类章节；豁免清单有效 |
 | `verify-module-groups` | 同上 | 模块组必须含 `## 模块与职责` 表，每行链接真实存在的 module 或 module-group 文档，且不含模块专属章节 |
 | `verify-subsystem-pages` | 所有 module-group 文档，加上未被任何模块组列出的 module 文档 | 每个单元至少链接一个存在的 `docs/subsystems/*.md`，否则需要登记豁免；失效豁免会失败 |
 | `verify-doc-refs` | `src/`、`app/`、`scripts/` 下的源码（排除 `scripts/tests/` 测试夹具） | 注释中引用的 `docs/...` 与 `.agents/notes/...` 路径必须存在 |
@@ -46,7 +46,7 @@
 | `verify-md-links.ts` | 链接与锚点解析，含同一文件的 `#fragment`；根路径与外部 URL 跳过 |
 | `repo-files.ts` | 不复用 Node glob 的确定性目录遍历、glob 段匹配、符号链接去重、行级引用扫描 |
 | `markdown.ts` | Markdown AST 解析与遍历，供换行和链接检查使用 |
-| `doc-units.ts` | 字数口径：CJK 字符逐个计数，其余按空白分词；模块 Summary 用两字一词的等量口径 |
+| `doc-units.ts` | 字数口径：CJK 字符逐个计数，其余按空白分词；模块摘要用两字一词的等量口径 |
 | `agent-note-tree.ts` | Agent Note 生命周期与类别的封闭集合、目录遍历 |
 | `archived-agent-notes.ts` | 归档记录解析与内容 hash 计算 |
 
@@ -69,7 +69,7 @@
 
 ## 回归测试与 CI
 
-`pnpm run test:gates` 用 `node:test` 在临时工作区运行关键门禁的失败路径：坏链接（含模块 README）、缺失的预算文档、无效基线、Git 缺失时的跳过、错误的 Agent Note 格式、维护文件中的 commit 标识、模块组与独立模块混合时的子系统关联，以及 `require` 在默认与 `--strict` 下的差异；同时验证 `研发输入/` 中的原始 commit 标识被排除。正向通过不能证明门禁能发现错误，新增或修改门禁时同时补失败用例。
+`pnpm run test:gates` 用 `node:test` 在临时工作区运行关键门禁的失败路径：坏链接（含模块 README）、缺失的预算文档、无效基线、Git 缺失时的跳过、错误的 Agent Note 格式、维护文件中的 commit 标识、模块组与独立模块混合时的子系统关联、模块摘要与三类持久化记录的中文标题，以及 `require` 在默认与 `--strict` 下的差异；同时验证 `研发输入/` 中的原始 commit 标识被排除。正向通过不能证明门禁能发现错误，新增或修改门禁时同时补失败用例。
 
 `.github/workflows/docs.yml` 在 push 和 pull request 上运行 `test:gates`、`test:tools`、`test:docs`、`test:notes`；pull request 额外以 `--strict` 运行变更影响检查。CI 能发现问题，但只有把该工作流设为仓库的必需检查，才会阻止不合规的合并。
 
