@@ -36,6 +36,8 @@
 
 放置：bug → 复盘；理由 → Agent Note；流程 → cookbook；类型定义 → subsystems；模块契约 → 模块文档；模块分组 → 模块组文档；常驻指令 → 根 `AGENTS.md` 并附理由链接；按工件区分的评审规则 → `defensive-patterns/`；写代码的设计规则 → `core-guidelines/`；待验证的原始材料 → `研发输入/`。
 
+接入已有项目时，`docs/handover/` 是临时暂存区，不是归属层：文件不声明 `kind`，内容在正式文档或 Agent Note 承接后删除，目录清空后连同根 `AGENTS.md` 的临时链接一起移除；流程见 [project-onboarding](../.agents/skills/project-onboarding/SKILL.md)。
+
 <a id="writing-rules"></a>
 ## 写作规则
 
