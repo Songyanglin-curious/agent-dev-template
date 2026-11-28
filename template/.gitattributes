@@ -1,0 +1,2 @@
+# 文档使用 LF；归档 Note 的封印基于文件字节。
+*.md text eol=lf

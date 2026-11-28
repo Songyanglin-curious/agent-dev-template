@@ -1,0 +1,47 @@
+{
+  "name": "replace-with-project-name",
+  "private": true,
+  "description": "项目治理工具的依赖与命令入口；业务构建与发布由项目自己的包清单承担。",
+  "scripts": {
+    "change-scope": "node scripts/change-scope.ts",
+    "verify-tasks": "node scripts/verify-tasks.ts",
+    "test:gates": "node --test scripts/tests/gates.test.ts",
+    "test:tools": "node --test scripts/tests/change-scope.test.ts",
+    "verify-agent-note-classification": "node scripts/verify-agent-note-classification.ts",
+    "verify-agent-note-format": "node scripts/verify-agent-note-format.ts",
+    "verify-archived-agent-notes": "node scripts/verify-archived-agent-notes.ts",
+    "verify-md-wrap": "node scripts/verify-md-wrap.ts",
+    "verify-md-links": "node scripts/verify-md-links.ts",
+    "verify-repository-references": "node scripts/verify-repository-references.ts",
+    "verify-doc-budgets": "node scripts/verify-doc-budgets.ts",
+    "verify-doc-metadata": "node scripts/verify-doc-metadata.ts",
+    "verify-module-readmes": "node scripts/verify-module-readmes.ts",
+    "verify-module-groups": "node scripts/verify-module-groups.ts",
+    "verify-subsystem-pages": "node scripts/verify-subsystem-pages.ts",
+    "verify-doc-refs": "node scripts/verify-doc-refs.ts",
+    "verify-persistence-records": "node scripts/verify-persistence-records.ts",
+    "verify-generated-docs": "node scripts/verify-generated-docs.ts",
+    "verify-change-docs": "node scripts/verify-change-docs.ts",
+    "test:docs": "node scripts/verify-doc-metadata.ts && node scripts/verify-module-readmes.ts && node scripts/verify-module-groups.ts && node scripts/verify-subsystem-pages.ts && node scripts/verify-doc-refs.ts && node scripts/verify-persistence-records.ts && node scripts/verify-generated-docs.ts && node scripts/verify-md-wrap.ts && node scripts/verify-md-links.ts && node scripts/verify-repository-references.ts && node scripts/verify-doc-budgets.ts && node scripts/verify-change-docs.ts",
+    "test:notes": "node scripts/verify-agent-note-classification.ts && node scripts/verify-agent-note-format.ts && node scripts/verify-archived-agent-notes.ts"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.24.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@11.24.0",
+  "type": "module",
+  "devDependencies": {
+    "@types/mdast": "^4.0.4",
+    "js-yaml": "^5.5.0",
+    "mdast-util-from-markdown": "^2.1.0",
+    "mdast-util-gfm": "^3.1.0",
+    "micromark-extension-gfm": "^3.0.0"
+  }
+}

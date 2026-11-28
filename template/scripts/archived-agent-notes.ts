@@ -1,0 +1,141 @@
+/** 用于单文件 Agent Note 的纯归档格式与不可变清单辅助函数。 */
+
+import { createHash } from 'node:crypto'
+import { basename } from 'node:path'
+import { AGENT_NOTE_CLASSES } from './agent-note-tree.ts'
+
+/** 冻结内容清单中的带版本字段。 */
+export interface ArchiveManifest {
+  version: 1
+  files: Readonly<Record<string, string>>
+}
+
+/** 将 CRLF 归一化为 LF，使封印在任何平台检出后依然有效。 */
+function canonicalText(content: Buffer): Buffer {
+  const text = content.toString('utf8')
+  return text.includes('\r\n') ? Buffer.from(text.replace(/\r\n/g, '\n'), 'utf8') : content
+}
+
+/** 基于规范化 LF 文本计算单个归档产物的哈希，不受仓库 Git 对象格式影响。 */
+function archiveContentHash(content: Buffer): string {
+  return `sha256:${createHash('sha256').update(canonicalText(content)).digest('hex')}`
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/** 解析归档清单，并拒绝其封闭模式之外的字段或哈希。 */
+export function parseArchiveManifest(content: string): ArchiveManifest {
+  const value: unknown = JSON.parse(content.replace(/^\uFEFF/, ''))
+  if (!isRecord(value)) throw new Error('expected a JSON object')
+  const fields = Object.keys(value).sort()
+  if (fields.join(',') !== 'files,version') throw new Error('expected exactly the fields `version` and `files`')
+  if (value.version !== 1) throw new Error('unsupported manifest version (expected 1)')
+  if (!isRecord(value.files)) throw new Error('`files` must be an object')
+  const files: Record<string, string> = {}
+  for (const [path, hash] of Object.entries(value.files)) {
+    if (typeof hash !== 'string' || !/^sha256:[0-9a-f]{64}$/.test(hash)) {
+      throw new Error(`invalid content hash for ${path}`)
+    }
+    files[path] = hash
+  }
+  return { version: 1, files }
+}
+
+/** 以确定的路径顺序渲染归档清单。 */
+export function renderArchiveManifest(files: Readonly<Record<string, string>>): string {
+  return `${JSON.stringify({
+    version: 1,
+    files: Object.fromEntries(Object.entries(files).sort(([left], [right]) => left.localeCompare(right))),
+  }, null, 2)}\n`
+}
+
+/** 拒绝任何对已封印内容哈希的改动，包括删除封印。 */
+export function validateArchiveManifestExtension(
+  baseline: ArchiveManifest,
+  current: ArchiveManifest,
+): string[] {
+  const errors: string[] = []
+  for (const [path, expected] of Object.entries(baseline.files)) {
+    const actual = current.files[path]
+    if (actual === undefined) errors.push(`${path}: sealed manifest entry is missing`)
+    else if (actual !== expected) errors.push(`${path}: sealed manifest hash changed`)
+  }
+  return errors
+}
+
+function validDate(value: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+  if (match === null) return false
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+  const date = new Date(Date.UTC(year, month - 1, day))
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+}
+
+function validateMetadata(path: string, content: Buffer, sourceBase: string): string[] {
+  const errors: string[] = []
+  const lines = content.toString('utf8').replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').split('\n')
+  const status = lines.findIndex(line => line.startsWith('Status:'))
+  if (status < 0 || lines[status] !== 'Status: implemented') {
+    errors.push(`${path}: requires \`Status: implemented\``)
+    return errors
+  }
+  const archived = /^Archived: (\d{4}-\d{2}-\d{2})$/.exec(lines[status + 1] ?? '')?.[1]
+  if (archived === undefined || !validDate(archived)) {
+    errors.push(`${path}: requires \`Archived: YYYY-MM-DD\` with a valid date immediately after the status`)
+  } else if (archived < sourceBase.slice(0, 10)) {
+    errors.push(`${path}: archive date ${archived} predates the note filename`)
+  }
+  return errors
+}
+
+/** 校验单文件记录的封闭类别目录树以及 implemented/归档元数据。 */
+export function validateArchiveArtifacts(artifacts: ReadonlyMap<string, Buffer>): string[] {
+  const errors: string[] = []
+  const notes = new Map<string, Buffer>()
+  for (const [path, content] of artifacts) {
+    if (path.endsWith('.zh.md')) {
+      errors.push(`${path}: bilingual counterparts are not supported; keep one Chinese note`)
+      continue
+    }
+    const match = /^([^/]+)\/(\d{4}-\d{2}-\d{2}-[^/]+)\.md$/.exec(path)
+    if (match?.[1] === undefined || match[2] === undefined) {
+      errors.push(`${path}: expected {kind}/yyyy-mm-dd-topic.md`)
+      continue
+    }
+    if (!(AGENT_NOTE_CLASSES as readonly string[]).includes(match[1])) {
+      errors.push(`${path}: unknown Agent Note kind ${JSON.stringify(match[1])}`)
+      continue
+    }
+    notes.set(`${match[1]}/${match[2]}`, content)
+  }
+
+  for (const [key, content] of [...notes].sort(([left], [right]) => left.localeCompare(right))) {
+    errors.push(...validateMetadata(`${key}.md`, content, basename(key)))
+  }
+  return errors
+}
+
+/** 保留每个已封印的路径与哈希，并为新归档的产物追加哈希。 */
+export function extendArchiveManifest(
+  existing: ArchiveManifest,
+  artifacts: ReadonlyMap<string, Buffer>,
+): { files: Record<string, string>; added: string[]; errors: string[] } {
+  const errors: string[] = []
+  const files: Record<string, string> = { ...existing.files }
+  for (const [path, expected] of Object.entries(existing.files)) {
+    const content = artifacts.get(path)
+    if (content === undefined) errors.push(`${path}: sealed artifact is missing`)
+    else if (archiveContentHash(content) !== expected) errors.push(`${path}: sealed content hash changed`)
+  }
+  const added: string[] = []
+  for (const [path, content] of [...artifacts].sort(([left], [right]) => left.localeCompare(right))) {
+    if (files[path] !== undefined) continue
+    files[path] = archiveContentHash(content)
+    added.push(path)
+  }
+  return { files, added, errors }
+}
